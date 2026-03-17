@@ -45,24 +45,42 @@
 }
 
 .avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
   background: rgba(97, 231, 255, 0.2);
   border: 1px solid rgba(97, 231, 255, 0.6);
   color: #d3f1ff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-size: 12px;
   font-weight: 600;
 }
 
 .userSelect {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  min-width: 140px;
+}
+
+.userSelect :global(.ant-select-selector) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
   color: #e7eefb;
-  padding: 6px 12px;
-  border-radius: 10px;
+  border-radius: 10px !important;
   font-size: 13px;
+  height: 36px !important;
+  align-items: center;
+  display: flex;
+}
+
+.userSelect :global(.ant-select-selection-item) {
+  color: #e7eefb;
+}
+
+.userSelectDropdown {
+  background: rgba(10, 16, 28, 0.95) !important;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.userSelectDropdown :global(.ant-select-item) {
+  color: #dbe7ff;
+}
+
+.userSelectDropdown :global(.ant-select-item-option-selected) {
+  background: rgba(45, 123, 255, 0.2) !important;
 }

@@ -1,12 +1,8 @@
+import { useMemo } from "react";
+import { Button, Card, Space, Tabs, Tag } from "antd";
 import AppFooter from "../../components/AppFooter";
 import AppTopBar from "../../components/AppTopBar";
 import styles from "./styles.module.less";
-
-const tabs = [
-  { key: "products", label: "产品" },
-  { key: "apps", label: "应用" },
-  { key: "iterations", label: "迭代" },
-];
 
 const iterationStatus = [
   {
@@ -57,6 +53,62 @@ const activities = [
 ];
 
 export default function Dashboard() {
+  const tabItems = useMemo(
+    () => [
+      {
+        key: "products",
+        label: "产品",
+        children: (
+          <div className={styles.tabPlaceholder}>
+            你的产品矩阵正在同步中，请稍后查看
+          </div>
+        ),
+      },
+      {
+        key: "apps",
+        label: "应用",
+        children: (
+          <div className={styles.tabPlaceholder}>
+            应用列表即将接入统一管理视图
+          </div>
+        ),
+      },
+      {
+        key: "iterations",
+        label: "迭代",
+        children: (
+          <div className={styles.iterationGrid}>
+            {iterationStatus.map((item) => (
+              <Card
+                key={item.name}
+                className={styles.iterationCard}
+                variant="borderless"
+              >
+                <div className={styles.iterationHeader}>
+                  <div>
+                    <div className={styles.iterationTitle}>{item.name}</div>
+                    <div className={styles.iterationOwner}>{item.owner}</div>
+                  </div>
+                  <span
+                    className={`${styles.statusDot} ${styles[item.tone]}`}
+                    aria-label={item.status}
+                  />
+                </div>
+                <Space className={styles.iterationStatus} size={8}>
+                  <Tag className={styles.statusTag}>{item.status}</Tag>
+                  <span className={styles.iterationMeta}>
+                    上次部署：2026-03-16 21:40
+                  </span>
+                </Space>
+              </Card>
+            ))}
+          </div>
+        ),
+      },
+    ],
+    []
+  );
+
   return (
     <div className={styles.dashboard}>
       <AppTopBar />
@@ -75,64 +127,31 @@ export default function Dashboard() {
                 统一掌控产品、应用与迭代节奏
               </div>
             </div>
-            <div className={styles.quickActions}>
-              <button className={styles.primaryButton} type="button">
-                创建部署
-              </button>
-              <button className={styles.ghostButton} type="button">
-                查看详情
-              </button>
-            </div>
+            <Space className={styles.quickActions}>
+              <Button type="primary">创建部署</Button>
+              <Button type="default">查看详情</Button>
+            </Space>
           </div>
 
-          <section className={styles.panelCard}>
-            <div className={styles.panelTabs}>
-              {tabs.map((tab) => (
-                <button
-                  key={tab.key}
-                  className={
-                    tab.key === "iterations"
-                      ? styles.tabActive
-                      : styles.tabButton
-                  }
-                  type="button"
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            <div className={styles.tabContent}>
-              <div className={styles.iterationGrid}>
-                {iterationStatus.map((item) => (
-                  <div key={item.name} className={styles.iterationCard}>
-                    <div className={styles.iterationHeader}>
-                      <div>
-                        <div className={styles.iterationTitle}>{item.name}</div>
-                        <div className={styles.iterationOwner}>{item.owner}</div>
-                      </div>
-                      <span
-                        className={`${styles.statusDot} ${styles[item.tone]}`}
-                        aria-label={item.status}
-                      />
-                    </div>
-                    <div className={styles.iterationStatus}>{item.status}</div>
-                    <div className={styles.iterationMeta}>
-                      上次部署：2026-03-16 21:40
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
+          <Card className={styles.panelCard} variant="borderless">
+            <Tabs
+              className={styles.panelTabs}
+              defaultActiveKey="iterations"
+              items={tabItems}
+            />
+          </Card>
         </main>
 
         <aside className={styles.activityPanel}>
           <div className={styles.activityHeader}>活动信息</div>
           <div className={styles.activityList}>
             {activities.map((block) => (
-              <div key={block.title} className={styles.activityBlock}>
-                <div className={styles.activityTitle}>{block.title}</div>
+              <Card
+                key={block.title}
+                className={styles.activityBlock}
+                variant="borderless"
+                title={<span className={styles.activityTitle}>{block.title}</span>}
+              >
                 <ul className={styles.activityItems}>
                   {block.items.map((item) => (
                     <li key={item} className={styles.activityItem}>
@@ -140,7 +159,7 @@ export default function Dashboard() {
                     </li>
                   ))}
                 </ul>
-              </div>
+              </Card>
             ))}
           </div>
         </aside>

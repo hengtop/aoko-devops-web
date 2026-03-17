@@ -1,3 +1,4 @@
+import { Avatar, Select } from "antd";
 import styles from "./styles.module.less";
 
 const workspaceOptions = [
@@ -18,16 +19,15 @@ export default function AppTopBar() {
       </div>
 
       <div className={styles.userArea}>
-        <div className={styles.avatar} aria-label="个人头像">
+        <Avatar className={styles.avatar} size={36}>
           ZH
-        </div>
-        <select className={styles.userSelect} defaultValue="workspace">
-          {workspaceOptions.map((item) => (
-            <option key={item.value} value={item.value}>
-              {item.label}
-            </option>
-          ))}
-        </select>
+        </Avatar>
+        <Select
+          className={styles.userSelect}
+          defaultValue="workspace"
+          options={workspaceOptions}
+          classNames={{ popup: { root: styles.userSelectDropdown } }}
+        />
       </div>
     </header>
   );

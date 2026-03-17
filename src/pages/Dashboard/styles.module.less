@@ -69,60 +69,88 @@
   gap: 12px;
 }
 
-.primaryButton {
-  background: linear-gradient(135deg, #2d7bff, #61e7ff);
-  border: none;
-  color: #041326;
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
+.quickActions :global(.ant-btn-primary) {
+  background: linear-gradient(135deg, #2d7bff 0%, #4dbdf7 45%, #61e7ff 100%) !important;
+  border: unset;
+  color: #041326 !important;
+  box-shadow: none;
+  box-sizing: border-box;
 }
 
-.ghostButton {
+.quickActions :global(.ant-btn-default) {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
   color: #e7eefb;
-  padding: 10px 16px;
-  border-radius: 10px;
-  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.quickActions :global(.ant-btn-default:hover) {
+  border-color: rgba(97, 231, 255, 0.6);
+  color: #e7f8ff;
+  
+}
+
+.quickActions :global(.ant-btn-primary:hover),
+.quickActions :global(.ant-btn-primary:focus),
+.quickActions :global(.ant-btn-primary:active) {
+  border: unset !important;
+  box-shadow: none;
+  transform: translateZ(0);
+}
+
+.quickActions :global(.ant-btn-default:hover),
+.quickActions :global(.ant-btn-default:focus),
+.quickActions :global(.ant-btn-default:active) {
+  box-shadow: none;
 }
 
 .panelCard {
   background: rgba(12, 18, 30, 0.8);
   border-radius: 18px;
-  padding: 20px 24px 24px;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.panelCard :global(.ant-card-body) {
+  padding: 20px 24px 24px;
+}
+
 .panelTabs {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
+  color: #e7eefb;
 }
 
-.tabButton {
-  padding: 8px 14px;
+.panelTabs :global(.ant-tabs-nav) {
+  margin-bottom: 16px;
+}
+
+.panelTabs :global(.ant-tabs-nav::before) {
+  border-bottom: none;
+}
+
+.panelTabs :global(.ant-tabs-tab) {
+  padding: 6px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.04);
   color: rgba(231, 238, 251, 0.7);
-  cursor: pointer;
 }
 
-.tabActive {
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: none;
+.panelTabs :global(.ant-tabs-tab-active) {
   background: rgba(97, 231, 255, 0.2);
+}
+
+.panelTabs :global(.ant-tabs-tab-active .ant-tabs-tab-btn) {
   color: #e7f8ff;
   font-weight: 600;
 }
 
-.tabContent {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.panelTabs :global(.ant-tabs-ink-bar) {
+  display: none;
+}
+
+.tabPlaceholder {
+  color: rgba(231, 238, 251, 0.6);
+  background: rgba(6, 10, 18, 0.65);
+  border-radius: 12px;
+  padding: 18px;
 }
 
 .iterationGrid {
@@ -134,8 +162,11 @@
 .iterationCard {
   background: rgba(6, 10, 18, 0.75);
   border-radius: 16px;
-  padding: 16px;
   border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.iterationCard :global(.ant-card-body) {
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -167,6 +198,12 @@
 .iterationMeta {
   font-size: 12px;
   color: rgba(231, 238, 251, 0.5);
+}
+
+.statusTag {
+  border: none;
+  background: rgba(97, 231, 255, 0.14);
+  color: #c9f2ff;
 }
 
 .statusDot {
@@ -231,14 +268,30 @@
 .activityBlock {
   background: rgba(6, 10, 18, 0.7);
   border-radius: 12px;
-  padding: 12px;
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .activityTitle {
   font-size: 13px;
   font-weight: 600;
-  margin-bottom: 8px;
+  color: #e7eefb;
+}
+
+.activityBlock :global(.ant-card-head) {
+  border-bottom: none;
+  padding: 12px 12px 0;
+}
+
+.activityBlock :global(.ant-card-body) {
+  padding: 12px;
+}
+
+.activityItem {
+  font-size: 12px;
+  color: rgba(231, 238, 251, 0.7);
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .activityItems {
@@ -248,14 +301,6 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.activityItem {
-  font-size: 12px;
-  color: rgba(231, 238, 251, 0.7);
-  padding: 8px 10px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
 }
 
 @media (max-width: 1200px) {
