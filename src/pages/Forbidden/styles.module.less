@@ -1,0 +1,56 @@
+@theme-color: #ff8f7e;
+@theme-accent: #ffd76b;
+
+.forbiddenPage {
+  position: relative;
+  min-height: 100vh;
+  padding: 48px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.pageGlow {
+  position: absolute;
+  inset: -20% 0 auto;
+  height: 56%;
+  background: radial-gradient(circle at 20% 0%, fade(@theme-color, 26%), transparent 58%),
+    radial-gradient(circle at 80% 10%, fade(@theme-accent, 24%), transparent 58%);
+  filter: blur(16px);
+  pointer-events: none;
+}
+
+.pageGrid {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(circle at 50% 40%, rgba(0, 0, 0, 1), transparent 72%);
+  pointer-events: none;
+}
+
+.resultPanel {
+  position: relative;
+  z-index: 1;
+  width: min(720px, 100%);
+  padding: 24px;
+  border-radius: 28px;
+  border: 1px solid fade(@theme-color, 18%);
+  background: rgba(16, 18, 28, 0.72);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.resultPanel :global(.ant-result) {
+  padding: 24px 16px;
+}
+
+.resultPanel :global(.ant-result-title) {
+  color: #fff2ef;
+}
+
+.resultPanel :global(.ant-result-subtitle) {
+  color: rgba(255, 242, 239, 0.68);
+}
