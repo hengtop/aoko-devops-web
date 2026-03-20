@@ -1,0 +1,28 @@
+---
+description: 页面目录与样式引用规则（pages + Less Module）
+globs: src/pages/**/*.{ts,tsx,less}
+alwaysApply: false
+---
+
+# 页面路径与样式规则
+
+- 新页面必须在 `src/pages/` 下单独建立文件夹，文件夹名即页面名。
+- 页面入口文件统一为 `index.tsx`。
+- 页面样式优先采用 Less Module，命名为 `styles.module.less`，与页面文件同级。
+- 引入方式统一使用 `import styles from './*.module.less`
+- 命名规范要求：样式名称的命令不要有下划线，按照camelCase的格式进行命名 比如 `.wrapperBox`
+
+## 示例
+
+目录结构：
+- `src/pages/Home/index.tsx`
+- `src/pages/Home/styles.module.less`
+
+引用方式：
+```tsx
+import styles from "./styles.module.less";
+
+export default function Home() {
+  return <div className={styles.container}>Home</div>;
+}
+```

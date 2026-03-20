@@ -1,0 +1,26 @@
+---
+description: 页面功能实现优先使用 Ant Design 组件
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Antd 优先实现规则
+
+- 在 `src/` 下开发页面或通用组件时，交互类 UI（表单、按钮、弹窗、表格、分页、标签切换、提示反馈等）优先使用 `antd` 官方组件实现。
+- 仅在 `antd` 无对应能力、视觉定制无法通过 token/className 达成、或性能有明确证据不满足时，才允许使用原生标签或自定义组件替代。
+- 禁止为了微小样式差异重造轮子；应先尝试 `ConfigProvider` token、组件 props、`className` 局部样式进行适配。
+- 需要替代 `antd` 组件时，代码中必须写明替代原因（简短注释即可），避免无依据偏离规范。
+- 现有页面改造时遵循“行为不变、风格一致”原则：优先替换为 `antd` 组件，保留原有业务流程与视觉风格。
+
+## 示例
+
+```tsx
+// ✅ 推荐
+import { Button, Input, Modal } from "antd";
+```
+
+```tsx
+// ❌ 不推荐：antd 已能覆盖场景时仍使用原生控件
+<button>提交</button>
+<input />
+```
