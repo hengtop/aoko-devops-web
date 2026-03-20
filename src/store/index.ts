@@ -15,4 +15,4 @@ zustand (default)
  *      inc: () => set((s) => ({ count: s.count + 1 })),
  *    }));
  */
-export const storePlaceholder = {};
+export * from "./auth";
