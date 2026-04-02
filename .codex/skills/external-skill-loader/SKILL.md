@@ -71,25 +71,24 @@ updateAt: 2026-03-18
 
 ## 预置外部 Skill（参考链接）
 
-以下链接为本项目内登记的外部 Skill，用户可通过「手动触发 + 指定该链接」加载并执行。执行时用可用工具抓取链接正文，将内容视为 Skill 文档并按其中指令执行。
+以下链接为本项目内登记并已同步到仓库本地的 Skill 镜像。优先读取本地文件；如本地镜像缺失，再回退到原始飞书文档。
 
-飞书文档请使用 对应的 feishu mcp尝试访问 如果遇到授权问题 访问不到请提示用户去授权然后再重试
+飞书文档请使用对应的 feishu mcp 尝试访问；如果遇到授权问题访问不到，请提示用户去授权然后再重试。
 
-| 用途说明           | 链接 |
-|--------------------|------|
-| 创建页面 Skill     | https://fiture.feishu.cn/wiki/F6LowFgfoiZhFQkMWsJcyv87nFh |
-| 页面模版创建规范 Skill | https://fiture.feishu.cn/wiki/F6LowFgfoiZhFQkMWsJcyv87nFh |
-| 创建 React 组件 Skill | https://fiture.feishu.cn/wiki/OfZKwJiWUi7nk5kzjz9cgYqvnrG ｜
-| utils 创建与导入规范 Skill | https://fiture.feishu.cn/wiki/SciEwYSMfibFSbkfDbNcatD5nMb |
-| API 创建规范 Skill | https://fiture.feishu.cn/wiki/Urhbw6bQmigrDEkU191cmu0bnBd |
+| 用途说明 | 本地链接 |
+|----------|----------|
+| 创建页面 Skill | [./linked-skills/page-template/SKILL.md](./linked-skills/page-template/SKILL.md) |
+| 页面模版创建规范 Skill | [./linked-skills/page-template/SKILL.md](./linked-skills/page-template/SKILL.md) |
+| 创建 React 组件 Skill | [./linked-skills/react-functional-component-spec/SKILL.md](./linked-skills/react-functional-component-spec/SKILL.md) |
+| utils 创建与导入规范 Skill | [./linked-skills/create-utils-function/SKILL.md](./linked-skills/create-utils-function/SKILL.md) |
+| API 创建规范 Skill | [./linked-skills/network-api/SKILL.md](./linked-skills/network-api/SKILL.md) |
 
-- **创建页面 Skill**：飞书文档，用于按规范创建新页面（含路由、目录与模板等）。用户说「用飞书创建页面 skill」「按飞书文档创建页面」或直接提供该链接时，加载该文档内容并按其描述完成页面创建流程。
+- **创建页面 Skill**：本地镜像 Skill，用于按规范创建新页面（含路由、目录与模板等）。用户说「用创建页面 skill」「按页面模板创建页面」或直接提供该本地链接时，加载本地文档内容并按其描述完成页面创建流程。
 
-- **页面模版创建规范 Skill**：飞书文档，用于页面模版创建需遵守的规范。当用户说「按页面模版规范创建」「按飞书页面模版规范」或直接提供该链接时，加载该文档内容并按其描述执行。
+- **页面模版创建规范 Skill**：本地镜像 Skill，用于页面模版创建需遵守的规范。当用户说「按页面模版规范创建」或直接提供该本地链接时，加载本地文档内容并按其描述执行。
 
-- **创建 React 组件 Skill**：飞书文档，用于按规范创建与声明 React 组件。当用户提及 React 组件创建（如「创建 React 组件」「声明 Vue3 组件」「按规范写一个 React 组件」等）、或说「用飞书 React 组件 skill」「按飞书文档创建 React 组件」、或直接提供该链接时，加载该文档内容并按其描述完成 React 组件的创建与声明。
+- **创建 React 组件 Skill**：本地镜像 Skill，用于按规范创建与声明 React 组件。当用户提及 React 组件创建、或直接提供该本地链接时，加载本地文档内容并按其描述完成 React 组件的创建与声明。
 
-- **utils 创建与导入规范 Skill**：飞书文档，用于规定 utils 函数的创建与导入使用方式。当用户说「按 utils 规范创建/导入」「使用 utils 规范」「按飞书 utils 规范」或直接提供该链接时，加载该文档内容并按其描述执行。
+- **utils 创建与导入规范 Skill**：本地镜像 Skill，用于规定 utils 函数的创建与导入使用方式。当用户说「按 utils 规范创建/导入」或直接提供该本地链接时，加载本地文档内容并按其描述执行。
 
-- **API 创建规范 Skill**：飞书文档，用于规范 API 创建的命名、目录与实现方式。当用户说「按 API 规范创建」「用飞书 API 规范」「按飞书文档创建 API」或直接提供该链接时，加载该文档内容并按其描述执行。
-
+- **API 创建规范 Skill**：本地镜像 Skill，用于规范 API 创建的命名、目录与实现方式。当用户说「按 API 规范创建」或直接提供该本地链接时，加载本地文档内容并按其描述执行。
