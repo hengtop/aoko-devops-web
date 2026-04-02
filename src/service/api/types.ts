@@ -8,3 +8,8 @@ export interface BaseResponse<T = unknown> {
 }
 
 export type ApiPromise<T> = Promise<BaseResponse<T>>;
+
+export interface PaginatedList<T> {
+  total: number;
+  list: T[];
+}

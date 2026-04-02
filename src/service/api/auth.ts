@@ -19,6 +19,7 @@ export interface LoginToken {
 
 export function login(params: LoginParams, options?: ServiceRequestOptions): ApiPromise<LoginToken> {
   return request.post<BaseResponse<LoginToken>>("/user/login", {
+    skipAuthFailureRedirect: true,
     ...options,
     data: params,
   });
@@ -33,6 +34,7 @@ export function sendEmailCode(
   options?: ServiceRequestOptions,
 ): ApiPromise<void> {
   return request.post<BaseResponse<void>>("/email/sendCode", {
+    skipAuthFailureRedirect: true,
     ...options,
     data: params,
   });
@@ -52,6 +54,7 @@ export function register(
   options?: ServiceRequestOptions,
 ): ApiPromise<void> {
   return request.post<BaseResponse<void>>("/user/register", {
+    skipAuthFailureRedirect: true,
     ...options,
     data: params,
   });
