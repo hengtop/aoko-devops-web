@@ -11,33 +11,128 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 18% 18%, fade(@theme-color, 14%), transparent 30%),
+    radial-gradient(circle at 78% 16%, fade(@theme-accent, 10%), transparent 28%),
+    radial-gradient(circle at 50% 115%, fade(@theme-color, 14%), transparent 36%),
+    linear-gradient(180deg, #07111d 0%, #091827 38%, #0a1d31 72%, #0d2337 100%);
+}
+
+.loginPage::before,
+.loginPage::after {
+  content: "";
+  position: absolute;
+  inset: -14%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.loginPage::before {
+  background:
+    radial-gradient(circle at 22% 28%, fade(@theme-color, 18%), transparent 22%),
+    radial-gradient(circle at 76% 22%, fade(@theme-accent, 12%), transparent 18%),
+    radial-gradient(circle at 48% 78%, fade(@theme-color, 14%), transparent 30%);
+  opacity: 0.8;
+  transform: translate3d(0, 0, 0) scale(1.04);
+  will-change: transform, opacity;
+  animation: loginAmbientDrift 28s cubic-bezier(0.37, 0, 0.2, 1) infinite alternate;
+}
+
+.loginPage::after {
+  inset: -10% -14%;
+  background:
+    linear-gradient(
+      116deg,
+      transparent 16%,
+      rgba(156, 198, 255, 0.03) 30%,
+      rgba(255, 255, 255, 0.06) 38%,
+      transparent 48%
+    ),
+    linear-gradient(
+      78deg,
+      transparent 18%,
+      rgba(89, 241, 196, 0.035) 32%,
+      rgba(255, 255, 255, 0.03) 40%,
+      transparent 54%
+    );
+  opacity: 0.38;
+  transform: translate3d(0, 0, 0) scale(1.04) rotate(-5deg);
+  will-change: transform, opacity;
+  animation: loginLightSweep 32s cubic-bezier(0.37, 0, 0.2, 1) infinite alternate;
 }
 
 .pageGlow {
   position: absolute;
-  inset: -25% 0 auto;
-  height: 60%;
-  background: radial-gradient(circle at 15% 20%, fade(@theme-color, 40%), transparent 60%),
-    radial-gradient(circle at 80% 0%, fade(@theme-accent, 35%), transparent 60%);
-  filter: blur(12px);
+  inset: auto -10% -14%;
+  height: 56%;
+  background:
+    radial-gradient(ellipse at 20% 100%, fade(@theme-color, 20%), transparent 42%),
+    radial-gradient(ellipse at 78% 100%, fade(@theme-accent, 14%), transparent 38%),
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      fade(@theme-color, 8%) 62%,
+      fade(@theme-accent, 12%) 100%
+    );
+  opacity: 0.62;
   pointer-events: none;
   z-index: 0;
+  transform: translate3d(0, 0, 0) scaleY(1);
+  transform-origin: 50% 100%;
+  will-change: transform, opacity;
+  animation: loginWaterGlow 24s cubic-bezier(0.37, 0, 0.2, 1) infinite alternate;
 }
 
 .pageGrid {
   position: absolute;
-  inset: 0;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: radial-gradient(circle at 50% 35%, rgba(0, 0, 0, 1), transparent 70%);
+  inset: -2%;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 42%),
+    linear-gradient(
+      30deg,
+      rgba(255, 255, 255, 0.065) 1.9%,
+      transparent 2.3%,
+      transparent 47.7%,
+      rgba(255, 255, 255, 0.065) 48.1%,
+      rgba(255, 255, 255, 0.065) 51.9%,
+      transparent 52.3%,
+      transparent 97.7%,
+      rgba(255, 255, 255, 0.065) 98.1%
+    ),
+    linear-gradient(
+      150deg,
+      rgba(128, 168, 255, 0.055) 1.9%,
+      transparent 2.3%,
+      transparent 47.7%,
+      rgba(128, 168, 255, 0.055) 48.1%,
+      rgba(128, 168, 255, 0.055) 51.9%,
+      transparent 52.3%,
+      transparent 97.7%,
+      rgba(128, 168, 255, 0.055) 98.1%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(96, 234, 213, 0.045) 1.4%,
+      transparent 1.8%,
+      transparent 48.2%,
+      rgba(96, 234, 213, 0.045) 48.6%,
+      rgba(96, 234, 213, 0.045) 51.4%,
+      transparent 51.8%,
+      transparent 98.2%,
+      rgba(96, 234, 213, 0.045) 98.6%
+    );
+  background-size: 100% 100%, 168px 292px, 168px 292px, 168px 292px;
+  background-position: center, 0 0, 0 0, 84px 146px;
+  opacity: 0.2;
   pointer-events: none;
-  z-index: 0;
+  z-index: 1;
+  contain: paint;
 }
 
 .loginShell {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   width: min(1120px, 100%);
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
@@ -593,6 +688,68 @@
   }
 }
 
+@keyframes loginAmbientDrift {
+  0% {
+    transform: translate3d(-3%, -2%, 0) scale(0.98);
+    opacity: 0.66;
+  }
+
+  50% {
+    opacity: 0.82;
+  }
+
+  100% {
+    transform: translate3d(4%, 3%, 0) scale(1.1);
+    opacity: 0.88;
+  }
+}
+
+@keyframes loginWaterGlow {
+  0% {
+    transform: translate3d(-3%, 0, 0) scale(0.98, 0.92);
+    opacity: 0.42;
+  }
+
+  50% {
+    transform: translate3d(0.5%, -1%, 0) scale(1.02, 1.02);
+    opacity: 0.64;
+  }
+
+  100% {
+    transform: translate3d(3%, -2%, 0) scale(1.05, 1.08);
+    opacity: 0.54;
+  }
+}
+
+@keyframes loginLightSweep {
+  0% {
+    transform: translate3d(-5%, -2%, 0) scale(1) rotate(-7deg);
+    opacity: 0.2;
+  }
+
+  50% {
+    opacity: 0.38;
+  }
+
+  100% {
+    transform: translate3d(5%, 2%, 0) scale(1.08) rotate(-2deg);
+    opacity: 0.34;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loginPage::before,
+  .loginPage::after,
+  .pageGlow,
+  .orbitCore,
+  .orbitRing,
+  .orbitRingSecondary,
+  .floatingCard,
+  .floatingCardAlt {
+    animation: none;
+  }
+}
+
 @media (max-width: 960px) {
   .loginShell {
     grid-template-columns: 1fr;
@@ -611,6 +768,22 @@
 @media (max-width: 560px) {
   .loginPage {
     padding: 36px 20px 48px;
+  }
+
+  .loginPage::before,
+  .loginPage::after,
+  .pageGlow,
+  .pageGrid {
+    inset: -10%;
+  }
+
+  .pageGlow {
+    inset: auto -12% -12%;
+    height: 48%;
+  }
+
+  .pageGrid {
+    opacity: 0.16;
   }
 
   .modeTabs {
