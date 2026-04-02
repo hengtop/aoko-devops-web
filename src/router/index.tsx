@@ -8,6 +8,7 @@ const Home = lazy(() => import("../pages/Home"));
 const Dashboard = lazy(() => import("../pages/Dashboard"));
 const Configuration = lazy(() => import("../pages/Configuration"));
 const ConfigurationEditor = lazy(() => import("../pages/ConfigurationEditor"));
+const Server = lazy(() => import("../pages/Server"));
 const Template = lazy(() => import("../pages/Template"));
 const Login = lazy(() => import("../pages/Login"));
 const Register = lazy(() => import("../pages/Register"));
@@ -41,6 +42,13 @@ const appRoutes: AppRouteConfig[] = [
   {
     path: "/configuration",
     component: Configuration,
+    access: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: "/server",
+    component: Server,
     access: {
       requiresAuth: true,
     },

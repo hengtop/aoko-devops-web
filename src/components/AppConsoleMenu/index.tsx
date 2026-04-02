@@ -1,5 +1,6 @@
 import {
   AppstoreOutlined,
+  CloudServerOutlined,
   DeploymentUnitOutlined,
   FileTextOutlined,
 } from "@ant-design/icons";
@@ -24,6 +25,12 @@ const menuItems = [
     label: "配置管理",
     hint: "配置文件与状态维护",
     icon: FileTextOutlined,
+  },
+  {
+    key: "/server",
+    label: "服务器管理",
+    hint: "服务器与连接操作",
+    icon: CloudServerOutlined,
   },
 ];
 
