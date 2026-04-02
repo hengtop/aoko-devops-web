@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent } from "react";
 import { Button, Checkbox, Form, Input, Segmented, message } from "antd";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { login, sendEmailCode, type LoginParams } from "../../service/api";
 import { setAccessToken } from "../../service/request";
+import { resolveLoginRedirectTarget } from "../../utils";
 import styles from "./styles.module.less";
 
 type LoginMode = "email" | "phone" | "password";
@@ -36,9 +37,18 @@ type LoginFormValues = {
   password?: string;
 };
 
+type LoginLocationState = {
+  from?: {
+    pathname?: string;
+    search?: string;
+    hash?: string;
+  };
+};
+
 export default function Login() {
   const [form] = Form.useForm<LoginFormValues>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [messageApi, contextHolder] = message.useMessage();
   const [mode, setMode] = useState<LoginMode>("email");
   const [agreed, setAgreed] = useState(true);
@@ -50,6 +60,14 @@ export default function Login() {
   const activeMeta = useMemo(
     () => modeOptions.find((item) => item.key === mode) ?? modeOptions[0],
     [mode],
+  );
+  const redirectTarget = useMemo(
+    () =>
+      resolveLoginRedirectTarget(
+        location.search,
+        (location.state as LoginLocationState | null)?.from,
+      ) ?? "/dashboard",
+    [location.search, location.state],
   );
 
   const updateTilt = (event: MouseEvent<HTMLDivElement>) => {
@@ -196,7 +214,7 @@ export default function Login() {
 
       setAccessToken(response.data.token);
       await messageApi.success("登录成功", 1.2);
-      navigate("/dashboard");
+      navigate(redirectTarget, { replace: true });
     } catch (error) {
       if (error && typeof error === "object" && "handled" in error && error.handled) {
         return;

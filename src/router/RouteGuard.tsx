@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store";
+import { buildLoginPath, buildRoutePath } from "../utils";
 import { canAccessRoute, type RouteAccess } from "./access";
 
 type RouteGuardProps = PropsWithChildren<{
@@ -22,7 +23,13 @@ export default function RouteGuard({ access, children }: RouteGuardProps) {
   }
 
   if (result.reason === "unauthorized") {
-    return <Navigate to="/login" replace state={{ from: location }} />;
+    return (
+      <Navigate
+        to={buildLoginPath(buildRoutePath(location))}
+        replace
+        state={{ from: location }}
+      />
+    );
   }
 
   return <Navigate to="/403" replace />;
