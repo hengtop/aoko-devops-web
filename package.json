@@ -12,11 +12,13 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "antd": "^6.3.3",
     "less": "^4.6.4",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router-dom": "^7.13.1",
+    "react-syntax-highlighter": "^16.1.1",
     "umi-request": "^1.4.0",
     "zustand": "^5.0.12"
   },

@@ -1,5 +1,7 @@
+import { useNavigate } from "react-router-dom";
 import { useMemo } from "react";
 import { Button, Card, Space, Tabs, Tag } from "antd";
+import AppConsoleMenu from "../../components/AppConsoleMenu";
 import AppFooter from "../../components/AppFooter";
 import AppTopBar from "../../components/AppTopBar";
 import styles from "./styles.module.less";
@@ -53,6 +55,7 @@ const activities = [
 ];
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const tabItems = useMemo(
     () => [
       {
@@ -116,7 +119,10 @@ export default function Dashboard() {
       <div className={styles.dashboardBody}>
         <aside className={styles.sidebar}>
           <div className={styles.sidebarHeader}>菜单</div>
-          <div className={styles.sidebarPlaceholder}>内容暂时留空</div>
+          <AppConsoleMenu />
+          <div className={styles.sidebarPlaceholder}>
+            当前工作台聚合产品、应用与迭代信息，可从左侧进入模版配置等模块。
+          </div>
         </aside>
 
         <main className={styles.mainSection}>
@@ -129,7 +135,9 @@ export default function Dashboard() {
             </div>
             <Space className={styles.quickActions}>
               <Button type="primary">创建部署</Button>
-              <Button type="default">查看详情</Button>
+              <Button type="default" onClick={() => navigate("/template")}>
+                进入模版配置
+              </Button>
             </Space>
           </div>
 

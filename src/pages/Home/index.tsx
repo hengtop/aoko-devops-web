@@ -1,10 +1,14 @@
+import { useNavigate } from "react-router-dom";
 import styles from "./styles.module.less";
 
 export default function Home() {
+  const navigate = useNavigate();
+
   return (
     <div className={styles.home}>
       <div className={styles.homeGlow} aria-hidden="true" />
       <div className={styles.homeGrid} aria-hidden="true" />
+      <div className={styles.homeFacet} aria-hidden="true" />
 
       <header className={styles.homeHeader}>
         <div className={styles.homeBrand}>AOKO DevOps</div>
@@ -23,7 +27,11 @@ export default function Home() {
             帮你快速落地高效的 DevOps 工作流。
           </p>
 
-          <button className={styles.heroCta} type="button">
+          <button
+            className={styles.heroCta}
+            type="button"
+            onClick={() => navigate("/dashboard")}
+          >
             开始
           </button>
 
