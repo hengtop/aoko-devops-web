@@ -1,0 +1,213 @@
+.detailPage {
+  min-height: calc(100vh - var(--app-topbar-height));
+  background: radial-gradient(circle at top, #16233f 0%, #090f1b 55%, #06090f 100%);
+  color: #e7eefb;
+  display: flex;
+  flex-direction: column;
+}
+
+.pageBody {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr) 320px;
+  gap: 20px;
+  padding: 20px 24px 28px;
+}
+
+.sidebar,
+.heroCard,
+.contentCard,
+.infoCard {
+  background: rgba(12, 18, 30, 0.74);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar {
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebarHeader {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.sidebarTip {
+  color: rgba(231, 238, 251, 0.62);
+  font-size: 13px;
+  line-height: 1.7;
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.mainSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.heroCard {
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.sectionSubtitle {
+  margin-top: 6px;
+  color: rgba(231, 238, 251, 0.6);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.heroActions :global(.ant-btn) {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #e7eefb;
+}
+
+.contentCard,
+.infoCard {
+  border-radius: 18px;
+}
+
+.contentCard :global(.ant-card-body),
+.infoCard :global(.ant-card-body) {
+  padding: 20px 22px;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+
+.metaText {
+  color: rgba(231, 238, 251, 0.62);
+  font-size: 13px;
+}
+
+.unreadTag,
+.readTag {
+  margin-inline-end: 0;
+  border-radius: 999px;
+}
+
+.unreadTag {
+  background: rgba(255, 158, 87, 0.16);
+  color: #ffd3af;
+}
+
+.readTag {
+  background: rgba(97, 231, 255, 0.14);
+  color: #d1f4ff;
+}
+
+.article {
+  margin-top: 18px;
+  padding: 20px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.articleTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: #f5f9ff;
+  line-height: 1.4;
+}
+
+.articleContent {
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 1.9;
+  color: rgba(231, 238, 251, 0.82);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.sidePanel {
+  display: flex;
+  flex-direction: column;
+}
+
+.infoCardTitle {
+  color: #f1f6ff;
+}
+
+.senderCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(45, 123, 255, 0.18), rgba(97, 231, 255, 0.08));
+}
+
+.senderAvatar {
+  background: rgba(97, 231, 255, 0.18);
+  border: 1px solid rgba(97, 231, 255, 0.52);
+  color: #e1f8ff;
+  font-weight: 700;
+}
+
+.senderName {
+  color: #f5f9ff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.senderMeta {
+  margin-top: 6px;
+  color: rgba(231, 238, 251, 0.58);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.infoDescriptions {
+  margin-top: 18px;
+}
+
+.infoDescriptions :global(.ant-descriptions-item-label) {
+  color: rgba(231, 238, 251, 0.5);
+}
+
+.infoDescriptions :global(.ant-descriptions-item-content) {
+  color: #e7eefb;
+}
+
+@media (max-width: 1280px) {
+  .pageBody {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .sidePanel {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 960px) {
+  .pageBody {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+
+  .heroCard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
