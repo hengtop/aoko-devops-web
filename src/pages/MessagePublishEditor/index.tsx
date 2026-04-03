@@ -473,7 +473,7 @@ export default function MessagePublishEditor() {
                 </div>
                 {record?.status ? (
                   <Tag
-                    bordered={false}
+                    variant="filled"
                     className={record.status === "sent" ? styles.statusTagSent : styles.statusTagDraft}
                   >
                     {getMessageStatusLabel(record.status)}
@@ -491,7 +491,7 @@ export default function MessagePublishEditor() {
                 <div className={styles.previewValue}>{getMessageTargetTypeLabel(targetType)}</div>
                 <div className={styles.previewAudience}>
                   {selectedUserLabels.map((item) => (
-                    <Tag key={item} className={styles.audienceTag} bordered={false}>
+                    <Tag key={item} className={styles.audienceTag} variant="filled">
                       {item}
                     </Tag>
                   ))}

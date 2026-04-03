@@ -127,7 +127,7 @@ export default function AppTopBar() {
               >
                 <div className={styles.messagePreviewMeta}>
                   <Tag
-                    bordered={false}
+                    variant="filled"
                     className={
                       item.read_status === "read"
                         ? styles.messageReadTag
@@ -190,7 +190,7 @@ export default function AppTopBar() {
           trigger={["click"]}
           placement="bottomRight"
           menu={{ items: userMenuItems }}
-          overlayClassName={styles.userMenuOverlay}
+          classNames={{ root: styles.userMenuOverlay }}
         >
           <Button type="text" className={styles.avatarButton} aria-label="打开账户菜单">
             <Avatar className={styles.avatar} size={36}>

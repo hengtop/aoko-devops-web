@@ -24,6 +24,7 @@ import {
   type ConfigurationRecord,
   type ConfigurationStatus,
 } from "../../service/api";
+import { formatDateTime } from "../../utils";
 import styles from "./styles.module.less";
 
 type SearchFormValues = Pick<ConfigurationListParams, "name" | "fileName" | "status">;
@@ -62,22 +63,6 @@ function getStatusLabel(status?: ConfigurationStatus) {
   }
 
   return "启用";
-}
-
-function formatDateTime(value?: string) {
-  if (!value) {
-    return "暂无记录";
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return date.toLocaleString("zh-CN", {
-    hour12: false,
-  });
 }
 
 export default function Configuration() {

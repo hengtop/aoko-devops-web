@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { listMyMessages, type MessageRecord } from "../service/api";
+import { getCurrentTimestamp } from "../utils";
 
 type MessageInboxState = {
   unreadCount: number;
@@ -57,7 +58,7 @@ export const useMessageInboxStore = create<MessageInboxState>((set) => ({
         return {
           ...item,
           read_status: "read" as const,
-          readAt: Date.now(),
+          readAt: getCurrentTimestamp(),
         };
       });
 

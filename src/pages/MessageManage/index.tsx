@@ -249,7 +249,7 @@ export default function MessageManage() {
       render: (value?: MessageStatus) => (
         <Tag
           className={value === "sent" ? styles.statusTagSent : styles.statusTagDraft}
-          bordered={false}
+          variant="filled"
         >
           {getMessageStatusLabel(value)}
         </Tag>

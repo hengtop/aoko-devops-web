@@ -31,6 +31,7 @@ import {
   type ServerRecord,
   type ServerStatus,
 } from "../../service/api";
+import { formatDateTime } from "../../utils";
 import styles from "./styles.module.less";
 
 type SearchFormValues = Pick<ServerListParams, "name" | "merchant" | "status">;
@@ -127,22 +128,6 @@ function buildServerMutationPayload(
   }
 
   return payload;
-}
-
-function formatDateTime(value?: string) {
-  if (!value) {
-    return "暂无记录";
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return date.toLocaleString("zh-CN", {
-    hour12: false,
-  });
 }
 
 function formatServerStatus(status?: ServerStatus) {

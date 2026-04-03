@@ -10,6 +10,7 @@ import {
   type MessageRecord,
 } from "../../service/api";
 import { useMessageInboxStore } from "../../store";
+import { getCurrentTimestamp } from "../../utils";
 import {
   buildMessageSummary,
   formatMessageDateTime,
@@ -51,7 +52,7 @@ export default function MessageDetail() {
             await markMyMessageAsRead(id);
 
             if (!cancelled) {
-              const readAt = Date.now();
+              const readAt = getCurrentTimestamp();
               setRecord((prev) =>
                 prev
                   ? {
@@ -137,7 +138,7 @@ export default function MessageDetail() {
           <Card className={styles.contentCard} variant="borderless" loading={loading}>
             <div className={styles.metaRow}>
               <Tag
-                bordered={false}
+                variant="filled"
                 className={record?.read_status === "read" ? styles.readTag : styles.unreadTag}
               >
                 {readStatusLabel}

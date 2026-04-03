@@ -159,7 +159,7 @@ export default function Message() {
       width: 120,
       render: (value?: MessageReadStatus) => (
         <Tag
-          bordered={false}
+          variant="filled"
           className={value === "read" ? styles.readTag : styles.unreadTag}
         >
           {getReadStatusLabel(value)}
@@ -321,7 +321,7 @@ export default function Message() {
                     <div className={styles.summaryItemHeader}>
                       <span className={styles.summaryItemTitle}>{item.title}</span>
                       <Tag
-                        bordered={false}
+                        variant="filled"
                         className={item.read_status === "read" ? styles.readTag : styles.unreadTag}
                       >
                         {getReadStatusLabel(item.read_status)}

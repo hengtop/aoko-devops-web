@@ -1,17 +1,7 @@
+import { formatDateTime } from "./time";
+
 export function formatMessageDateTime(value?: string | number) {
-  if (value === undefined || value === null || value === "") {
-    return "暂无记录";
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return String(value);
-  }
-
-  return date.toLocaleString("zh-CN", {
-    hour12: false,
-  });
+  return formatDateTime(value);
 }
 
 export function buildMessageSummary(
