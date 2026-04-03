@@ -6,7 +6,6 @@ import AppConsoleMenu from "../../components/AppConsoleMenu";
 import ConfigCodeViewer from "../../components/ConfigCodeViewer";
 import { getConfigCodePresentation } from "../../components/ConfigCodeViewer/utils";
 import AppFooter from "../../components/AppFooter";
-import AppTopBar from "../../components/AppTopBar";
 import {
   createConfiguration,
   getConfigurationDetail,
@@ -213,7 +212,6 @@ export default function ConfigurationEditor() {
   return (
     <div className={styles.editorPage}>
       {contextHolder}
-      <AppTopBar />
 
       <div className={styles.editorBody}>
         <aside className={styles.sidebar}>

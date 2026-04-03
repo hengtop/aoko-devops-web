@@ -1,3 +1,7 @@
+:root {
+  --app-topbar-height: 68px;
+}
+
 *,
 *::before,
 *::after {

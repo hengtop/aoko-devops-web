@@ -3,6 +3,7 @@ import {
   CloudServerOutlined,
   DeploymentUnitOutlined,
   FileTextOutlined,
+  NotificationOutlined,
 } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import styles from "./styles.module.less";
@@ -31,6 +32,12 @@ const menuItems = [
     label: "服务器管理",
     hint: "服务器与连接操作",
     icon: CloudServerOutlined,
+  },
+  {
+    key: "/message/manage",
+    label: "消息管理",
+    hint: "公告发布与消息发送",
+    icon: NotificationOutlined,
   },
 ];
 

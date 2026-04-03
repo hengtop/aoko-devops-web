@@ -17,7 +17,6 @@ import {
 import type { TableProps } from "antd";
 import AppConsoleMenu from "../../components/AppConsoleMenu";
 import AppFooter from "../../components/AppFooter";
-import AppTopBar from "../../components/AppTopBar";
 import {
   createServer,
   deleteServer,
@@ -716,7 +715,6 @@ export default function Server() {
   return (
     <div className={styles.serverPage}>
       {contextHolder}
-      <AppTopBar />
 
       <div className={styles.serverBody}>
         <aside className={styles.sidebar}>

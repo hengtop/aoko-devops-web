@@ -16,7 +16,6 @@ import type { TableProps } from "antd";
 import { useNavigate } from "react-router-dom";
 import AppConsoleMenu from "../../components/AppConsoleMenu";
 import AppFooter from "../../components/AppFooter";
-import AppTopBar from "../../components/AppTopBar";
 import {
   createTemplate,
   deleteTemplate,
@@ -406,7 +405,6 @@ export default function Template() {
   return (
     <div className={styles.templatePage}>
       {contextHolder}
-      <AppTopBar />
 
       <div className={styles.templateBody}>
         <aside className={styles.sidebar}>

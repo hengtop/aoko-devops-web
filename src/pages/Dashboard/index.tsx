@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import { Button, Card, Space, Tabs, Tag } from "antd";
 import AppConsoleMenu from "../../components/AppConsoleMenu";
 import AppFooter from "../../components/AppFooter";
-import AppTopBar from "../../components/AppTopBar";
 import styles from "./styles.module.less";
 
 const iterationStatus = [
@@ -114,8 +113,6 @@ export default function Dashboard() {
 
   return (
     <div className={styles.dashboard}>
-      <AppTopBar />
-
       <div className={styles.dashboardBody}>
         <aside className={styles.sidebar}>
           <div className={styles.sidebarHeader}>菜单</div>

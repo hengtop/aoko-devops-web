@@ -16,7 +16,6 @@ import type { TableProps } from "antd";
 import { useNavigate } from "react-router-dom";
 import AppConsoleMenu from "../../components/AppConsoleMenu";
 import AppFooter from "../../components/AppFooter";
-import AppTopBar from "../../components/AppTopBar";
 import {
   deleteConfiguration,
   listConfigurations,
@@ -364,7 +363,6 @@ export default function Configuration() {
   return (
     <div className={styles.configurationPage}>
       {contextHolder}
-      <AppTopBar />
 
       <div className={styles.configurationBody}>
         <aside className={styles.sidebar}>
