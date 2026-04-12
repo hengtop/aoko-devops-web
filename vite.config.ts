@@ -11,7 +11,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/aoko-devops": {
-        target: "http://localhost:3001",
+        target: "http://192.168.101.208:3001",
         changeOrigin: true,
       },
     },

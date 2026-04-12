@@ -1,9 +1,13 @@
-import { Suspense, lazy } from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Suspense, lazy, type ComponentType } from "react";
+import { Navigate, createBrowserRouter, RouterProvider } from "react-router-dom";
 import AppLoading from "../components/AppLoading";
 import ConsoleLayout from "./ConsoleLayout";
 import RouteGuard from "./RouteGuard";
 
+const ApprovalInstance = lazy(() => import("../pages/ApprovalInstance"));
+const ApprovalPolicy = lazy(() => import("../pages/ApprovalPolicy"));
+const ApprovalTask = lazy(() => import("../pages/ApprovalTask"));
+const ApprovalTemplate = lazy(() => import("../pages/ApprovalTemplate"));
 const Home = lazy(() => import("../pages/Home"));
 const Dashboard = lazy(() => import("../pages/Dashboard"));
 const Configuration = lazy(() => import("../pages/Configuration"));
@@ -20,13 +24,33 @@ const Forbidden = lazy(() => import("../pages/Forbidden"));
 
 type AppRouteConfig = {
   path: string;
-  component: typeof Home;
+  component: ComponentType;
 };
 
 const consoleRoutes: AppRouteConfig[] = [
   {
     path: "/dashboard",
     component: Dashboard,
+  },
+  {
+    path: "/approval",
+    component: () => <Navigate to="/approval/template" replace />,
+  },
+  {
+    path: "/approval/template",
+    component: ApprovalTemplate,
+  },
+  {
+    path: "/approval/policy",
+    component: ApprovalPolicy,
+  },
+  {
+    path: "/approval/instance",
+    component: ApprovalInstance,
+  },
+  {
+    path: "/approval/task",
+    component: ApprovalTask,
   },
   {
     path: "/template",

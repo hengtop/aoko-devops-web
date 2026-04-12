@@ -1,0 +1,146 @@
+.drawer :global(.ant-drawer-header) {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.drawer :global(.ant-drawer-body) {
+  background: #0b1220;
+}
+
+.loadingBlock {
+  min-height: 240px;
+  display: grid;
+  place-items: center;
+}
+
+.detailContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.panelCard {
+  background: rgba(12, 18, 30, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.panelCard :global(.ant-card-head) {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  color: #f5f9ff;
+}
+
+.panelCard :global(.ant-card-body) {
+  padding: 18px 20px;
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.metaLabel {
+  color: rgba(231, 238, 251, 0.58);
+  font-size: 12px;
+}
+
+.metaValue {
+  margin-top: 6px;
+  color: #f5f9ff;
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+.reasonBlock {
+  margin-top: 16px;
+}
+
+.reasonText {
+  margin-top: 6px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(231, 238, 251, 0.78);
+  line-height: 1.7;
+}
+
+.taskTable :global(.ant-table) {
+  background: transparent;
+}
+
+.taskTable :global(.ant-table-thead > tr > th) {
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(231, 238, 251, 0.72);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.taskTable :global(.ant-table-tbody > tr > td) {
+  background: transparent;
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+  color: #e7eefb;
+}
+
+.instanceStatusTag,
+.taskStatusTag,
+.actionTag {
+  border: none;
+  border-radius: 999px;
+}
+
+.instanceStatusTag {
+  background: rgba(97, 231, 255, 0.14);
+  color: #d1f4ff;
+}
+
+.taskStatusTag {
+  background: rgba(45, 123, 255, 0.18);
+  color: #dcecff;
+}
+
+.actionTag {
+  background: rgba(53, 211, 154, 0.18);
+  color: #c9ffe8;
+}
+
+.actionList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.actionItem {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.actionHeader {
+  color: rgba(231, 238, 251, 0.62);
+  font-size: 12px;
+}
+
+.actionComment {
+  margin-top: 8px;
+  color: rgba(231, 238, 251, 0.82);
+  line-height: 1.7;
+}
+
+.jsonBlock {
+  margin: 0;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(4, 10, 18, 0.75);
+  color: #d8ecff;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow: auto;
+}
+
+.emptyText {
+  color: rgba(231, 238, 251, 0.48);
+}
+
+@media (max-width: 860px) {
+  .metaGrid {
+    grid-template-columns: 1fr;
+  }
+}

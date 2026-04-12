@@ -4,6 +4,18 @@
   gap: 10px;
 }
 
+.menuGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.menuGroupActive .subMenu {
+  border-left: 1px solid rgba(97, 231, 255, 0.14);
+  margin-left: 18px;
+  padding-left: 30px;
+}
+
 .menuItem {
   display: flex;
   align-items: center;
@@ -56,6 +68,7 @@
   flex-direction: column;
   gap: 3px;
   min-width: 0;
+  flex: 1;
 }
 
 .menuLabel {
@@ -66,4 +79,99 @@
 .menuHint {
   font-size: 12px;
   color: rgba(231, 238, 251, 0.58);
+}
+
+.subMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 48px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition:
+    max-height 0.24s ease,
+    opacity 0.2s ease;
+}
+
+.subMenuExpanded {
+  max-height: 480px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.subMenuItem {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+  color: #dce8ff;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.subMenuItem:hover {
+  transform: translateY(-1px);
+  border-color: rgba(97, 231, 255, 0.2);
+  background: rgba(97, 231, 255, 0.05);
+}
+
+.subMenuItemActive {
+  border-color: rgba(97, 231, 255, 0.28);
+  background: rgba(45, 123, 255, 0.14);
+}
+
+.subMenuLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.subMenuHint {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: rgba(231, 238, 251, 0.5);
+}
+
+.menuToggleIcon {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.menuToggleGlyph {
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid rgba(231, 238, 251, 0.72);
+  border-bottom: 1.5px solid rgba(231, 238, 251, 0.72);
+  transform: rotate(-45deg);
+  transform-origin: center;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.menuToggleIconExpanded {
+  border-color: rgba(97, 231, 255, 0.24);
+  background: rgba(97, 231, 255, 0.08);
+}
+
+.menuToggleIconExpanded .menuToggleGlyph {
+  transform: rotate(45deg);
+  border-color: #dcf8ff;
 }
