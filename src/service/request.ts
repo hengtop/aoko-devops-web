@@ -1,12 +1,22 @@
 import { extend } from "umi-request";
 import { message } from "antd";
 import type { BaseResponse, ResponseMessage } from "./api/types";
+import {
+  buildApprovalHeaders,
+  buildApprovalRetryOptions,
+  isApprovalRequiredResponse,
+  normalizeApprovalRetryUrl,
+  REQUEST_PREFIX,
+  shouldRetryApprovedApproval,
+  type ApprovalRequestOptions,
+} from "./request-approval";
 import { useAuthStore } from "../store";
 import { buildLoginPath, LOGIN_PATH, resolveCurrentRoutePath } from "../utils";
 
 export interface ServiceRequestOptions {
   useGlobalErrorHandler?: boolean;
   skipAuthFailureRedirect?: boolean;
+  approvalId?: string;
   [key: string]: unknown;
 }
 
@@ -99,7 +109,7 @@ export function clearAccessToken() {
 }
 
 export const request = extend({
-  prefix: "/aoko-devops",
+  prefix: REQUEST_PREFIX,
   timeout: 10000,
   errorHandler: (error: RequestError) => {
     if (
@@ -124,17 +134,20 @@ export const request = extend({
 });
 
 request.interceptors.request.use((url, options) => {
+  const requestOptions = options as ApprovalRequestOptions & ServiceRequestOptions;
   const token = getAccessToken();
   const headers = {
-    ...options.headers,
+    ...buildApprovalHeaders(requestOptions.headers, requestOptions.approvalId),
     ...(token ? { Authorization: `bearer ${token}` } : {}),
   };
+  const { approvalId: _approvalId, ...restOptions } = requestOptions;
 
   return {
     url,
     options: {
-      ...options,
+      ...restOptions,
       headers,
+      __approvalRequestUrl: normalizeApprovalRetryUrl(requestOptions.__approvalRequestUrl ?? url),
     },
   };
 });
@@ -142,10 +155,6 @@ request.interceptors.request.use((url, options) => {
 request.interceptors.response.use(async (response, options) => {
   if (response.status === 401 && shouldHandleAuthFailureRedirect(options)) {
     onTokenInvalid();
-  }
-
-  if (!shouldUseGlobalErrorHandler(options)) {
-    return response;
   }
 
   if (!response.ok) {
@@ -164,6 +173,32 @@ request.interceptors.response.use(async (response, options) => {
         onTokenInvalid(formatResponseMessage(data.msg, "登录状态已失效，请重新登录"));
       }
 
+      return response;
+    }
+
+    if (isApprovalRequiredResponse(data)) {
+      const requestOptions = options as ApprovalRequestOptions & ServiceRequestOptions;
+
+      if (shouldRetryApprovedApproval(data, requestOptions)) {
+        const retryUrl = normalizeApprovalRetryUrl(
+          requestOptions.__approvalRequestUrl ?? response.url,
+        );
+        const retryResult = await request<BaseResponse<unknown>>(
+          retryUrl,
+          buildApprovalRetryOptions(requestOptions, data.approvalId),
+        );
+
+        return retryResult.response;
+      }
+
+      if (shouldUseGlobalErrorHandler(options)) {
+        message.warning(formatResponseMessage(data.msg, "当前接口需要审批后才能继续调用"));
+      }
+
+      return response;
+    }
+
+    if (!shouldUseGlobalErrorHandler(options)) {
       return response;
     }
 

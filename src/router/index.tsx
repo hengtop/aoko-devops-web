@@ -5,9 +5,12 @@ import ConsoleLayout from "./ConsoleLayout";
 import RouteGuard from "./RouteGuard";
 
 const ApprovalInstance = lazy(() => import("../pages/ApprovalInstance"));
+const ApprovalInstanceEditor = lazy(() => import("../pages/ApprovalInstanceEditor"));
 const ApprovalPolicy = lazy(() => import("../pages/ApprovalPolicy"));
+const ApprovalPolicyEditor = lazy(() => import("../pages/ApprovalPolicyEditor"));
 const ApprovalTask = lazy(() => import("../pages/ApprovalTask"));
 const ApprovalTemplate = lazy(() => import("../pages/ApprovalTemplate"));
+const ApprovalTemplateEditor = lazy(() => import("../pages/ApprovalTemplateEditor"));
 const Home = lazy(() => import("../pages/Home"));
 const Dashboard = lazy(() => import("../pages/Dashboard"));
 const Configuration = lazy(() => import("../pages/Configuration"));
@@ -41,12 +44,32 @@ const consoleRoutes: AppRouteConfig[] = [
     component: ApprovalTemplate,
   },
   {
+    path: "/approval/template/create",
+    component: ApprovalTemplateEditor,
+  },
+  {
+    path: "/approval/template/:id/edit",
+    component: ApprovalTemplateEditor,
+  },
+  {
     path: "/approval/policy",
     component: ApprovalPolicy,
   },
   {
+    path: "/approval/policy/create",
+    component: ApprovalPolicyEditor,
+  },
+  {
+    path: "/approval/policy/:id/edit",
+    component: ApprovalPolicyEditor,
+  },
+  {
     path: "/approval/instance",
     component: ApprovalInstance,
+  },
+  {
+    path: "/approval/instance/create",
+    component: ApprovalInstanceEditor,
   },
   {
     path: "/approval/task",

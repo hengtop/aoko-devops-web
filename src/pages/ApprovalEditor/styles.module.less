@@ -1,0 +1,91 @@
+.formCard {
+  background: rgba(12, 18, 30, 0.8);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.formCard :global(.ant-card-body) {
+  padding: 24px;
+}
+
+.editorForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 16px;
+}
+
+.blockTitle,
+.subBlockTitle {
+  color: #f5f9ff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.blockTitle {
+  margin-bottom: 12px;
+}
+
+.subBlockTitle {
+  margin-bottom: 12px;
+}
+
+.nodeList,
+.ruleList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nodeCard,
+.ruleCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nodeCard :global(.ant-card-head),
+.ruleCard :global(.ant-card-head) {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  color: #f5f9ff;
+}
+
+.nodeCard :global(.ant-card-body),
+.ruleCard :global(.ant-card-body) {
+  padding: 20px;
+}
+
+.switchRow {
+  display: flex;
+  gap: 24px;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.hintBlock {
+  margin-top: 8px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+  color: rgba(231, 238, 251, 0.62);
+  line-height: 1.7;
+  font-size: 13px;
+}
+
+@media (max-width: 860px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .switchRow {
+    flex-direction: column;
+    gap: 0;
+  }
+}

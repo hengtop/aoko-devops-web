@@ -5,6 +5,11 @@ export interface BaseResponse<T = unknown> {
   msg: ResponseMessage;
   code: number;
   data?: T;
+  timestamp?: string;
+  approvalRequired?: boolean;
+  approvalId?: string;
+  gateCode?: string;
+  status?: string;
 }
 
 export type ApiPromise<T> = Promise<BaseResponse<T>>;
