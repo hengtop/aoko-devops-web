@@ -36,10 +36,25 @@
 
 ## 运行方式
 
-- 开发：`pnpm dev`
-- 构建：`pnpm build`
+- 开发：
+  - `pnpm dev` 或 `pnpm dev:dev`
+  - `pnpm dev:local`
+  - `pnpm dev:prod`
+- 构建：
+  - `pnpm build` 或 `pnpm build:prod`
+  - `pnpm build:dev`
+  - `pnpm build:local`
 - 预览：`pnpm preview`
 - 校验：`pnpm lint`
+
+## 环境变量
+
+- `config/.env.development`：开发环境代理配置
+- `config/.env.local`：本地联调代理配置
+- `config/.env.production`：生产环境代理配置
+- `config/.env.example`：环境变量示例文件
+- 当前已使用变量：
+  - `VITE_PROXY_TARGET`：Vite 开发代理目标地址
 
 ## 目录结构
 
