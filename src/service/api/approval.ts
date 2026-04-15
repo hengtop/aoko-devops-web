@@ -1,42 +1,47 @@
-import { request } from "../request";
-import type { ServiceRequestOptions } from "../request";
+import { request } from "@service/request";
+import type { ServiceRequestOptions } from "@service/request";
 import type { ApiPromise, BaseResponse, PaginatedList } from "./types";
+import { API_PATHS } from "@constants/api";
+import {
+  APPROVAL_ACTION_TYPES,
+  APPROVAL_APPROVER_SOURCE_TYPES,
+  APPROVAL_INSTANCE_STATUSES,
+  APPROVAL_NODE_MODES,
+  APPROVAL_NOTIFY_CHANNELS,
+  APPROVAL_POLICY_MATCH_MODES,
+  APPROVAL_SOURCE_TYPES,
+  APPROVAL_TASK_STATUSES,
+  APPROVAL_TEMPLATE_BIZ_TYPES,
+  APPROVAL_TEMPLATE_STATUSES,
+} from "@constants/status";
 
-export type ApprovalTemplateBizType = "release" | "deployment" | "api_gate";
-export type ApprovalTemplateStatus = "enable" | "disable";
-export type ApprovalNodeMode = "OR" | "AND";
-export type ApprovalApproverSourceType = "USER" | "ROLE";
-export type ApprovalNotifyChannel = "site" | "email";
+export type ApprovalTemplateBizType =
+  (typeof APPROVAL_TEMPLATE_BIZ_TYPES)[keyof typeof APPROVAL_TEMPLATE_BIZ_TYPES];
+export type ApprovalTemplateStatus =
+  (typeof APPROVAL_TEMPLATE_STATUSES)[keyof typeof APPROVAL_TEMPLATE_STATUSES];
+export type ApprovalNodeMode = (typeof APPROVAL_NODE_MODES)[keyof typeof APPROVAL_NODE_MODES];
+export type ApprovalApproverSourceType =
+  (typeof APPROVAL_APPROVER_SOURCE_TYPES)[keyof typeof APPROVAL_APPROVER_SOURCE_TYPES];
+export type ApprovalNotifyChannel =
+  (typeof APPROVAL_NOTIFY_CHANNELS)[keyof typeof APPROVAL_NOTIFY_CHANNELS];
 
-export type ApprovalPolicyStatus = "enable" | "disable";
-export type ApprovalPolicyMatchMode = "first_match";
-export type ApprovalPolicyTargetType = "release" | "deployment" | "api_gate";
+export type ApprovalPolicyStatus =
+  (typeof APPROVAL_TEMPLATE_STATUSES)[keyof typeof APPROVAL_TEMPLATE_STATUSES];
+export type ApprovalPolicyMatchMode =
+  (typeof APPROVAL_POLICY_MATCH_MODES)[keyof typeof APPROVAL_POLICY_MATCH_MODES];
+export type ApprovalPolicyTargetType =
+  (typeof APPROVAL_TEMPLATE_BIZ_TYPES)[keyof typeof APPROVAL_TEMPLATE_BIZ_TYPES];
 
-export type ApprovalSourceType = "manual" | "system" | "api_gate";
+export type ApprovalSourceType =
+  (typeof APPROVAL_SOURCE_TYPES)[keyof typeof APPROVAL_SOURCE_TYPES];
 export type ApprovalInstanceStatus =
-  | "pending"
-  | "in_progress"
-  | "approved"
-  | "rejected"
-  | "canceled"
-  | "expired";
+  (typeof APPROVAL_INSTANCE_STATUSES)[keyof typeof APPROVAL_INSTANCE_STATUSES];
 
 export type ApprovalTaskStatus =
-  | "pending"
-  | "approved"
-  | "rejected"
-  | "transferred"
-  | "canceled"
-  | "skipped";
+  (typeof APPROVAL_TASK_STATUSES)[keyof typeof APPROVAL_TASK_STATUSES];
 
 export type ApprovalActionType =
-  | "submit"
-  | "approve"
-  | "reject"
-  | "cancel"
-  | "transfer"
-  | "add_approver"
-  | "system_notify";
+  (typeof APPROVAL_ACTION_TYPES)[keyof typeof APPROVAL_ACTION_TYPES];
 
 export interface ApprovalTemplateNode {
   nodeCode: string;
@@ -267,7 +272,7 @@ export function listApprovalTemplates(
   options?: ServiceRequestOptions,
 ): ApiPromise<PaginatedList<ApprovalTemplateRecord>> {
   return request.post<BaseResponse<PaginatedList<ApprovalTemplateRecord>>>(
-    "/approval-template/list",
+    API_PATHS.APPROVAL_TEMPLATE_LIST,
     {
       ...options,
       data: params,
@@ -279,7 +284,7 @@ export function getApprovalTemplateDetail(
   id: string,
   options?: ServiceRequestOptions,
 ): ApiPromise<ApprovalTemplateRecord> {
-  return request.post<BaseResponse<ApprovalTemplateRecord>>(`/approval-template/detail/${id}`, {
+  return request.post<BaseResponse<ApprovalTemplateRecord>>(API_PATHS.APPROVAL_TEMPLATE_DETAIL(id), {
     ...options,
   });
 }
@@ -288,7 +293,7 @@ export function createApprovalTemplate(
   params: ApprovalTemplateMutationPayload,
   options?: ServiceRequestOptions,
 ): ApiPromise<ApprovalTemplateRecord> {
-  return request.post<BaseResponse<ApprovalTemplateRecord>>("/approval-template/create", {
+  return request.post<BaseResponse<ApprovalTemplateRecord>>(API_PATHS.APPROVAL_TEMPLATE_CREATE, {
     ...options,
     data: params,
   });
@@ -299,7 +304,7 @@ export function updateApprovalTemplate(
   options?: ServiceRequestOptions,
 ): ApiPromise<ApprovalTemplateRecord> {
   const { id, ...payload } = params;
-  return request.post<BaseResponse<ApprovalTemplateRecord>>(`/approval-template/update/${id}`, {
+  return request.post<BaseResponse<ApprovalTemplateRecord>>(API_PATHS.APPROVAL_TEMPLATE_UPDATE(id), {
     ...options,
     data: payload,
   });
@@ -309,7 +314,7 @@ export function deleteApprovalTemplate(
   id: string,
   options?: ServiceRequestOptions,
 ): ApiPromise<void> {
-  return request.post<BaseResponse<void>>(`/approval-template/delete/${id}`, {
+  return request.post<BaseResponse<void>>(API_PATHS.APPROVAL_TEMPLATE_DELETE(id), {
     ...options,
   });
 }
@@ -318,7 +323,7 @@ export function listApprovalPolicies(
   params: ApprovalPolicyListParams,
   options?: ServiceRequestOptions,
 ): ApiPromise<PaginatedList<ApprovalPolicyRecord>> {
-  return request.post<BaseResponse<PaginatedList<ApprovalPolicyRecord>>>("/approval-policy/list", {
+  return request.post<BaseResponse<PaginatedList<ApprovalPolicyRecord>>>(API_PATHS.APPROVAL_POLICY_LIST, {
     ...options,
     data: params,
   });
@@ -328,7 +333,7 @@ export function getApprovalPolicyDetail(
   id: string,
   options?: ServiceRequestOptions,
 ): ApiPromise<ApprovalPolicyRecord> {
-  return request.post<BaseResponse<ApprovalPolicyRecord>>(`/approval-policy/detail/${id}`, {
+  return request.post<BaseResponse<ApprovalPolicyRecord>>(API_PATHS.APPROVAL_POLICY_DETAIL(id), {
     ...options,
   });
 }
@@ -337,7 +342,7 @@ export function createApprovalPolicy(
   params: ApprovalPolicyMutationPayload,
   options?: ServiceRequestOptions,
 ): ApiPromise<ApprovalPolicyRecord> {
-  return request.post<BaseResponse<ApprovalPolicyRecord>>("/approval-policy/create", {
+  return request.post<BaseResponse<ApprovalPolicyRecord>>(API_PATHS.APPROVAL_POLICY_CREATE, {
     ...options,
     data: params,
   });
@@ -348,7 +353,7 @@ export function updateApprovalPolicy(
   options?: ServiceRequestOptions,
 ): ApiPromise<ApprovalPolicyRecord> {
   const { id, ...payload } = params;
-  return request.post<BaseResponse<ApprovalPolicyRecord>>(`/approval-policy/update/${id}`, {
+  return request.post<BaseResponse<ApprovalPolicyRecord>>(API_PATHS.APPROVAL_POLICY_UPDATE(id), {
     ...options,
     data: payload,
   });
@@ -358,7 +363,7 @@ export function deleteApprovalPolicy(
   id: string,
   options?: ServiceRequestOptions,
 ): ApiPromise<void> {
-  return request.post<BaseResponse<void>>(`/approval-policy/delete/${id}`, {
+  return request.post<BaseResponse<void>>(API_PATHS.APPROVAL_POLICY_DELETE(id), {
     ...options,
   });
 }
@@ -367,7 +372,7 @@ export function listApprovals(
   params: ApprovalListParams,
   options?: ServiceRequestOptions,
 ): ApiPromise<PaginatedList<ApprovalInstanceRecord>> {
-  return request.post<BaseResponse<PaginatedList<ApprovalInstanceRecord>>>("/approval/list", {
+  return request.post<BaseResponse<PaginatedList<ApprovalInstanceRecord>>>(API_PATHS.APPROVAL_LIST, {
     ...options,
     data: params,
   });
@@ -377,7 +382,7 @@ export function getApprovalDetail(
   id: string,
   options?: ServiceRequestOptions,
 ): ApiPromise<ApprovalInstanceRecord> {
-  return request.post<BaseResponse<ApprovalInstanceRecord>>(`/approval/detail/${id}`, {
+  return request.post<BaseResponse<ApprovalInstanceRecord>>(API_PATHS.APPROVAL_DETAIL(id), {
     ...options,
   });
 }
@@ -386,7 +391,7 @@ export function createApproval(
   params: CreateApprovalPayload,
   options?: ServiceRequestOptions,
 ): ApiPromise<ApprovalInstanceRecord> {
-  return request.post<BaseResponse<ApprovalInstanceRecord>>("/approval/create", {
+  return request.post<BaseResponse<ApprovalInstanceRecord>>(API_PATHS.APPROVAL_CREATE, {
     ...options,
     data: params,
   });
@@ -397,7 +402,7 @@ export function cancelApproval(
   params: ApprovalCommentPayload,
   options?: ServiceRequestOptions,
 ): ApiPromise<ApprovalInstanceRecord> {
-  return request.post<BaseResponse<ApprovalInstanceRecord>>(`/approval/cancel/${id}`, {
+  return request.post<BaseResponse<ApprovalInstanceRecord>>(API_PATHS.APPROVAL_CANCEL(id), {
     ...options,
     data: params,
   });
@@ -408,7 +413,7 @@ export function approveApproval(
   params: ApprovalCommentPayload,
   options?: ServiceRequestOptions,
 ): ApiPromise<ApprovalInstanceRecord> {
-  return request.post<BaseResponse<ApprovalInstanceRecord>>(`/approval/${id}/approve`, {
+  return request.post<BaseResponse<ApprovalInstanceRecord>>(API_PATHS.APPROVAL_APPROVE(id), {
     ...options,
     data: params,
   });
@@ -419,7 +424,7 @@ export function rejectApproval(
   params: ApprovalCommentPayload,
   options?: ServiceRequestOptions,
 ): ApiPromise<ApprovalInstanceRecord> {
-  return request.post<BaseResponse<ApprovalInstanceRecord>>(`/approval/${id}/reject`, {
+  return request.post<BaseResponse<ApprovalInstanceRecord>>(API_PATHS.APPROVAL_REJECT(id), {
     ...options,
     data: params,
   });
@@ -430,7 +435,7 @@ export function transferApproval(
   params: TransferApprovalPayload,
   options?: ServiceRequestOptions,
 ): ApiPromise<ApprovalInstanceRecord> {
-  return request.post<BaseResponse<ApprovalInstanceRecord>>(`/approval/${id}/transfer`, {
+  return request.post<BaseResponse<ApprovalInstanceRecord>>(API_PATHS.APPROVAL_TRANSFER(id), {
     ...options,
     data: params,
   });
@@ -441,7 +446,7 @@ export function addApprovalApprover(
   params: AddApproverPayload,
   options?: ServiceRequestOptions,
 ): ApiPromise<ApprovalInstanceRecord> {
-  return request.post<BaseResponse<ApprovalInstanceRecord>>(`/approval/${id}/add-approver`, {
+  return request.post<BaseResponse<ApprovalInstanceRecord>>(API_PATHS.APPROVAL_ADD_APPROVER(id), {
     ...options,
     data: params,
   });
@@ -451,7 +456,7 @@ export function listMyPendingApprovalTasks(
   params: ApprovalTaskListParams,
   options?: ServiceRequestOptions,
 ): ApiPromise<PaginatedList<ApprovalTaskRecord>> {
-  return request.post<BaseResponse<PaginatedList<ApprovalTaskRecord>>>("/approval-task/my/pending", {
+  return request.post<BaseResponse<PaginatedList<ApprovalTaskRecord>>>(API_PATHS.APPROVAL_TASK_MY_PENDING, {
     ...options,
     data: params,
   });
@@ -461,7 +466,7 @@ export function listMyDoneApprovalTasks(
   params: ApprovalTaskListParams,
   options?: ServiceRequestOptions,
 ): ApiPromise<PaginatedList<ApprovalTaskRecord>> {
-  return request.post<BaseResponse<PaginatedList<ApprovalTaskRecord>>>("/approval-task/my/done", {
+  return request.post<BaseResponse<PaginatedList<ApprovalTaskRecord>>>(API_PATHS.APPROVAL_TASK_MY_DONE, {
     ...options,
     data: params,
   });

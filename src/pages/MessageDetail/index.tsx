@@ -2,21 +2,22 @@ import { useEffect, useState } from "react";
 import { Avatar, Button, Card, Descriptions, Space, Tag, message } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
-import AppConsoleMenu from "../../components/AppConsoleMenu";
-import AppFooter from "../../components/AppFooter";
+import { APP_ROUTE_PATHS, MESSAGE_READ_STATUSES } from "@constants";
+import AppConsoleMenu from "@components/AppConsoleMenu";
+import AppFooter from "@components/AppFooter";
 import {
   getMyMessageDetail,
   markMyMessageAsRead,
   type MessageRecord,
-} from "../../service/api";
-import { useMessageInboxStore } from "../../store";
-import { getCurrentTimestamp } from "../../utils";
+} from "@service/api";
+import { useMessageInboxStore } from "@store";
+import { getCurrentTimestamp } from "@utils";
 import {
   buildMessageSummary,
   formatMessageDateTime,
   getAvatarText,
   getReadStatusLabel,
-} from "../../utils/message";
+} from "@utils/message";
 import styles from "./styles.module.less";
 
 export default function MessageDetail() {
@@ -47,7 +48,7 @@ export default function MessageDetail() {
         const nextRecord = detailResponse.data ?? null;
         setRecord(nextRecord);
 
-        if (nextRecord?.read_status !== "read") {
+        if (nextRecord?.read_status !== MESSAGE_READ_STATUSES.READ) {
           try {
             await markMyMessageAsRead(id);
 
@@ -57,7 +58,7 @@ export default function MessageDetail() {
                 prev
                   ? {
                       ...prev,
-                      read_status: "read",
+                      read_status: MESSAGE_READ_STATUSES.READ,
                       readAt,
                     }
                   : prev,
@@ -129,7 +130,7 @@ export default function MessageDetail() {
               </div>
             </div>
             <Space className={styles.heroActions}>
-              <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/message")}>
+              <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(APP_ROUTE_PATHS.MESSAGE)}>
                 返回消息列表
               </Button>
             </Space>
@@ -139,7 +140,11 @@ export default function MessageDetail() {
             <div className={styles.metaRow}>
               <Tag
                 variant="filled"
-                className={record?.read_status === "read" ? styles.readTag : styles.unreadTag}
+                className={
+                  record?.read_status === MESSAGE_READ_STATUSES.READ
+                    ? styles.readTag
+                    : styles.unreadTag
+                }
               >
                 {readStatusLabel}
               </Tag>

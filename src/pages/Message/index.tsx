@@ -2,20 +2,26 @@ import { useEffect, useMemo, useState } from "react";
 import { Button, Card, Form, Input, Select, Space, Table, Tag, message } from "antd";
 import type { TableProps } from "antd";
 import { useNavigate } from "react-router-dom";
-import AppConsoleMenu from "../../components/AppConsoleMenu";
-import AppFooter from "../../components/AppFooter";
+import {
+  APP_ROUTE_PATHS,
+  MESSAGE_READ_STATUSES,
+  buildMessageDetailPath,
+  messageReadStatusOptions,
+} from "@constants";
+import AppConsoleMenu from "@components/AppConsoleMenu";
+import AppFooter from "@components/AppFooter";
 import {
   listMyMessages,
   type MessageListParams,
   type MessageReadStatus,
   type MessageRecord,
-} from "../../service/api";
-import { useMessageInboxStore } from "../../store";
+} from "@service/api";
+import { useMessageInboxStore } from "@store";
 import {
   buildMessageSummary,
   formatMessageDateTime,
   getReadStatusLabel,
-} from "../../utils/message";
+} from "@utils/message";
 import styles from "./styles.module.less";
 
 type SearchFormValues = Pick<MessageListParams, "title" | "read_status">;
@@ -25,11 +31,6 @@ type PaginationState = {
   pageSize: number;
   total: number;
 };
-
-const readStatusOptions: Array<{ label: string; value: MessageReadStatus }> = [
-  { label: "未读", value: "unread" },
-  { label: "已读", value: "read" },
-];
 
 function normalizeOptionalField(value?: string) {
   const text = value?.trim();
@@ -74,7 +75,7 @@ export default function Message() {
           }),
           listMyMessages({
             title: filters.title,
-            read_status: "unread",
+            read_status: MESSAGE_READ_STATUSES.UNREAD,
             pageNum: 1,
             pageSize: 1,
           }),
@@ -136,7 +137,7 @@ export default function Message() {
         <button
           type="button"
           className={styles.titleButton}
-          onClick={() => navigate(`/message/${record.id}`)}
+          onClick={() => navigate(buildMessageDetailPath(record.id ?? ""))}
         >
           <span className={styles.tablePrimary}>{value}</span>
           <span className={styles.tableSecondary}>ID: {record.id}</span>
@@ -160,7 +161,7 @@ export default function Message() {
       render: (value?: MessageReadStatus) => (
         <Tag
           variant="filled"
-          className={value === "read" ? styles.readTag : styles.unreadTag}
+          className={value === MESSAGE_READ_STATUSES.READ ? styles.readTag : styles.unreadTag}
         >
           {getReadStatusLabel(value)}
         </Tag>
@@ -180,7 +181,7 @@ export default function Message() {
       key: "actions",
       width: 140,
       render: (_, record) => (
-        <Button type="link" onClick={() => navigate(`/message/${record.id}`)}>
+        <Button type="link" onClick={() => navigate(buildMessageDetailPath(record.id ?? ""))}>
           查看详情
         </Button>
       ),
@@ -209,7 +210,7 @@ export default function Message() {
               </div>
             </div>
             <Space className={styles.heroActions}>
-              <Button type="default" onClick={() => navigate("/dashboard")}>
+              <Button type="default" onClick={() => navigate(APP_ROUTE_PATHS.DASHBOARD)}>
                 返回工作台
               </Button>
             </Space>
@@ -251,7 +252,7 @@ export default function Message() {
                   allowClear
                   placeholder="全部"
                   className={styles.filterSelect}
-                  options={readStatusOptions}
+                  options={messageReadStatusOptions}
                 />
               </Form.Item>
               <Form.Item className={styles.filterActions}>
@@ -316,13 +317,17 @@ export default function Message() {
                     key={item.id}
                     type="button"
                     className={styles.summaryItem}
-                    onClick={() => navigate(`/message/${item.id}`)}
+                    onClick={() => navigate(buildMessageDetailPath(item.id ?? ""))}
                   >
                     <div className={styles.summaryItemHeader}>
                       <span className={styles.summaryItemTitle}>{item.title}</span>
                       <Tag
                         variant="filled"
-                        className={item.read_status === "read" ? styles.readTag : styles.unreadTag}
+                        className={
+                          item.read_status === MESSAGE_READ_STATUSES.READ
+                            ? styles.readTag
+                            : styles.unreadTag
+                        }
                       >
                         {getReadStatusLabel(item.read_status)}
                       </Tag>

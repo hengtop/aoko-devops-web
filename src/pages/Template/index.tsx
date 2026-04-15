@@ -14,8 +14,9 @@ import {
 } from "antd";
 import type { TableProps } from "antd";
 import { useNavigate } from "react-router-dom";
-import AppConsoleMenu from "../../components/AppConsoleMenu";
-import AppFooter from "../../components/AppFooter";
+import { EDITOR_PAGE_MODES, buildConfigurationDetailPath } from "@constants";
+import AppConsoleMenu from "@components/AppConsoleMenu";
+import AppFooter from "@components/AppFooter";
 import {
   createTemplate,
   deleteTemplate,
@@ -24,7 +25,7 @@ import {
   type TemplateListParams,
   type TemplateMutationPayload,
   type TemplateRecord,
-} from "../../service/api";
+} from "@service/api";
 import styles from "./styles.module.less";
 
 type SearchFormValues = Pick<TemplateListParams, "name" | "code" | "repo_url">;
@@ -33,7 +34,7 @@ type TemplateFormValues = TemplateMutationPayload;
 
 type TemplateModalState = {
   open: boolean;
-  mode: "create" | "edit";
+  mode: (typeof EDITOR_PAGE_MODES)[keyof typeof EDITOR_PAGE_MODES];
   record?: TemplateRecord;
 };
 
@@ -96,7 +97,7 @@ export default function Template() {
   });
   const [modalState, setModalState] = useState<TemplateModalState>({
     open: false,
-    mode: "create",
+    mode: EDITOR_PAGE_MODES.CREATE,
   });
 
   useEffect(() => {
@@ -195,7 +196,7 @@ export default function Template() {
             <button
               type="button"
               className={styles.linkedTagButton}
-              onClick={() => navigate(`/configuration/${value}`)}
+              onClick={() => navigate(buildConfigurationDetailPath(value))}
             >
               <Tag className={styles.linkedTag}>
                 <span className={styles.linkedTagText}>{formatLinkedConfigurationId(value)}</span>
@@ -217,7 +218,7 @@ export default function Template() {
             <button
               type="button"
               className={styles.linkedTagButton}
-              onClick={() => navigate(`/configuration/${value}`)}
+              onClick={() => navigate(buildConfigurationDetailPath(value))}
             >
               <Tag className={styles.linkedTag}>
                 <span className={styles.linkedTagText}>{formatLinkedConfigurationId(value)}</span>
@@ -282,7 +283,7 @@ export default function Template() {
     modalForm.resetFields();
     setModalState({
       open: true,
-      mode: "create",
+      mode: EDITOR_PAGE_MODES.CREATE,
     });
   }
 
@@ -298,7 +299,7 @@ export default function Template() {
 
     setModalState({
       open: true,
-      mode: "edit",
+      mode: EDITOR_PAGE_MODES.EDIT,
       record,
     });
   }
@@ -306,7 +307,7 @@ export default function Template() {
   function handleCloseModal() {
     setModalState({
       open: false,
-      mode: "create",
+      mode: EDITOR_PAGE_MODES.CREATE,
     });
     modalForm.resetFields();
   }
@@ -351,7 +352,7 @@ export default function Template() {
 
       setSubmitting(true);
 
-      if (modalState.mode === "edit") {
+      if (modalState.mode === EDITOR_PAGE_MODES.EDIT) {
         const id = getTemplateId(modalState.record ?? {});
 
         if (!id) {
@@ -382,7 +383,7 @@ export default function Template() {
       handleCloseModal();
       setPagination((prev) => ({
         ...prev,
-        pageNum: modalState.mode === "create" ? 1 : prev.pageNum,
+        pageNum: modalState.mode === EDITOR_PAGE_MODES.CREATE ? 1 : prev.pageNum,
       }));
       setReloadSeed((prev) => prev + 1);
     } catch (error) {
@@ -533,12 +534,12 @@ export default function Template() {
       <AppFooter />
 
       <Modal
-        title={modalState.mode === "edit" ? "编辑模版" : "新建模版"}
+        title={modalState.mode === EDITOR_PAGE_MODES.EDIT ? "编辑模版" : "新建模版"}
         open={modalState.open}
         onCancel={handleCloseModal}
         onOk={() => void handleSubmitModal()}
         confirmLoading={submitting}
-        okText={modalState.mode === "edit" ? "保存修改" : "创建模版"}
+        okText={modalState.mode === EDITOR_PAGE_MODES.EDIT ? "保存修改" : "创建模版"}
         cancelText="取消"
         width={680}
       >

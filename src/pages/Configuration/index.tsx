@@ -14,8 +14,16 @@ import {
 } from "antd";
 import type { TableProps } from "antd";
 import { useNavigate } from "react-router-dom";
-import AppConsoleMenu from "../../components/AppConsoleMenu";
-import AppFooter from "../../components/AppFooter";
+import {
+  APP_ROUTE_PATHS,
+  APPROVAL_TEMPLATE_STATUSES,
+  buildConfigurationDetailPath,
+  buildConfigurationEditPath,
+  getApprovalTemplateStatusLabel,
+  approvalTemplateStatusOptions as statusOptions,
+} from "@constants";
+import AppConsoleMenu from "@components/AppConsoleMenu";
+import AppFooter from "@components/AppFooter";
 import {
   deleteConfiguration,
   listConfigurations,
@@ -23,8 +31,8 @@ import {
   type ConfigurationListParams,
   type ConfigurationRecord,
   type ConfigurationStatus,
-} from "../../service/api";
-import { formatDateTime } from "../../utils";
+} from "@service/api";
+import { formatDateTime } from "@utils";
 import styles from "./styles.module.less";
 
 type SearchFormValues = Pick<ConfigurationListParams, "name" | "fileName" | "status">;
@@ -34,11 +42,6 @@ type PaginationState = {
   pageSize: number;
   total: number;
 };
-
-const statusOptions: Array<{ label: string; value: ConfigurationStatus }> = [
-  { label: "启用", value: "enable" },
-  { label: "禁用", value: "disable" },
-];
 
 function getConfigurationId(record: Partial<ConfigurationRecord>) {
   return record.id ?? record._id ?? "";
@@ -58,11 +61,7 @@ function buildSearchParams(values: SearchFormValues): SearchFormValues {
 }
 
 function getStatusLabel(status?: ConfigurationStatus) {
-  if (status === "disable") {
-    return "禁用";
-  }
-
-  return "启用";
+  return getApprovalTemplateStatusLabel(status);
 }
 
 export default function Configuration() {
@@ -129,12 +128,12 @@ export default function Configuration() {
   }, [filters, pagination.pageNum, pagination.pageSize, reloadSeed, messageApi]);
 
   const enabledCount = useMemo(
-    () => records.filter((item) => item.status !== "disable").length,
+    () => records.filter((item) => item.status !== APPROVAL_TEMPLATE_STATUSES.DISABLE).length,
     [records],
   );
 
   const disabledCount = useMemo(
-    () => records.filter((item) => item.status === "disable").length,
+    () => records.filter((item) => item.status === APPROVAL_TEMPLATE_STATUSES.DISABLE).length,
     [records],
   );
 
@@ -190,7 +189,7 @@ export default function Configuration() {
       key: "status",
       width: 110,
       render: (value?: ConfigurationStatus) => (
-        <Tag className={value === "disable" ? styles.statusTagDisabled : styles.statusTagEnabled}>
+        <Tag className={value === APPROVAL_TEMPLATE_STATUSES.DISABLE ? styles.statusTagDisabled : styles.statusTagEnabled}>
           {getStatusLabel(value)}
         </Tag>
       ),
@@ -205,31 +204,33 @@ export default function Configuration() {
         const toggleActionKey = `${id}-toggle`;
         const deleteActionKey = `${id}-delete`;
         const nextStatus: ConfigurationStatus =
-          record.status === "disable" ? "enable" : "disable";
+          record.status === APPROVAL_TEMPLATE_STATUSES.DISABLE
+            ? APPROVAL_TEMPLATE_STATUSES.ENABLE
+            : APPROVAL_TEMPLATE_STATUSES.DISABLE;
 
         return (
           <Space size={12} wrap>
             <Button
               type="link"
               className={styles.actionButton}
-              onClick={() => navigate(`/configuration/${id}`)}
+              onClick={() => navigate(buildConfigurationDetailPath(id))}
             >
               详情
             </Button>
             <Button
               type="link"
               className={styles.actionButton}
-              onClick={() => navigate(`/configuration/${id}/edit`)}
+              onClick={() => navigate(buildConfigurationEditPath(id))}
             >
               编辑
             </Button>
             <Button
               type="link"
-              className={record.status === "disable" ? styles.actionButton : styles.actionButtonWarn}
+              className={record.status === APPROVAL_TEMPLATE_STATUSES.DISABLE ? styles.actionButton : styles.actionButtonWarn}
               loading={actionKey === toggleActionKey}
               onClick={() => void handleToggleStatus(record, nextStatus)}
             >
-              {record.status === "disable" ? "启用" : "禁用"}
+              {record.status === APPROVAL_TEMPLATE_STATUSES.DISABLE ? "启用" : "禁用"}
             </Button>
             <Popconfirm
               title="确认删除这份配置吗？"
@@ -291,7 +292,7 @@ export default function Configuration() {
         return;
       }
 
-      messageApi.success(status === "enable" ? "配置已启用" : "配置已禁用");
+      messageApi.success(status === APPROVAL_TEMPLATE_STATUSES.ENABLE ? "配置已启用" : "配置已禁用");
       setReloadSeed((prev) => prev + 1);
     } catch (error) {
       if (error && typeof error === "object" && "handled" in error && error.handled) {
@@ -367,7 +368,7 @@ export default function Configuration() {
               </div>
             </div>
             <Space className={styles.quickActions}>
-              <Button type="primary" onClick={() => navigate("/configuration/create")}>
+              <Button type="primary" onClick={() => navigate(APP_ROUTE_PATHS.CONFIGURATION_CREATE)}>
                 新建配置
               </Button>
               <Button type="default" onClick={() => setReloadSeed((prev) => prev + 1)}>

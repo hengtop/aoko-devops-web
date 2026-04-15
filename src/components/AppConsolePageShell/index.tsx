@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import AppConsoleMenu from "../AppConsoleMenu";
-import AppFooter from "../AppFooter";
+import AppConsoleMenu from "@components/AppConsoleMenu";
+import AppFooter from "@components/AppFooter";
 import styles from "./styles.module.less";
 
 interface AppConsolePageShellProps {

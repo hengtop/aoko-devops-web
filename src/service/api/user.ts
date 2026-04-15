@@ -1,6 +1,7 @@
-import { request } from "../request";
-import type { ServiceRequestOptions } from "../request";
+import { request } from "@service/request";
+import type { ServiceRequestOptions } from "@service/request";
 import type { ApiPromise, BaseResponse, PaginatedList } from "./types";
+import { API_PATHS } from "@constants/api";
 
 export interface UserProfile {
   id?: string;
@@ -26,7 +27,7 @@ export function listUsers(
   params: UserListParams,
   options?: ServiceRequestOptions,
 ): ApiPromise<PaginatedList<UserProfile>> {
-  return request.post<BaseResponse<PaginatedList<UserProfile>>>("/user/list", {
+  return request.post<BaseResponse<PaginatedList<UserProfile>>>(API_PATHS.USER_LIST, {
     ...options,
     data: params,
   });
@@ -36,7 +37,7 @@ export function getUserDetailById(
   id: string,
   options?: ServiceRequestOptions,
 ): ApiPromise<UserProfile> {
-  return request.post<BaseResponse<UserProfile>>(`/user/detail/${id}`, {
+  return request.post<BaseResponse<UserProfile>>(API_PATHS.USER_DETAIL(id), {
     ...options,
   });
 }

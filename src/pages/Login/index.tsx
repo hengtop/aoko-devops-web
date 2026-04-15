@@ -2,9 +2,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent } from "react";
 import { Button, Checkbox, Form, Input, Segmented, message } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { login, sendEmailCode, type LoginParams } from "../../service/api";
-import { setAccessToken } from "../../service/request";
-import { resolveLoginRedirectTarget } from "../../utils";
+import { APP_ROUTE_PATHS, LOGIN_TYPES } from "@constants";
+import { login, sendEmailCode, type LoginParams } from "@service/api";
+import { setAccessToken } from "@service/request";
+import { resolveLoginRedirectTarget } from "@utils";
 import styles from "./styles.module.less";
 
 type LoginMode = "email" | "phone" | "password";
@@ -66,7 +67,7 @@ export default function Login() {
       resolveLoginRedirectTarget(
         location.search,
         (location.state as LoginLocationState | null)?.from,
-      ) ?? "/dashboard",
+      ) ?? APP_ROUTE_PATHS.DASHBOARD,
     [location.search, location.state],
   );
 
@@ -166,7 +167,7 @@ export default function Login() {
 
     if (mode === "email") {
       params = {
-        type: "email",
+        type: LOGIN_TYPES.EMAIL,
         email,
         authCode: emailCode,
       };
@@ -174,7 +175,7 @@ export default function Login() {
 
     if (mode === "phone") {
       params = {
-        type: "phone",
+        type: LOGIN_TYPES.PHONE,
         phone: normalizePhone(phone),
         authCode: phoneCode,
       };
@@ -187,7 +188,7 @@ export default function Login() {
       }
 
       params = {
-        type: "password",
+        type: LOGIN_TYPES.PASSWORD,
         username: account,
         password,
       };
@@ -456,7 +457,7 @@ export default function Login() {
 
             <div className={styles.registerHint}>
               还没有账号？
-              <Link className={styles.registerLink} to="/register">
+              <Link className={styles.registerLink} to={APP_ROUTE_PATHS.REGISTER}>
                 立即注册
               </Link>
             </div>

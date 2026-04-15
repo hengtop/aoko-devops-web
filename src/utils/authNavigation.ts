@@ -1,5 +1,6 @@
-export const LOGIN_PATH = "/login";
-export const LOGIN_REDIRECT_QUERY_KEY = "redirect";
+import { APP_ROUTE_PATHS, LOGIN_REDIRECT_QUERY_KEY } from "@constants";
+
+export const LOGIN_PATH = APP_ROUTE_PATHS.LOGIN;
 
 type RouteLocationLike = {
   pathname?: string;
@@ -21,7 +22,7 @@ function normalizeRedirectTarget(target: string | null | undefined) {
 
 export function buildRoutePath(location?: RouteLocationLike | null) {
   if (!location?.pathname) {
-    return "/";
+    return APP_ROUTE_PATHS.HOME;
   }
 
   return `${location.pathname}${location.search ?? ""}${location.hash ?? ""}`;
@@ -54,7 +55,7 @@ export function resolveLoginRedirectTarget(search: string, fallbackLocation?: Ro
 
 export function resolveCurrentRoutePath() {
   if (typeof window === "undefined") {
-    return "/";
+    return APP_ROUTE_PATHS.HOME;
   }
 
   return buildRoutePath(window.location);

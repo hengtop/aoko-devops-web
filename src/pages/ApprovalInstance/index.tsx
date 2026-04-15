@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { Button, Card, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag, message } from "antd";
 import type { TableProps } from "antd";
 import { useNavigate } from "react-router-dom";
-import AppConsolePageShell from "../../components/AppConsolePageShell";
-import ApprovalDetailDrawer from "../../components/ApprovalDetailDrawer";
+import { APP_ROUTE_PATHS, APPROVAL_INSTANCE_STATUSES } from "@constants";
+import AppConsolePageShell from "@components/AppConsolePageShell";
+import ApprovalDetailDrawer from "@components/ApprovalDetailDrawer";
 import {
   cancelApproval,
   listApprovals,
@@ -11,8 +12,8 @@ import {
   type ApprovalInstanceStatus,
   type ApprovalListParams,
   type ApprovalTemplateBizType,
-} from "../../service/api";
-import { formatDateTime } from "../../utils";
+} from "@service/api";
+import { formatDateTime } from "@utils";
 import {
   approvalInstanceBizTypeOptions,
   approvalInstanceStatusOptions,
@@ -174,7 +175,7 @@ export default function ApprovalInstance() {
       width: 190,
       render: (_, record) => {
         const id = getApprovalInstanceId(record);
-        const canCancel = record.status === "in_progress";
+        const canCancel = record.status === APPROVAL_INSTANCE_STATUSES.IN_PROGRESS;
 
         return (
           <Space size={12}>
@@ -278,7 +279,7 @@ export default function ApprovalInstance() {
       subtitle="发起审批流程、查看审批详情，并在流程处理中按需取消审批。"
       note="这里专注审批单本身的发起与查看。新建已迁移到独立页面；当前服务端未提供审批单编辑接口，所以列表页仍保留详情和取消等轻交互。"
       actions={
-        <Button type="primary" onClick={() => navigate("/approval/instance/create")}>
+        <Button type="primary" onClick={() => navigate(APP_ROUTE_PATHS.APPROVAL_INSTANCE_CREATE)}>
           发起审批
         </Button>
       }

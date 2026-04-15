@@ -1,7 +1,8 @@
 import { create } from "zustand";
+import { STORAGE_KEYS } from "@constants";
 
-export const TOKEN_STORAGE_KEY = "aoko_devops_token";
-export const PERMISSIONS_STORAGE_KEY = "aoko_devops_permissions";
+export const TOKEN_STORAGE_KEY = STORAGE_KEYS.ACCESS_TOKEN;
+export const PERMISSIONS_STORAGE_KEY = STORAGE_KEYS.PERMISSIONS;
 
 function isBrowser() {
   return typeof window !== "undefined";

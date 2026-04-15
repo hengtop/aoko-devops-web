@@ -8,6 +8,7 @@ import {
 } from "react";
 import { flushSync } from "react-dom";
 import { theme, type ThemeConfig } from "antd";
+import { STORAGE_KEYS, THEME_DATA_ATTRIBUTE, THEME_MODES } from "@constants";
 
 export type AppThemeMode = "dark" | "light";
 
@@ -50,7 +51,7 @@ type RippleStyle = React.CSSProperties & {
   "--theme-transition-glow": string;
 };
 
-const THEME_STORAGE_KEY = "aoko-theme-mode";
+const THEME_STORAGE_KEY = STORAGE_KEYS.THEME_MODE;
 const THEME_TRANSITION_MS = 760;
 const THEME_TRANSITION_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 
@@ -77,12 +78,12 @@ const transitionPalette: Record<
 const AppThemeContext = createContext<AppThemeContextValue | null>(null);
 
 function isThemeMode(value: string | null): value is AppThemeMode {
-  return value === "dark" || value === "light";
+  return value === THEME_MODES.DARK || value === THEME_MODES.LIGHT;
 }
 
 function getInitialThemeMode(): AppThemeMode {
   if (typeof window === "undefined") {
-    return "dark";
+    return THEME_MODES.DARK;
   }
 
   const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
@@ -91,7 +92,7 @@ function getInitialThemeMode(): AppThemeMode {
     return storedTheme;
   }
 
-  return "dark";
+  return THEME_MODES.DARK;
 }
 
 function applyThemeModeToDocument(mode: AppThemeMode) {
@@ -99,7 +100,7 @@ function applyThemeModeToDocument(mode: AppThemeMode) {
     return;
   }
 
-  document.documentElement.dataset.theme = mode;
+  document.documentElement.dataset[THEME_DATA_ATTRIBUTE] = mode;
   document.documentElement.style.colorScheme = mode;
 }
 
@@ -141,7 +142,7 @@ const initialThemeMode = getInitialThemeMode();
 applyThemeModeToDocument(initialThemeMode);
 
 export function getAntdThemeConfig(mode: AppThemeMode): ThemeConfig {
-  const isDark = mode === "dark";
+  const isDark = mode === THEME_MODES.DARK;
 
   return {
     cssVar: {
@@ -367,12 +368,12 @@ export function AppThemeProvider({ children }: { children: ReactNode }) {
   }
 
   function toggleTheme(point?: ThemeTogglePoint) {
-    setThemeMode(mode === "dark" ? "light" : "dark", point);
+    setThemeMode(mode === THEME_MODES.DARK ? THEME_MODES.LIGHT : THEME_MODES.DARK, point);
   }
 
   const contextValue: AppThemeContextValue = {
     mode,
-    isDark: mode === "dark",
+    isDark: mode === THEME_MODES.DARK,
     isTransitioning,
     setThemeMode,
     toggleTheme,

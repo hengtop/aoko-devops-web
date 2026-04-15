@@ -1,0 +1,4 @@
+interface:
+  display_name: "No Magic Strings"
+  short_description: "Keep project code free of hard-coded magic strings"
+  default_prompt: "Use $no-magic-strings to extract magic strings into src/constants before finishing the change."

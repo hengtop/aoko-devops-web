@@ -2,21 +2,22 @@ import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { Button, Card, Form, Input, Select, Space, message } from "antd";
 import { useNavigate } from "react-router-dom";
-import AppConsolePageShell from "../../components/AppConsolePageShell";
+import { APP_ROUTE_PATHS, APPROVAL_SOURCE_TYPES } from "@constants";
+import AppConsolePageShell from "@components/AppConsolePageShell";
 import {
   createApproval,
   listApprovalPolicies,
   listApprovalTemplates,
-} from "../../service/api";
-import editorStyles from "../ApprovalEditor/styles.module.less";
+} from "@service/api";
+import editorStyles from "@pages/ApprovalEditor/styles.module.less";
 import {
   approvalInstanceBizTypeOptions,
   approvalSourceTypeOptions,
   buildApprovalInstancePayload,
   getApprovalInstancePolicyId,
   getApprovalInstanceTemplateId,
-} from "../ApprovalInstance/shared";
-import type { ApprovalCreateFormValues } from "../ApprovalInstance/shared";
+} from "@pages/ApprovalInstance/shared";
+import type { ApprovalCreateFormValues } from "@pages/ApprovalInstance/shared";
 
 export default function ApprovalInstanceEditor() {
   const [form] = Form.useForm<ApprovalCreateFormValues>();
@@ -32,7 +33,7 @@ export default function ApprovalInstanceEditor() {
   useEffect(() => {
     form.setFieldsValue({
       resolveMode: "template",
-      sourceType: "manual",
+      sourceType: APPROVAL_SOURCE_TYPES.MANUAL,
     });
   }, [form]);
 
@@ -118,7 +119,7 @@ export default function ApprovalInstanceEditor() {
       }
 
       messageApi.success("审批单已发起");
-      navigate("/approval/instance");
+      navigate(APP_ROUTE_PATHS.APPROVAL_INSTANCE);
     } catch (error) {
       if (error && typeof error === "object" && "errorFields" in error) {
         return;
@@ -143,7 +144,7 @@ export default function ApprovalInstanceEditor() {
       note="当前服务端只提供审批单创建接口，没有提供编辑接口，所以这里保留为独立的发起页面。"
       actions={
         <Space>
-          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/approval/instance")}>
+          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(APP_ROUTE_PATHS.APPROVAL_INSTANCE)}>
             返回列表
           </Button>
           <Button type="primary" loading={submitting} onClick={() => void handleSubmit()}>
@@ -177,7 +178,7 @@ export default function ApprovalInstanceEditor() {
             <Form.Item name="bizNo" label="业务编号">
               <Input placeholder="可选，便于查询与展示" />
             </Form.Item>
-            <Form.Item name="sourceType" label="发起来源" initialValue="manual">
+            <Form.Item name="sourceType" label="发起来源" initialValue={APPROVAL_SOURCE_TYPES.MANUAL}>
               <Select options={approvalSourceTypeOptions} />
             </Form.Item>
             <Form.Item name="resolveMode" label="模板来源" initialValue="template">

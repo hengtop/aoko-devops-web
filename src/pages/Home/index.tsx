@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { APP_ROUTE_PATHS } from "@constants";
 import styles from "./styles.module.less";
 
 export default function Home() {
@@ -30,7 +31,7 @@ export default function Home() {
           <button
             className={styles.heroCta}
             type="button"
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate(APP_ROUTE_PATHS.DASHBOARD)}
           >
             开始
           </button>

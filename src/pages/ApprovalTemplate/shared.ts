@@ -1,64 +1,46 @@
 import type {
-  ApprovalApproverSourceType,
-  ApprovalNodeMode,
-  ApprovalNotifyChannel,
-  ApprovalTemplateBizType,
   ApprovalTemplateListParams,
   ApprovalTemplateMutationPayload,
   ApprovalTemplateNode,
   ApprovalTemplateRecord,
-  ApprovalTemplateStatus,
   UserProfile,
-} from "../../service/api";
+} from "@service/api";
+import {
+  APPROVAL_APPROVER_SOURCE_TYPES,
+  APPROVAL_NODE_MODES,
+  APPROVAL_NOTIFY_CHANNELS,
+  approvalApproverSourceOptions,
+  approvalNodeModeOptions,
+  approvalNotifyChannelOptions,
+  approvalTemplateBizTypeOptions,
+  approvalTemplateStatusOptions,
+  getApprovalTemplateBizTypeLabel,
+  getApprovalTemplateStatusLabel,
+} from "@constants";
 
-export const approvalTemplateBizTypeOptions: Array<{
-  label: string;
-  value: ApprovalTemplateBizType;
-}> = [
-  { label: "发布审批", value: "release" },
-  { label: "部署审批", value: "deployment" },
-  { label: "接口门禁", value: "api_gate" },
-];
-
-export const approvalTemplateStatusOptions: Array<{
-  label: string;
-  value: ApprovalTemplateStatus;
-}> = [
-  { label: "启用", value: "enable" },
-  { label: "禁用", value: "disable" },
-];
-
-export const approvalNodeModeOptions: Array<{ label: string; value: ApprovalNodeMode }> = [
-  { label: "任一通过", value: "OR" },
-  { label: "全部通过", value: "AND" },
-];
-
-export const approvalApproverSourceOptions: Array<{
-  label: string;
-  value: ApprovalApproverSourceType;
-}> = [
-  { label: "指定用户", value: "USER" },
-  { label: "角色成员", value: "ROLE" },
-];
-
-export const approvalNotifyChannelOptions: Array<{
-  label: string;
-  value: ApprovalNotifyChannel;
-}> = [
-  { label: "站内消息", value: "site" },
-  { label: "邮件通知", value: "email" },
-];
+export {
+  APPROVAL_APPROVER_SOURCE_TYPES,
+  APPROVAL_NODE_MODES,
+  APPROVAL_NOTIFY_CHANNELS,
+  approvalApproverSourceOptions,
+  approvalNodeModeOptions,
+  approvalNotifyChannelOptions,
+  approvalTemplateBizTypeOptions,
+  approvalTemplateStatusOptions,
+  getApprovalTemplateBizTypeLabel,
+  getApprovalTemplateStatusLabel,
+};
 
 export const defaultApprovalTemplateNodeValue: ApprovalTemplateNode = {
   nodeCode: "",
   nodeName: "",
   order: 1,
-  approvalMode: "OR",
-  approverSourceType: "USER",
+  approvalMode: APPROVAL_NODE_MODES.OR,
+  approverSourceType: APPROVAL_APPROVER_SOURCE_TYPES.USER,
   approverIds: [],
   allowTransfer: true,
   allowAddApprover: true,
-  notifyChannels: ["site"],
+  notifyChannels: [APPROVAL_NOTIFY_CHANNELS.SITE],
 };
 
 export function getApprovalTemplateId(record: Partial<ApprovalTemplateRecord>) {
@@ -89,14 +71,6 @@ export function buildApprovalTemplateSearchParams(
   };
 }
 
-export function getApprovalTemplateBizTypeLabel(value?: ApprovalTemplateBizType) {
-  return approvalTemplateBizTypeOptions.find((item) => item.value === value)?.label ?? "未设置";
-}
-
-export function getApprovalTemplateStatusLabel(value?: ApprovalTemplateStatus) {
-  return approvalTemplateStatusOptions.find((item) => item.value === value)?.label ?? "启用";
-}
-
 export function buildApprovalTemplatePayload(
   values: ApprovalTemplateMutationPayload,
 ): ApprovalTemplateMutationPayload {
@@ -115,7 +89,7 @@ export function buildApprovalTemplatePayload(
       approverIds: normalizeApprovalTemplateIdList(node.approverIds),
       allowTransfer: node.allowTransfer !== false,
       allowAddApprover: node.allowAddApprover !== false,
-      notifyChannels: node.notifyChannels?.length ? node.notifyChannels : ["site"],
+      notifyChannels: node.notifyChannels?.length ? node.notifyChannels : [APPROVAL_NOTIFY_CHANNELS.SITE],
     })),
   };
 }

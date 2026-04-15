@@ -13,8 +13,16 @@ import {
 } from "antd";
 import type { TableProps } from "antd";
 import { useNavigate } from "react-router-dom";
-import AppConsoleMenu from "../../components/AppConsoleMenu";
-import AppFooter from "../../components/AppFooter";
+import {
+  APP_ROUTE_PATHS,
+  MESSAGE_STATUSES,
+  buildMessageManageDetailPath,
+  buildMessageManageEditPath,
+  messageStatusOptions,
+  messageTargetTypeOptions,
+} from "@constants";
+import AppConsoleMenu from "@components/AppConsoleMenu";
+import AppFooter from "@components/AppFooter";
 import {
   deleteMessage,
   listMessages,
@@ -23,13 +31,13 @@ import {
   type MessageRecord,
   type MessageStatus,
   type MessageTargetType,
-} from "../../service/api";
+} from "@service/api";
 import {
   buildMessageSummary,
   formatMessageDateTime,
   getMessageStatusLabel,
   getMessageTargetTypeLabel,
-} from "../../utils/message";
+} from "@utils/message";
 import styles from "./styles.module.less";
 
 type SearchFormValues = Pick<MessageListParams, "title" | "target_type" | "status">;
@@ -39,17 +47,6 @@ type PaginationState = {
   pageSize: number;
   total: number;
 };
-
-const targetTypeOptions: Array<{ label: string; value: MessageTargetType }> = [
-  { label: "个人消息", value: "personal" },
-  { label: "群发消息", value: "group" },
-  { label: "全员消息", value: "all" },
-];
-
-const statusOptions: Array<{ label: string; value: MessageStatus }> = [
-  { label: "草稿", value: "draft" },
-  { label: "已发送", value: "sent" },
-];
 
 function getMessageId(record: Partial<MessageRecord>) {
   return record.id ?? record._id ?? "";
@@ -132,12 +129,12 @@ export default function MessageManage() {
   }, [filters, pagination.pageNum, pagination.pageSize, reloadSeed, messageApi]);
 
   const draftCount = useMemo(
-    () => records.filter((item) => item.status !== "sent").length,
+    () => records.filter((item) => item.status !== MESSAGE_STATUSES.SENT).length,
     [records],
   );
 
   const sentCount = useMemo(
-    () => records.filter((item) => item.status === "sent").length,
+    () => records.filter((item) => item.status === MESSAGE_STATUSES.SENT).length,
     [records],
   );
 
@@ -248,7 +245,7 @@ export default function MessageManage() {
       width: 120,
       render: (value?: MessageStatus) => (
         <Tag
-          className={value === "sent" ? styles.statusTagSent : styles.statusTagDraft}
+          className={value === MESSAGE_STATUSES.SENT ? styles.statusTagSent : styles.statusTagDraft}
           variant="filled"
         >
           {getMessageStatusLabel(value)}
@@ -280,14 +277,14 @@ export default function MessageManage() {
       width: 260,
       render: (_, record) => {
         const id = getMessageId(record);
-        const isSent = record.status === "sent";
+        const isSent = record.status === MESSAGE_STATUSES.SENT;
 
         return (
           <Space size={8} wrap>
-            <Button type="link" onClick={() => navigate(`/message/manage/${id}`)}>
+            <Button type="link" onClick={() => navigate(buildMessageManageDetailPath(id))}>
               查看
             </Button>
-            <Button type="link" disabled={isSent} onClick={() => navigate(`/message/manage/${id}/edit`)}>
+            <Button type="link" disabled={isSent} onClick={() => navigate(buildMessageManageEditPath(id))}>
               编辑
             </Button>
             <Popconfirm
@@ -341,10 +338,10 @@ export default function MessageManage() {
               </div>
             </div>
             <Space className={styles.quickActions}>
-              <Button type="default" onClick={() => navigate("/message")}>
+              <Button type="default" onClick={() => navigate(APP_ROUTE_PATHS.MESSAGE)}>
                 查看我的收件箱
               </Button>
-              <Button type="primary" onClick={() => navigate("/message/manage/create")}>
+              <Button type="primary" onClick={() => navigate(APP_ROUTE_PATHS.MESSAGE_MANAGE_CREATE)}>
                 新建消息
               </Button>
             </Space>
@@ -386,7 +383,7 @@ export default function MessageManage() {
                   allowClear
                   placeholder="全部"
                   className={styles.filterSelect}
-                  options={targetTypeOptions}
+                  options={messageTargetTypeOptions}
                 />
               </Form.Item>
               <Form.Item name="status" label="状态">
@@ -394,7 +391,7 @@ export default function MessageManage() {
                   allowClear
                   placeholder="全部"
                   className={styles.filterSelect}
-                  options={statusOptions}
+                  options={messageStatusOptions}
                 />
               </Form.Item>
               <Form.Item className={styles.filterActions}>

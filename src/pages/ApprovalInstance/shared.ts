@@ -1,45 +1,32 @@
 import type {
   ApprovalInstanceRecord,
-  ApprovalInstanceStatus,
   ApprovalListParams,
   ApprovalPolicyRecord,
-  ApprovalSourceType,
-  ApprovalTemplateBizType,
   ApprovalTemplateRecord,
   CreateApprovalPayload,
-} from "../../service/api";
+} from "@service/api";
+import {
+  approvalInstanceStatusOptions,
+  approvalSourceTypeOptions,
+  approvalTemplateBizTypeOptions,
+  getApprovalInstanceStatusLabel,
+  getApprovalTemplateBizTypeLabel,
+} from "@constants";
+
+export {
+  approvalInstanceStatusOptions,
+  approvalSourceTypeOptions,
+  getApprovalInstanceStatusLabel,
+};
+
+export const approvalInstanceBizTypeOptions = approvalTemplateBizTypeOptions;
+export const getApprovalInstanceBizTypeLabel = getApprovalTemplateBizTypeLabel;
 
 export type ApprovalCreateFormValues = CreateApprovalPayload & {
   resolveMode: "template" | "policy";
   requestSnapshotText?: string;
   metadataText?: string;
 };
-
-export const approvalInstanceBizTypeOptions: Array<{
-  label: string;
-  value: ApprovalTemplateBizType;
-}> = [
-  { label: "发布审批", value: "release" },
-  { label: "部署审批", value: "deployment" },
-  { label: "接口门禁", value: "api_gate" },
-];
-
-export const approvalInstanceStatusOptions: Array<{
-  label: string;
-  value: ApprovalInstanceStatus;
-}> = [
-  { label: "审批中", value: "in_progress" },
-  { label: "已通过", value: "approved" },
-  { label: "已拒绝", value: "rejected" },
-  { label: "已取消", value: "canceled" },
-  { label: "已过期", value: "expired" },
-];
-
-export const approvalSourceTypeOptions: Array<{ label: string; value: ApprovalSourceType }> = [
-  { label: "手动发起", value: "manual" },
-  { label: "系统发起", value: "system" },
-  { label: "接口门禁", value: "api_gate" },
-];
 
 export function getApprovalInstanceId(record: Partial<ApprovalInstanceRecord>) {
   return record.id ?? record._id ?? "";
@@ -110,27 +97,4 @@ export function buildApprovalInstancePayload(values: ApprovalCreateFormValues): 
     requestSnapshot: parseApprovalInstanceJsonObject(values.requestSnapshotText, "请求快照"),
     metadata: parseApprovalInstanceJsonObject(values.metadataText, "附加元数据"),
   };
-}
-
-export function getApprovalInstanceBizTypeLabel(value?: ApprovalTemplateBizType) {
-  return approvalInstanceBizTypeOptions.find((item) => item.value === value)?.label ?? "未设置";
-}
-
-export function getApprovalInstanceStatusLabel(value?: ApprovalInstanceStatus) {
-  switch (value) {
-    case "pending":
-      return "待提交";
-    case "in_progress":
-      return "审批中";
-    case "approved":
-      return "已通过";
-    case "rejected":
-      return "已拒绝";
-    case "canceled":
-      return "已取消";
-    case "expired":
-      return "已过期";
-    default:
-      return "未知";
-  }
 }

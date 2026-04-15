@@ -1,6 +1,7 @@
 import { create } from "zustand";
-import { listMyMessages, type MessageRecord } from "../service/api";
-import { getCurrentTimestamp } from "../utils";
+import { MESSAGE_READ_STATUSES } from "@constants";
+import { listMyMessages, type MessageRecord } from "@service/api";
+import { getCurrentTimestamp } from "@utils";
 
 type MessageInboxState = {
   unreadCount: number;
@@ -31,7 +32,7 @@ export const useMessageInboxStore = create<MessageInboxState>((set) => ({
         listMyMessages({
           pageNum: 1,
           pageSize: 1,
-          read_status: "unread",
+          read_status: MESSAGE_READ_STATUSES.UNREAD,
         }),
       ]);
 
@@ -51,19 +52,19 @@ export const useMessageInboxStore = create<MessageInboxState>((set) => ({
   markMessageReadLocally(id) {
     set((state) => {
       const nextRecentMessages = state.recentMessages.map((item) => {
-        if (item.id !== id || item.read_status === "read") {
+        if (item.id !== id || item.read_status === MESSAGE_READ_STATUSES.READ) {
           return item;
         }
 
         return {
           ...item,
-          read_status: "read" as const,
+          read_status: MESSAGE_READ_STATUSES.READ,
           readAt: getCurrentTimestamp(),
         };
       });
 
       const isUnreadBefore = state.recentMessages.some(
-        (item) => item.id === id && item.read_status !== "read",
+        (item) => item.id === id && item.read_status !== MESSAGE_READ_STATUSES.READ,
       );
 
       return {

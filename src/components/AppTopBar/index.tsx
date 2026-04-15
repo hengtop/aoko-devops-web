@@ -9,15 +9,21 @@ import {
 import { useEffect, useState } from "react";
 import { Avatar, Badge, Button, Dropdown, Empty, Popover, Select, Spin, Tag } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuthStore, useMessageInboxStore } from "../../store";
-import { logout } from "../../service/api";
-import { clearAccessToken } from "../../service/request";
-import { useAppTheme } from "../../theme";
+import {
+  APP_ROUTE_PATHS,
+  buildMessageDetailPath,
+  MESSAGE_READ_STATUSES,
+  THEME_MODES,
+} from "@constants";
+import { useAuthStore, useMessageInboxStore } from "@store";
+import { logout } from "@service/api";
+import { clearAccessToken } from "@service/request";
+import { useAppTheme } from "@theme";
 import {
   buildMessageSummary,
   formatMessageDateTime,
   getReadStatusLabel,
-} from "../../utils/message";
+} from "@utils/message";
 import styles from "./styles.module.less";
 
 const workspaceOptions = [
@@ -70,7 +76,7 @@ export default function AppTopBar() {
     }
 
     setPopoverOpen(false);
-    navigate(`/message/${messageId}`);
+    navigate(buildMessageDetailPath(messageId));
   }
 
   async function handleLogout() {
@@ -90,7 +96,7 @@ export default function AppTopBar() {
       }
 
       setPopoverOpen(false);
-      navigate("/login", {
+      navigate(APP_ROUTE_PATHS.LOGIN, {
         replace: true,
       });
       clearAccessToken();
@@ -137,7 +143,7 @@ export default function AppTopBar() {
           className={styles.messagePopoverLink}
           onClick={() => {
             setPopoverOpen(false);
-            navigate("/message");
+            navigate(APP_ROUTE_PATHS.MESSAGE);
           }}
         >
           查看全部
@@ -172,7 +178,7 @@ export default function AppTopBar() {
                   <Tag
                     variant="filled"
                     className={
-                      item.read_status === "read"
+                      item.read_status === MESSAGE_READ_STATUSES.READ
                         ? styles.messageReadTag
                         : styles.messageUnreadTag
                     }
@@ -224,7 +230,7 @@ export default function AppTopBar() {
             <span className={styles.themeToggleCopy}>
               <span className={styles.themeToggleLabel}>Theme</span>
               <span className={styles.themeToggleValue}>
-                {mode === "dark" ? "深色模式" : "浅色模式"}
+                {mode === THEME_MODES.DARK ? "深色模式" : "浅色模式"}
               </span>
             </span>
             <BulbOutlined className={styles.themeToggleAccent} />

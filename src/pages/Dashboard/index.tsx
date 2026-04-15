@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useMemo } from "react";
 import { Button, Card, Space, Tabs, Tag } from "antd";
-import AppConsoleMenu from "../../components/AppConsoleMenu";
-import AppFooter from "../../components/AppFooter";
+import { APP_ROUTE_PATHS } from "@constants";
+import AppConsoleMenu from "@components/AppConsoleMenu";
+import AppFooter from "@components/AppFooter";
 import styles from "./styles.module.less";
 
 const iterationStatus = [
@@ -132,7 +133,7 @@ export default function Dashboard() {
             </div>
             <Space className={styles.quickActions}>
               <Button type="primary">创建部署</Button>
-              <Button type="default" onClick={() => navigate("/template")}>
+              <Button type="default" onClick={() => navigate(APP_ROUTE_PATHS.TEMPLATE)}>
                 进入模版配置
               </Button>
             </Space>

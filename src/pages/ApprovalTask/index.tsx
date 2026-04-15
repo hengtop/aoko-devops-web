@@ -13,8 +13,18 @@ import {
   message,
 } from "antd";
 import type { TableProps } from "antd";
-import AppConsolePageShell from "../../components/AppConsolePageShell";
-import ApprovalDetailDrawer from "../../components/ApprovalDetailDrawer";
+import {
+  APPROVAL_ACTION_TYPES,
+  TASK_TABS,
+  approvalInstanceStatusOptions as instanceStatusOptions,
+  approvalTemplateBizTypeOptions as bizTypeOptions,
+  getApprovalActionLabel,
+  getApprovalInstanceStatusLabel,
+  getApprovalTaskStatusLabel,
+  getApprovalTemplateBizTypeLabel,
+} from "@constants";
+import AppConsolePageShell from "@components/AppConsolePageShell";
+import ApprovalDetailDrawer from "@components/ApprovalDetailDrawer";
 import {
   addApprovalApprover,
   approveApproval,
@@ -29,8 +39,8 @@ import {
   type ApprovalTaskStatus,
   type ApprovalTemplateBizType,
   type UserProfile,
-} from "../../service/api";
-import { formatDateTime } from "../../utils";
+} from "@service/api";
+import { formatDateTime } from "@utils";
 import styles from "./styles.module.less";
 
 type SearchFormValues = Pick<ApprovalTaskListParams, "bizType" | "instanceStatus">;
@@ -55,20 +65,6 @@ type PaginationState = {
   total: number;
 };
 
-const bizTypeOptions: Array<{ label: string; value: ApprovalTemplateBizType }> = [
-  { label: "发布审批", value: "release" },
-  { label: "部署审批", value: "deployment" },
-  { label: "接口门禁", value: "api_gate" },
-];
-
-const instanceStatusOptions: Array<{ label: string; value: ApprovalInstanceStatus }> = [
-  { label: "审批中", value: "in_progress" },
-  { label: "已通过", value: "approved" },
-  { label: "已拒绝", value: "rejected" },
-  { label: "已取消", value: "canceled" },
-  { label: "已过期", value: "expired" },
-];
-
 function getUserId(record: Partial<UserProfile>) {
   return record.id ?? record._id ?? "";
 }
@@ -79,67 +75,30 @@ function normalizeOptionalField(value?: string) {
 }
 
 function getBizTypeLabel(value?: ApprovalTemplateBizType) {
-  return bizTypeOptions.find((item) => item.value === value)?.label ?? "未知类型";
+  return getApprovalTemplateBizTypeLabel(value) ?? "未知类型";
 }
 
 function getInstanceStatusLabel(value?: ApprovalInstanceStatus) {
-  switch (value) {
-    case "pending":
-      return "待提交";
-    case "in_progress":
-      return "审批中";
-    case "approved":
-      return "已通过";
-    case "rejected":
-      return "已拒绝";
-    case "canceled":
-      return "已取消";
-    case "expired":
-      return "已过期";
-    default:
-      return "未知";
-  }
+  return getApprovalInstanceStatusLabel(value);
 }
 
 function getTaskStatusLabel(value?: ApprovalTaskStatus) {
-  switch (value) {
-    case "pending":
-      return "待处理";
-    case "approved":
-      return "已通过";
-    case "rejected":
-      return "已拒绝";
-    case "transferred":
-      return "已转交";
-    case "canceled":
-      return "已取消";
-    case "skipped":
-      return "已跳过";
-    default:
-      return "未知";
-  }
+  return getApprovalTaskStatusLabel(value);
 }
 
 function getActionModalTitle(type: TaskActionType) {
-  switch (type) {
-    case "approve":
-      return "审批通过";
-    case "reject":
-      return "审批拒绝";
-    case "transfer":
-      return "转交审批";
-    case "addApprover":
-      return "当前节点加签";
-    default:
-      return "处理审批";
+  if (type === "addApprover") {
+    return getApprovalActionLabel(APPROVAL_ACTION_TYPES.ADD_APPROVER) ?? "处理审批";
   }
+
+  return getApprovalActionLabel(type) ?? "处理审批";
 }
 
 export default function ApprovalTask() {
   const [searchForm] = Form.useForm<SearchFormValues>();
   const [actionForm] = Form.useForm<TaskActionFormValues>();
   const [messageApi, contextHolder] = message.useMessage();
-  const [activeTab, setActiveTab] = useState<"pending" | "done">("pending");
+  const [activeTab, setActiveTab] = useState<(typeof TASK_TABS)[keyof typeof TASK_TABS]>(TASK_TABS.PENDING);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [reloadSeed, setReloadSeed] = useState(0);
@@ -166,7 +125,7 @@ export default function ApprovalTask() {
       setLoading(true);
 
       try {
-        const requestFn = activeTab === "pending" ? listMyPendingApprovalTasks : listMyDoneApprovalTasks;
+        const requestFn = activeTab === TASK_TABS.PENDING ? listMyPendingApprovalTasks : listMyDoneApprovalTasks;
         const response = await requestFn({
           ...filters,
           pageNum: pagination.pageNum,
@@ -305,12 +264,12 @@ export default function ApprovalTask() {
       width: 220,
     },
     {
-      title: activeTab === "pending" ? "通知时间" : "处理时间",
+      title: activeTab === TASK_TABS.PENDING ? "通知时间" : "处理时间",
       key: "taskTime",
       width: 180,
       render: (_, record) => (
         <span className={styles.timestampText}>
-          {formatDateTime(activeTab === "pending" ? record.notifiedAt : record.actedAt)}
+          {formatDateTime(activeTab === TASK_TABS.PENDING ? record.notifiedAt : record.actedAt)}
         </span>
       ),
     },
@@ -318,7 +277,7 @@ export default function ApprovalTask() {
       title: "操作",
       key: "actions",
       fixed: "right",
-      width: activeTab === "pending" ? 280 : 80,
+      width: activeTab === TASK_TABS.PENDING ? 280 : 80,
       render: (_, record) => {
         const approvalId = record.instanceId;
 
@@ -327,7 +286,7 @@ export default function ApprovalTask() {
             <Button type="link" onClick={() => setDetailApprovalId(approvalId)}>
               详情
             </Button>
-            {activeTab === "pending" ? (
+            {activeTab === TASK_TABS.PENDING ? (
               <>
                 <Button type="link" onClick={() => handleOpenActionModal("approve", approvalId)}>
                   通过
@@ -485,7 +444,7 @@ export default function ApprovalTask() {
         <Tabs
           activeKey={activeTab}
           onChange={(key) => {
-            setActiveTab(key as "pending" | "done");
+            setActiveTab(key as (typeof TASK_TABS)[keyof typeof TASK_TABS]);
             setPagination((prev) => ({
               ...prev,
               pageNum: 1,
@@ -493,11 +452,11 @@ export default function ApprovalTask() {
           }}
           items={[
             {
-              key: "pending",
+              key: TASK_TABS.PENDING,
               label: "我的待办",
             },
             {
-              key: "done",
+              key: TASK_TABS.DONE,
               label: "我的已办",
             },
           ]}

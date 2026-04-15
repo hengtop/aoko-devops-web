@@ -1,5 +1,6 @@
 import { Button, Result } from "antd";
 import { useNavigate } from "react-router-dom";
+import { APP_ROUTE_PATHS } from "@constants";
 import styles from "./styles.module.less";
 
 export default function Forbidden() {
@@ -16,7 +17,7 @@ export default function Forbidden() {
           title="403"
           subTitle="当前账号没有访问这个页面的权限。"
           extra={
-            <Button type="primary" size="large" onClick={() => navigate("/dashboard")}>
+            <Button type="primary" size="large" onClick={() => navigate(APP_ROUTE_PATHS.DASHBOARD)}>
               返回控制台
             </Button>
           }

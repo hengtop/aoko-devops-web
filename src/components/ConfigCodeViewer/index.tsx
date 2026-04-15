@@ -4,7 +4,7 @@ import {
   atomOneDarkReasonable,
   atomOneLight,
 } from "react-syntax-highlighter/dist/esm/styles/hljs";
-import { useAppTheme } from "../../theme";
+import { useAppTheme } from "@theme";
 import { getConfigCodePresentation } from "./utils";
 import styles from "./styles.module.less";
 

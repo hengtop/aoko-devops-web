@@ -1,3 +1,8 @@
+import {
+  getMessageReadStatusLabel as resolveMessageReadStatusLabel,
+  getMessageStatusLabel as resolveMessageStatusLabel,
+  getMessageTargetTypeLabel as resolveMessageTargetTypeLabel,
+} from "@constants";
 import { formatDateTime } from "./time";
 
 export function formatMessageDateTime(value?: string | number) {
@@ -33,21 +38,13 @@ export function getAvatarText(name?: string) {
 }
 
 export function getReadStatusLabel(readStatus?: "unread" | "read") {
-  return readStatus === "read" ? "已读" : "未读";
+  return resolveMessageReadStatusLabel(readStatus);
 }
 
 export function getMessageStatusLabel(status?: "draft" | "sent") {
-  return status === "sent" ? "已发送" : "草稿";
+  return resolveMessageStatusLabel(status);
 }
 
 export function getMessageTargetTypeLabel(targetType?: "personal" | "group" | "all") {
-  if (targetType === "personal") {
-    return "个人消息";
-  }
-
-  if (targetType === "group") {
-    return "群发消息";
-  }
-
-  return "全员消息";
+  return resolveMessageTargetTypeLabel(targetType);
 }

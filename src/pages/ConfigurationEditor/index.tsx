@@ -2,17 +2,23 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeftOutlined, CopyOutlined, EditOutlined, ReloadOutlined } from "@ant-design/icons";
 import { Button, Card, Form, Input, Space, message } from "antd";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import AppConsoleMenu from "../../components/AppConsoleMenu";
-import ConfigCodeViewer from "../../components/ConfigCodeViewer";
-import { getConfigCodePresentation } from "../../components/ConfigCodeViewer/utils";
-import AppFooter from "../../components/AppFooter";
+import {
+  APP_ROUTE_PATHS,
+  APPROVAL_TEMPLATE_STATUSES,
+  EDITOR_PAGE_MODES,
+  buildConfigurationEditPath,
+} from "@constants";
+import AppConsoleMenu from "@components/AppConsoleMenu";
+import ConfigCodeViewer from "@components/ConfigCodeViewer";
+import { getConfigCodePresentation } from "@components/ConfigCodeViewer/utils";
+import AppFooter from "@components/AppFooter";
 import {
   createConfiguration,
   getConfigurationDetail,
   updateConfiguration,
   type ConfigurationMutationPayload,
   type ConfigurationRecord,
-} from "../../service/api";
+} from "@service/api";
 import styles from "./styles.module.less";
 
 type ConfigurationEditorFormValues = Omit<ConfigurationMutationPayload, "status">;
@@ -54,8 +60,12 @@ export default function ConfigurationEditor() {
   const ext = Form.useWatch("ext", form) ?? "";
   const content = Form.useWatch("content", form) ?? "";
 
-  const pageMode = !id ? "create" : location.pathname.endsWith("/edit") ? "edit" : "detail";
-  const isReadOnly = pageMode === "detail";
+  const pageMode = !id
+    ? EDITOR_PAGE_MODES.CREATE
+    : location.pathname.endsWith("/edit")
+      ? EDITOR_PAGE_MODES.EDIT
+      : EDITOR_PAGE_MODES.DETAIL;
+  const isReadOnly = pageMode === EDITOR_PAGE_MODES.DETAIL;
   const inferredExt = useMemo(() => inferExtensionFromFileName(fileName), [fileName]);
   const previewPresentation = useMemo(
     () => getConfigCodePresentation(ext, fileName, content),
@@ -124,12 +134,12 @@ export default function ConfigurationEditor() {
         fileName: values.fileName.trim(),
         ext: values.ext.trim(),
         content: values.content,
-        status: record?.status ?? "enable",
+        status: record?.status ?? APPROVAL_TEMPLATE_STATUSES.ENABLE,
       };
 
       setSubmitting(true);
 
-      if (pageMode === "edit") {
+      if (pageMode === EDITOR_PAGE_MODES.EDIT) {
         const recordId = getConfigurationId(record ?? {});
 
         if (!recordId) {
@@ -157,7 +167,7 @@ export default function ConfigurationEditor() {
         messageApi.success("配置已创建");
       }
 
-      navigate("/configuration");
+      navigate(APP_ROUTE_PATHS.CONFIGURATION);
     } catch (error) {
       if (error && typeof error === "object" && "errorFields" in error) {
         return;
@@ -201,12 +211,12 @@ export default function ConfigurationEditor() {
   }
 
   function handleBack() {
-    if (pageMode === "detail" && typeof window !== "undefined" && window.history.length > 1) {
+    if (pageMode === EDITOR_PAGE_MODES.DETAIL && typeof window !== "undefined" && window.history.length > 1) {
       navigate(-1);
       return;
     }
 
-    navigate("/configuration");
+    navigate(APP_ROUTE_PATHS.CONFIGURATION);
   }
 
   return (
@@ -226,7 +236,7 @@ export default function ConfigurationEditor() {
           <section className={styles.sectionHeader}>
             <div>
               <div className={styles.sectionTitle}>
-                {pageMode === "edit" ? "编辑配置" : pageMode === "detail" ? "配置详情" : "新建配置"}
+                {pageMode === EDITOR_PAGE_MODES.EDIT ? "编辑配置" : pageMode === EDITOR_PAGE_MODES.DETAIL ? "配置详情" : "新建配置"}
               </div>
               <div className={styles.sectionSubtitle}>
                 {isReadOnly
@@ -236,13 +246,13 @@ export default function ConfigurationEditor() {
             </div>
             <Space className={styles.quickActions}>
               <Button icon={<ArrowLeftOutlined />} onClick={handleBack}>
-                {pageMode === "detail" ? "返回上级" : "返回列表"}
+                {pageMode === EDITOR_PAGE_MODES.DETAIL ? "返回上级" : "返回列表"}
               </Button>
-              {pageMode === "detail" ? (
+              {pageMode === EDITOR_PAGE_MODES.DETAIL ? (
                 <Button
                   type="primary"
                   icon={<EditOutlined />}
-                  onClick={() => navigate(`/configuration/${id}/edit`)}
+                  onClick={() => navigate(buildConfigurationEditPath(id ?? ""))}
                 >
                   进入编辑
                 </Button>
@@ -252,7 +262,7 @@ export default function ConfigurationEditor() {
                   loading={submitting}
                   onClick={() => void handleSubmit()}
                 >
-                  {pageMode === "edit" ? "保存配置" : "创建配置"}
+                  {pageMode === EDITOR_PAGE_MODES.EDIT ? "保存配置" : "创建配置"}
                 </Button>
               )}
             </Space>

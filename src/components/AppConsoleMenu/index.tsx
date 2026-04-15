@@ -8,6 +8,7 @@ import {
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { APP_ROUTE_PATHS } from "@constants";
 import styles from "./styles.module.less";
 
 type MenuChildItem = {
@@ -26,59 +27,59 @@ type MenuItem = {
 
 const menuItems: MenuItem[] = [
   {
-    key: "/dashboard",
+    key: APP_ROUTE_PATHS.DASHBOARD,
     label: "工作台",
     hint: "总览与活动信息",
     icon: AppstoreOutlined,
   },
   {
-    key: "/template",
+    key: APP_ROUTE_PATHS.TEMPLATE,
     label: "模版配置",
     hint: "模版与仓库绑定",
     icon: DeploymentUnitOutlined,
   },
   {
-    key: "/configuration",
+    key: APP_ROUTE_PATHS.CONFIGURATION,
     label: "配置管理",
     hint: "配置文件与状态维护",
     icon: FileTextOutlined,
   },
   {
-    key: "/approval",
+    key: APP_ROUTE_PATHS.APPROVAL,
     label: "审批中心",
     hint: "模板、策略、审批与任务",
     icon: SafetyCertificateOutlined,
     children: [
       {
-        key: "/approval/template",
+        key: APP_ROUTE_PATHS.APPROVAL_TEMPLATE,
         label: "审批模板",
         hint: "维护节点与审批人",
       },
       {
-        key: "/approval/policy",
+        key: APP_ROUTE_PATHS.APPROVAL_POLICY,
         label: "审批策略",
         hint: "目标匹配与模板绑定",
       },
       {
-        key: "/approval/instance",
+        key: APP_ROUTE_PATHS.APPROVAL_INSTANCE,
         label: "审批单",
         hint: "发起与查看审批流程",
       },
       {
-        key: "/approval/task",
+        key: APP_ROUTE_PATHS.APPROVAL_TASK,
         label: "审批任务",
         hint: "处理我的待办与已办",
       },
     ],
   },
   {
-    key: "/server",
+    key: APP_ROUTE_PATHS.SERVER,
     label: "服务器管理",
     hint: "服务器与连接操作",
     icon: CloudServerOutlined,
   },
   {
-    key: "/message/manage",
+    key: APP_ROUTE_PATHS.MESSAGE_MANAGE,
     label: "消息管理",
     hint: "公告发布与消息发送",
     icon: NotificationOutlined,
@@ -86,7 +87,7 @@ const menuItems: MenuItem[] = [
 ];
 
 function isActiveMenu(currentPath: string, targetPath: string) {
-  if (targetPath === "/dashboard" || targetPath === "/approval") {
+  if (targetPath === APP_ROUTE_PATHS.DASHBOARD || targetPath === APP_ROUTE_PATHS.APPROVAL) {
     return currentPath === targetPath;
   }
 

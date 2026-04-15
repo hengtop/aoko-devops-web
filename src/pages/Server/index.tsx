@@ -15,8 +15,15 @@ import {
   message,
 } from "antd";
 import type { TableProps } from "antd";
-import AppConsoleMenu from "../../components/AppConsoleMenu";
-import AppFooter from "../../components/AppFooter";
+import {
+  EDITOR_PAGE_MODES,
+  SERVER_AUTH_TYPES,
+  SERVER_STATUSES,
+  serverAuthTypeOptions as authTypeOptions,
+  serverStatusOptions as statusOptions,
+} from "@constants";
+import AppConsoleMenu from "@components/AppConsoleMenu";
+import AppFooter from "@components/AppFooter";
 import {
   createServer,
   deleteServer,
@@ -30,8 +37,8 @@ import {
   type ServerMutationPayload,
   type ServerRecord,
   type ServerStatus,
-} from "../../service/api";
-import { formatDateTime } from "../../utils";
+} from "@service/api";
+import { formatDateTime } from "@utils";
 import styles from "./styles.module.less";
 
 type SearchFormValues = Pick<ServerListParams, "name" | "merchant" | "status">;
@@ -41,7 +48,7 @@ type ServerFormValues = Required<Pick<ServerMutationPayload, "status">> &
 
 type ServerModalState = {
   open: boolean;
-  mode: "create" | "edit";
+  mode: typeof EDITOR_PAGE_MODES.CREATE | typeof EDITOR_PAGE_MODES.EDIT;
   record?: ServerRecord;
 };
 
@@ -63,16 +70,6 @@ type PaginationState = {
   total: number;
 };
 
-const statusOptions: Array<{ label: string; value: ServerStatus }> = [
-  { label: "启用", value: "enable" },
-  { label: "禁用", value: "disable" },
-];
-
-const authTypeOptions: Array<{ label: string; value: ServerAuthType }> = [
-  { label: "账号密码", value: "password" },
-  { label: "密钥认证", value: "key" },
-];
-
 function getServerId(record: Partial<ServerRecord>) {
   return record.id ?? record._id ?? "";
 }
@@ -92,7 +89,7 @@ function buildSearchParams(values: SearchFormValues): SearchFormValues {
 
 function buildServerMutationPayload(
   values: ServerFormValues,
-  mode: "create" | "edit",
+  mode: typeof EDITOR_PAGE_MODES.CREATE | typeof EDITOR_PAGE_MODES.EDIT,
   originalAuthType?: ServerAuthType,
 ): ServerMutationPayload {
   const authType = values.auth_type;
@@ -109,7 +106,7 @@ function buildServerMutationPayload(
     payload.username = normalizeOptionalField(values.username);
     const password = normalizeOptionalField(values.password);
 
-    if (mode === "create" || authType !== originalAuthType || password) {
+    if (mode === EDITOR_PAGE_MODES.CREATE || authType !== originalAuthType || password) {
       payload.password = password;
     }
   }
@@ -118,11 +115,11 @@ function buildServerMutationPayload(
     const publicKey = normalizeOptionalField(values.public_key);
     const privateKey = normalizeOptionalField(values.private_key);
 
-    if (mode === "create" || authType !== originalAuthType || publicKey) {
+    if (mode === EDITOR_PAGE_MODES.CREATE || authType !== originalAuthType || publicKey) {
       payload.public_key = publicKey;
     }
 
-    if (mode === "create" || authType !== originalAuthType || privateKey) {
+    if (mode === EDITOR_PAGE_MODES.CREATE || authType !== originalAuthType || privateKey) {
       payload.private_key = privateKey;
     }
   }
@@ -131,11 +128,11 @@ function buildServerMutationPayload(
 }
 
 function formatServerStatus(status?: ServerStatus) {
-  return status === "disable" ? "禁用" : "启用";
+  return status === SERVER_STATUSES.DISABLE ? "禁用" : "启用";
 }
 
 function formatAuthType(authType?: ServerAuthType) {
-  return authType === "key" ? "密钥认证" : "账号密码";
+  return authType === SERVER_AUTH_TYPES.KEY ? "密钥认证" : "账号密码";
 }
 
 function formatPercent(value?: number) {
@@ -249,12 +246,12 @@ export default function Server() {
   }, [filters, pagination.pageNum, pagination.pageSize, reloadSeed, messageApi]);
 
   const enabledCount = useMemo(
-    () => records.filter((item) => item.status !== "disable").length,
+    () => records.filter((item) => item.status !== SERVER_STATUSES.DISABLE).length,
     [records],
   );
 
   const keyAuthCount = useMemo(
-    () => records.filter((item) => item.auth_type === "key").length,
+    () => records.filter((item) => item.auth_type === SERVER_AUTH_TYPES.KEY).length,
     [records],
   );
 
@@ -298,7 +295,7 @@ export default function Server() {
       key: "auth_type",
       width: 120,
       render: (value?: ServerAuthType) => (
-        <Tag className={value === "key" ? styles.authTagKey : styles.authTagPassword}>
+        <Tag className={value === SERVER_AUTH_TYPES.KEY ? styles.authTagKey : styles.authTagPassword}>
           {formatAuthType(value)}
         </Tag>
       ),
@@ -340,7 +337,10 @@ export default function Server() {
         const toggleActionKey = `${id}-toggle`;
         const deleteActionKey = `${id}-delete`;
         const testActionKey = `${id}-test`;
-        const nextStatus: ServerStatus = record.status === "disable" ? "enable" : "disable";
+        const nextStatus: ServerStatus =
+          record.status === SERVER_STATUSES.DISABLE
+            ? SERVER_STATUSES.ENABLE
+            : SERVER_STATUSES.DISABLE;
 
         return (
           <Space size={12} wrap>
@@ -360,11 +360,11 @@ export default function Server() {
             </Button>
             <Button
               type="link"
-              className={record.status === "disable" ? styles.actionButton : styles.actionButtonWarn}
+              className={record.status === SERVER_STATUSES.DISABLE ? styles.actionButton : styles.actionButtonWarn}
               loading={actionKey === toggleActionKey}
               onClick={() => void handleToggleStatus(record, nextStatus)}
             >
-              {record.status === "disable" ? "启用" : "禁用"}
+              {record.status === SERVER_STATUSES.DISABLE ? "启用" : "禁用"}
             </Button>
             <Popconfirm
               title="确认删除这台服务器吗？"
@@ -408,12 +408,12 @@ export default function Server() {
   function handleCreate() {
     modalForm.resetFields();
     modalForm.setFieldsValue({
-      status: "enable",
-      auth_type: "password",
+      status: SERVER_STATUSES.ENABLE,
+      auth_type: SERVER_AUTH_TYPES.PASSWORD,
     });
     setModalState({
       open: true,
-      mode: "create",
+      mode: EDITOR_PAGE_MODES.CREATE,
     });
   }
 
@@ -440,12 +440,12 @@ export default function Server() {
         auth_type: response.data.auth_type,
         username: response.data.username,
         description: response.data.description,
-        status: response.data.status ?? "enable",
+        status: response.data.status ?? SERVER_STATUSES.ENABLE,
       });
 
       setModalState({
         open: true,
-        mode: "edit",
+        mode: EDITOR_PAGE_MODES.EDIT,
         record: response.data,
       });
     } catch (error) {
@@ -498,7 +498,7 @@ export default function Server() {
   function handleCloseModal() {
     setModalState({
       open: false,
-      mode: "create",
+      mode: EDITOR_PAGE_MODES.CREATE,
     });
     modalForm.resetFields();
   }
@@ -524,7 +524,7 @@ export default function Server() {
         return;
       }
 
-      messageApi.success(status === "enable" ? "服务器已启用" : "服务器已禁用");
+      messageApi.success(status === SERVER_STATUSES.ENABLE ? "服务器已启用" : "服务器已禁用");
       setReloadSeed((prev) => prev + 1);
     } catch (error) {
       if (error && typeof error === "object" && "handled" in error && error.handled) {
@@ -589,7 +589,7 @@ export default function Server() {
 
       setSubmitting(true);
 
-      if (modalState.mode === "edit") {
+      if (modalState.mode === EDITOR_PAGE_MODES.EDIT) {
         const id = getServerId(modalState.record ?? {});
 
         if (!id) {
@@ -620,7 +620,7 @@ export default function Server() {
       handleCloseModal();
       setPagination((prev) => ({
         ...prev,
-        pageNum: modalState.mode === "create" ? 1 : prev.pageNum,
+        pageNum: modalState.mode === EDITOR_PAGE_MODES.CREATE ? 1 : prev.pageNum,
       }));
       setReloadSeed((prev) => prev + 1);
     } catch (error) {
@@ -824,12 +824,12 @@ export default function Server() {
       <AppFooter />
 
       <Modal
-        title={modalState.mode === "edit" ? "编辑服务器" : "新建服务器"}
+        title={modalState.mode === EDITOR_PAGE_MODES.EDIT ? "编辑服务器" : "新建服务器"}
         open={modalState.open}
         onCancel={handleCloseModal}
         onOk={() => void handleSubmitModal()}
         confirmLoading={submitting}
-        okText={modalState.mode === "edit" ? "保存修改" : "创建服务器"}
+        okText={modalState.mode === EDITOR_PAGE_MODES.EDIT ? "保存修改" : "创建服务器"}
         cancelText="取消"
         width={760}
       >
@@ -837,7 +837,7 @@ export default function Server() {
           form={modalForm}
           layout="vertical"
           className={styles.modalForm}
-          initialValues={{ status: "enable", auth_type: "password" }}
+          initialValues={{ status: SERVER_STATUSES.ENABLE, auth_type: SERVER_AUTH_TYPES.PASSWORD }}
         >
           <div className={styles.modalGrid}>
             <Form.Item
@@ -891,12 +891,12 @@ export default function Server() {
               <Form.Item
                 name="password"
                 label="密码"
-                extra={modalState.mode === "edit" ? "留空表示保持当前密码不变" : undefined}
+                extra={modalState.mode === EDITOR_PAGE_MODES.EDIT ? "留空表示保持当前密码不变" : undefined}
                 rules={[
                   {
                     required:
-                      modalState.mode === "create" ||
-                      modalState.record?.auth_type !== "password",
+                      modalState.mode === EDITOR_PAGE_MODES.CREATE ||
+                      modalState.record?.auth_type !== SERVER_AUTH_TYPES.PASSWORD,
                     whitespace: true,
                     message: "请输入登录密码",
                   },
@@ -912,10 +912,12 @@ export default function Server() {
               <Form.Item
                 name="public_key"
                 label="公钥"
-                extra={modalState.mode === "edit" ? "留空表示保持当前公钥不变" : undefined}
+                extra={modalState.mode === EDITOR_PAGE_MODES.EDIT ? "留空表示保持当前公钥不变" : undefined}
                 rules={[
                   {
-                    required: modalState.mode === "create" || modalState.record?.auth_type !== "key",
+                    required:
+                      modalState.mode === EDITOR_PAGE_MODES.CREATE ||
+                      modalState.record?.auth_type !== SERVER_AUTH_TYPES.KEY,
                     whitespace: true,
                     message: "请输入公钥",
                   },
@@ -926,10 +928,12 @@ export default function Server() {
               <Form.Item
                 name="private_key"
                 label="私钥"
-                extra={modalState.mode === "edit" ? "留空表示保持当前私钥不变" : undefined}
+                extra={modalState.mode === EDITOR_PAGE_MODES.EDIT ? "留空表示保持当前私钥不变" : undefined}
                 rules={[
                   {
-                    required: modalState.mode === "create" || modalState.record?.auth_type !== "key",
+                    required:
+                      modalState.mode === EDITOR_PAGE_MODES.CREATE ||
+                      modalState.record?.auth_type !== SERVER_AUTH_TYPES.KEY,
                     whitespace: true,
                     message: "请输入私钥",
                   },

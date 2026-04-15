@@ -1,34 +1,29 @@
 import type {
   ApprovalPolicyCondition,
   ApprovalPolicyListParams,
-  ApprovalPolicyMatchMode,
   ApprovalPolicyMutationPayload,
   ApprovalPolicyRecord,
   ApprovalPolicyRule,
-  ApprovalPolicyStatus,
   ApprovalPolicyTargetType,
   ApprovalTemplateRecord,
   UserProfile,
-} from "../../service/api";
+} from "@service/api";
+import {
+  APPROVAL_POLICY_MATCH_MODES,
+  approvalPolicyMatchModeOptions,
+  approvalPolicyStatusOptions,
+  approvalPolicyTargetTypeOptions,
+  getApprovalTemplateStatusLabel,
+} from "@constants";
 
-export const approvalPolicyTargetTypeOptions: Array<{
-  label: string;
-  value: ApprovalPolicyTargetType;
-}> = [
-  { label: "发布审批", value: "release" },
-  { label: "部署审批", value: "deployment" },
-  { label: "接口门禁", value: "api_gate" },
-];
+export {
+  APPROVAL_POLICY_MATCH_MODES,
+  approvalPolicyMatchModeOptions,
+  approvalPolicyStatusOptions,
+  approvalPolicyTargetTypeOptions,
+};
 
-export const approvalPolicyStatusOptions: Array<{ label: string; value: ApprovalPolicyStatus }> = [
-  { label: "启用", value: "enable" },
-  { label: "禁用", value: "disable" },
-];
-
-export const approvalPolicyMatchModeOptions: Array<{
-  label: string;
-  value: ApprovalPolicyMatchMode;
-}> = [{ label: "首条命中规则", value: "first_match" }];
+export const getApprovalPolicyStatusLabel = getApprovalTemplateStatusLabel;
 
 export const defaultApprovalPolicyRuleValue: ApprovalPolicyRule = {
   priority: 0,
@@ -90,7 +85,7 @@ export function buildApprovalPolicyPayload(
     status: values.status,
     targetType: values.targetType,
     targetCode: normalizeApprovalPolicyOptionalField(values.targetCode),
-    matchMode: values.matchMode ?? "first_match",
+    matchMode: values.matchMode ?? APPROVAL_POLICY_MATCH_MODES.FIRST_MATCH,
     rules: (values.rules ?? []).map((rule) => ({
       priority: Number(rule.priority ?? 0),
       enabled: rule.enabled !== false,
@@ -102,8 +97,4 @@ export function buildApprovalPolicyPayload(
 
 export function getApprovalPolicyTargetTypeLabel(value?: ApprovalPolicyTargetType) {
   return approvalPolicyTargetTypeOptions.find((item) => item.value === value)?.label ?? "未设置";
-}
-
-export function getApprovalPolicyStatusLabel(value?: ApprovalPolicyStatus) {
-  return approvalPolicyStatusOptions.find((item) => item.value === value)?.label ?? "启用";
 }

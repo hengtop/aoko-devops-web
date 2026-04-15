@@ -12,7 +12,13 @@ import {
   message,
 } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
-import AppConsolePageShell from "../../components/AppConsolePageShell";
+import {
+  APP_ROUTE_PATHS,
+  APPROVAL_POLICY_MATCH_MODES,
+  APPROVAL_TEMPLATE_STATUSES,
+  EDITOR_PAGE_MODES,
+} from "@constants";
+import AppConsolePageShell from "@components/AppConsolePageShell";
 import {
   createApprovalPolicy,
   getApprovalPolicyDetail,
@@ -20,8 +26,8 @@ import {
   listUsers,
   updateApprovalPolicy,
   type ApprovalPolicyMutationPayload,
-} from "../../service/api";
-import editorStyles from "../ApprovalEditor/styles.module.less";
+} from "@service/api";
+import editorStyles from "@pages/ApprovalEditor/styles.module.less";
 import {
   approvalPolicyMatchModeOptions,
   approvalPolicyStatusOptions,
@@ -30,7 +36,7 @@ import {
   defaultApprovalPolicyRuleValue,
   getApprovalPolicyTemplateId,
   getApprovalPolicyUserId,
-} from "../ApprovalPolicy/shared";
+} from "@pages/ApprovalPolicy/shared";
 
 type PolicyFormValues = ApprovalPolicyMutationPayload;
 
@@ -46,7 +52,7 @@ export default function ApprovalPolicyEditor() {
   );
   const [userOptions, setUserOptions] = useState<Array<{ label: string; value: string }>>([]);
 
-  const pageMode = id ? "edit" : "create";
+  const pageMode = id ? EDITOR_PAGE_MODES.EDIT : EDITOR_PAGE_MODES.CREATE;
 
   useEffect(() => {
     let cancelled = false;
@@ -110,7 +116,7 @@ export default function ApprovalPolicyEditor() {
       form.resetFields();
       form.setFieldsValue({
         status: "enable",
-        matchMode: "first_match",
+        matchMode: APPROVAL_POLICY_MATCH_MODES.FIRST_MATCH,
         rules: [{ ...defaultApprovalPolicyRuleValue }],
       });
       return;
@@ -132,10 +138,10 @@ export default function ApprovalPolicyEditor() {
         form.setFieldsValue({
           name: response.data.name,
           code: response.data.code,
-          status: response.data.status ?? "enable",
+          status: response.data.status ?? APPROVAL_TEMPLATE_STATUSES.ENABLE,
           targetType: response.data.targetType,
           targetCode: response.data.targetCode,
-          matchMode: response.data.matchMode ?? "first_match",
+          matchMode: response.data.matchMode ?? APPROVAL_POLICY_MATCH_MODES.FIRST_MATCH,
           rules:
             response.data.rules?.map((rule) => ({
               ...rule,
@@ -183,7 +189,7 @@ export default function ApprovalPolicyEditor() {
 
       setSubmitting(true);
 
-      if (pageMode === "edit") {
+      if (pageMode === EDITOR_PAGE_MODES.EDIT) {
         if (!id) {
           messageApi.error("当前记录缺少 id，无法更新");
           return;
@@ -209,7 +215,7 @@ export default function ApprovalPolicyEditor() {
         messageApi.success("审批策略已创建");
       }
 
-      navigate("/approval/policy");
+      navigate(APP_ROUTE_PATHS.APPROVAL_POLICY);
     } catch (error) {
       if (error && typeof error === "object" && "errorFields" in error) {
         return;
@@ -229,16 +235,16 @@ export default function ApprovalPolicyEditor() {
 
   return (
     <AppConsolePageShell
-      title={pageMode === "edit" ? "编辑审批策略" : "新建审批策略"}
+      title={pageMode === EDITOR_PAGE_MODES.EDIT ? "编辑审批策略" : "新建审批策略"}
       subtitle="审批策略的匹配条件较多，独立页面更方便完整配置目标和规则。"
       note="这里专注审批策略的创建与编辑。保存后会返回策略列表，审批模板和审批单的逻辑保持不变。"
       actions={
         <Space>
-          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/approval/policy")}>
+          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(APP_ROUTE_PATHS.APPROVAL_POLICY)}>
             返回列表
           </Button>
           <Button type="primary" loading={submitting} onClick={() => void handleSubmit()}>
-            {pageMode === "edit" ? "保存修改" : "创建策略"}
+            {pageMode === EDITOR_PAGE_MODES.EDIT ? "保存修改" : "创建策略"}
           </Button>
         </Space>
       }
@@ -269,13 +275,13 @@ export default function ApprovalPolicyEditor() {
             >
               <Select options={approvalPolicyTargetTypeOptions} placeholder="请选择目标类型" />
             </Form.Item>
-            <Form.Item name="status" label="状态" initialValue="enable">
+            <Form.Item name="status" label="状态" initialValue={APPROVAL_TEMPLATE_STATUSES.ENABLE}>
               <Select options={approvalPolicyStatusOptions} />
             </Form.Item>
             <Form.Item name="targetCode" label="目标编码">
               <Input placeholder="可选，限定某个具体业务编码" />
             </Form.Item>
-            <Form.Item name="matchMode" label="匹配模式" initialValue="first_match">
+            <Form.Item name="matchMode" label="匹配模式" initialValue={APPROVAL_POLICY_MATCH_MODES.FIRST_MATCH}>
               <Select options={approvalPolicyMatchModeOptions} />
             </Form.Item>
           </div>

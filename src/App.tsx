@@ -1,6 +1,6 @@
 import { ConfigProvider } from "antd";
-import { AppRouter } from "./router/index";
-import { AppThemeProvider, getAntdThemeConfig, useAppTheme } from "./theme";
+import { AppRouter } from "@router";
+import { AppThemeProvider, getAntdThemeConfig, useAppTheme } from "@theme";
 
 function ThemedApp() {
   const { mode } = useAppTheme();

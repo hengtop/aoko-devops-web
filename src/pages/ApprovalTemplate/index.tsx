@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 import { Button, Card, Form, Input, Popconfirm, Select, Space, Table, Tag, message } from "antd";
 import type { TableProps } from "antd";
 import { useNavigate } from "react-router-dom";
-import AppConsolePageShell from "../../components/AppConsolePageShell";
+import {
+  APP_ROUTE_PATHS,
+  APPROVAL_TEMPLATE_STATUSES,
+  buildApprovalTemplateEditPath,
+} from "@constants";
+import AppConsolePageShell from "@components/AppConsolePageShell";
 import {
   deleteApprovalTemplate,
   listApprovalTemplates,
@@ -10,8 +15,8 @@ import {
   type ApprovalTemplateListParams,
   type ApprovalTemplateRecord,
   type ApprovalTemplateStatus,
-} from "../../service/api";
-import { formatDateTime } from "../../utils";
+} from "@service/api";
+import { formatDateTime } from "@utils";
 import {
   approvalTemplateBizTypeOptions,
   approvalTemplateStatusOptions,
@@ -130,7 +135,7 @@ export default function ApprovalTemplate() {
       key: "status",
       width: 110,
       render: (value?: ApprovalTemplateStatus) => (
-        <Tag className={value === "disable" ? styles.statusTagDisabled : styles.statusTagEnabled}>
+        <Tag className={value === APPROVAL_TEMPLATE_STATUSES.DISABLE ? styles.statusTagDisabled : styles.statusTagEnabled}>
           {getApprovalTemplateStatusLabel(value)}
         </Tag>
       ),
@@ -167,7 +172,7 @@ export default function ApprovalTemplate() {
             <Button
               type="link"
               className={styles.actionButton}
-              onClick={() => navigate(`/approval/template/${id}/edit`)}
+              onClick={() => navigate(buildApprovalTemplateEditPath(id))}
             >
               编辑
             </Button>
@@ -248,7 +253,7 @@ export default function ApprovalTemplate() {
       subtitle="维护审批节点、审批人来源和通知方式，供审批策略与审批单复用。"
       note="这里仅处理模板本身的结构定义。新建和编辑已迁移到独立页面，列表页只保留查询、跳转和删除等轻交互。"
       actions={
-        <Button type="primary" onClick={() => navigate("/approval/template/create")}>
+        <Button type="primary" onClick={() => navigate(APP_ROUTE_PATHS.APPROVAL_TEMPLATE_CREATE)}>
           新建模板
         </Button>
       }

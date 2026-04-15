@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Card, Drawer, Empty, Space, Spin, Table, Tag } from "antd";
 import type { TableProps } from "antd";
-import { getApprovalDetail, type ApprovalActionRecord, type ApprovalInstanceRecord, type ApprovalInstanceStatus, type ApprovalTaskRecord, type ApprovalTaskStatus, type ApprovalTemplateBizType } from "../../service/api";
-import { formatDateTime } from "../../utils";
+import { getApprovalDetail, type ApprovalActionRecord, type ApprovalInstanceRecord, type ApprovalInstanceStatus, type ApprovalTaskRecord, type ApprovalTaskStatus, type ApprovalTemplateBizType } from "@service/api";
+import { formatDateTime } from "@utils";
 import styles from "./styles.module.less";
 
 interface ApprovalDetailDrawerProps {

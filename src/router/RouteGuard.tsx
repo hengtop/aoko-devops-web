@@ -1,7 +1,8 @@
 import type { PropsWithChildren } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuthStore } from "../store";
-import { buildLoginPath, buildRoutePath } from "../utils";
+import { APP_ROUTE_PATHS } from "@constants";
+import { useAuthStore } from "@store";
+import { buildLoginPath, buildRoutePath } from "@utils";
 import { canAccessRoute, type RouteAccess } from "./access";
 
 type RouteGuardProps = PropsWithChildren<{
@@ -32,5 +33,5 @@ export default function RouteGuard({ access, children }: RouteGuardProps) {
     );
   }
 
-  return <Navigate to="/403" replace />;
+  return <Navigate to={APP_ROUTE_PATHS.FORBIDDEN} replace />;
 }

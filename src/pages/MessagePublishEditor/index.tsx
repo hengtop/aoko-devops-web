@@ -2,8 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeftOutlined, EditOutlined, SendOutlined } from "@ant-design/icons";
 import { Alert, Button, Card, Form, Input, Select, Space, Tag, message } from "antd";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import AppConsoleMenu from "../../components/AppConsoleMenu";
-import AppFooter from "../../components/AppFooter";
+import {
+  APP_ROUTE_PATHS,
+  EDITOR_PAGE_MODES,
+  MESSAGE_STATUSES,
+  MESSAGE_TARGET_TYPES,
+  buildMessageManageEditPath,
+  messageTargetTypeOptions as targetTypeOptions,
+} from "@constants";
+import AppConsoleMenu from "@components/AppConsoleMenu";
+import AppFooter from "@components/AppFooter";
 import {
   createMessage,
   getMessageDetail,
@@ -14,12 +22,12 @@ import {
   type MessageRecord,
   type MessageTargetType,
   type UserProfile,
-} from "../../service/api";
+} from "@service/api";
 import {
   buildMessageSummary,
   getMessageStatusLabel,
   getMessageTargetTypeLabel,
-} from "../../utils/message";
+} from "@utils/message";
 import styles from "./styles.module.less";
 
 type MessagePublishFormValues = {
@@ -29,12 +37,6 @@ type MessagePublishFormValues = {
   target_users?: string[];
   content: string;
 };
-
-const targetTypeOptions: Array<{ label: string; value: MessageTargetType }> = [
-  { label: "个人消息", value: "personal" },
-  { label: "群发消息", value: "group" },
-  { label: "全员消息", value: "all" },
-];
 
 function getMessageId(record: Partial<MessageRecord>) {
   return record.id ?? record._id ?? "";
@@ -55,7 +57,7 @@ function buildPayload(values: MessagePublishFormValues): MessageMutationPayload 
     summary: normalizeOptionalField(values.summary),
     target_type: values.target_type,
     target_users:
-      values.target_type === "all"
+      values.target_type === MESSAGE_TARGET_TYPES.ALL
         ? undefined
         : values.target_users?.filter(Boolean).map((item) => item.trim()),
     content: values.content.trim(),
@@ -73,14 +75,18 @@ export default function MessagePublishEditor() {
   const [sending, setSending] = useState(false);
   const [record, setRecord] = useState<MessageRecord | null>(null);
   const [userOptions, setUserOptions] = useState<Array<{ label: string; value: string }>>([]);
-  const targetType = Form.useWatch("target_type", form) ?? "all";
+  const targetType = Form.useWatch("target_type", form) ?? MESSAGE_TARGET_TYPES.ALL;
   const title = Form.useWatch("title", form) ?? "";
   const summary = Form.useWatch("summary", form) ?? "";
   const content = Form.useWatch("content", form) ?? "";
   const watchedTargetUsers = Form.useWatch("target_users", form);
 
-  const pageMode = !id ? "create" : location.pathname.endsWith("/edit") ? "edit" : "detail";
-  const isReadOnly = pageMode === "detail";
+  const pageMode = !id
+    ? EDITOR_PAGE_MODES.CREATE
+    : location.pathname.endsWith("/edit")
+      ? EDITOR_PAGE_MODES.EDIT
+      : EDITOR_PAGE_MODES.DETAIL;
+  const isReadOnly = pageMode === EDITOR_PAGE_MODES.DETAIL;
   const messageId = getMessageId(record ?? {});
 
   useEffect(() => {
@@ -133,7 +139,7 @@ export default function MessagePublishEditor() {
       form.setFieldsValue({
         title: "",
         summary: "",
-        target_type: "all",
+        target_type: MESSAGE_TARGET_TYPES.ALL,
         target_users: [],
         content: "",
       });
@@ -157,7 +163,7 @@ export default function MessagePublishEditor() {
         form.setFieldsValue({
           title: response.data.title,
           summary: response.data.summary,
-          target_type: response.data.target_type ?? "all",
+          target_type: response.data.target_type ?? MESSAGE_TARGET_TYPES.ALL,
           target_users: response.data.target_users ?? [],
           content: response.data.content,
         });
@@ -194,7 +200,7 @@ export default function MessagePublishEditor() {
 
       setSubmitting(true);
 
-      if (pageMode === "edit") {
+      if (pageMode === EDITOR_PAGE_MODES.EDIT) {
         if (!messageId) {
           messageApi.error("当前消息缺少 id，无法更新");
           return;
@@ -220,7 +226,7 @@ export default function MessagePublishEditor() {
         messageApi.success("消息草稿已创建");
       }
 
-      navigate("/message/manage");
+      navigate(APP_ROUTE_PATHS.MESSAGE_MANAGE);
     } catch (error) {
       if (error && typeof error === "object" && "errorFields" in error) {
         return;
@@ -254,7 +260,7 @@ export default function MessagePublishEditor() {
       }
 
       messageApi.success("消息已发送");
-      navigate("/message/manage");
+      navigate(APP_ROUTE_PATHS.MESSAGE_MANAGE);
     } catch (error) {
       if (error && typeof error === "object" && "handled" in error && error.handled) {
         return;
@@ -269,18 +275,18 @@ export default function MessagePublishEditor() {
   }
 
   function handleBack() {
-    if (pageMode === "detail" && typeof window !== "undefined" && window.history.length > 1) {
+    if (pageMode === EDITOR_PAGE_MODES.DETAIL && typeof window !== "undefined" && window.history.length > 1) {
       navigate(-1);
       return;
     }
 
-    navigate("/message/manage");
+    navigate(APP_ROUTE_PATHS.MESSAGE_MANAGE);
   }
 
   const selectedUserLabels = useMemo(() => {
     const targetUsers = watchedTargetUsers ?? [];
 
-    if (targetType === "all") {
+    if (targetType === MESSAGE_TARGET_TYPES.ALL) {
       return ["全员用户"];
     }
 
@@ -308,7 +314,7 @@ export default function MessagePublishEditor() {
           <section className={styles.sectionHeader}>
             <div>
               <div className={styles.sectionTitle}>
-                {pageMode === "edit" ? "编辑消息" : pageMode === "detail" ? "消息详情" : "新建消息"}
+                {pageMode === EDITOR_PAGE_MODES.EDIT ? "编辑消息" : pageMode === EDITOR_PAGE_MODES.DETAIL ? "消息详情" : "新建消息"}
               </div>
               <div className={styles.sectionSubtitle}>
                 {isReadOnly
@@ -318,15 +324,15 @@ export default function MessagePublishEditor() {
             </div>
             <Space className={styles.quickActions}>
               <Button icon={<ArrowLeftOutlined />} onClick={handleBack}>
-                {pageMode === "detail" ? "返回上级" : "返回列表"}
+                {pageMode === EDITOR_PAGE_MODES.DETAIL ? "返回上级" : "返回列表"}
               </Button>
-              {pageMode === "detail" ? (
+              {pageMode === EDITOR_PAGE_MODES.DETAIL ? (
                 <>
                   <Button
                     type="default"
                     icon={<EditOutlined />}
-                    disabled={record?.status === "sent"}
-                    onClick={() => navigate(`/message/manage/${id}/edit`)}
+                    disabled={record?.status === MESSAGE_STATUSES.SENT}
+                    onClick={() => navigate(buildMessageManageEditPath(id ?? ""))}
                   >
                     进入编辑
                   </Button>
@@ -334,7 +340,7 @@ export default function MessagePublishEditor() {
                     type="primary"
                     icon={<SendOutlined />}
                     loading={sending}
-                    disabled={record?.status === "sent"}
+                    disabled={record?.status === MESSAGE_STATUSES.SENT}
                     onClick={() => void handleSend()}
                   >
                     发送消息
@@ -342,7 +348,7 @@ export default function MessagePublishEditor() {
                 </>
               ) : (
                 <Button type="primary" loading={submitting} onClick={() => void handleSubmit()}>
-                  {pageMode === "edit" ? "保存消息" : "创建消息"}
+                  {pageMode === EDITOR_PAGE_MODES.EDIT ? "保存消息" : "创建消息"}
                 </Button>
               )}
             </Space>
@@ -351,10 +357,10 @@ export default function MessagePublishEditor() {
           {record ? (
             <Alert
               className={styles.statusAlert}
-              type={record.status === "sent" ? "success" : "info"}
+              type={record.status === MESSAGE_STATUSES.SENT ? "success" : "info"}
               message={`当前状态：${getMessageStatusLabel(record.status)}`}
               description={
-                record.status === "sent"
+                record.status === MESSAGE_STATUSES.SENT
                   ? "该消息已经完成发送，服务端不再允许修改。"
                   : "当前为草稿状态，可继续调整内容、接收人和摘要。"
               }
@@ -387,7 +393,7 @@ export default function MessagePublishEditor() {
                       options={targetTypeOptions}
                       disabled={isReadOnly}
                       onChange={(value: MessageTargetType) => {
-                        if (value === "all") {
+                        if (value === MESSAGE_TARGET_TYPES.ALL) {
                           form.setFieldValue("target_users", []);
                         }
                       }}
@@ -411,26 +417,26 @@ export default function MessagePublishEditor() {
                   name="target_users"
                   label="指定接收人"
                   extra={
-                    targetType === "all"
+                    targetType === MESSAGE_TARGET_TYPES.ALL
                       ? "全员消息不需要指定接收人。"
-                      : targetType === "personal"
+                      : targetType === MESSAGE_TARGET_TYPES.PERSONAL
                         ? "个人消息只能选择 1 位接收人。"
                         : "群发消息至少选择 2 位接收人。"
                   }
                   rules={[
                     {
                       validator: async (_, value: string[] | undefined) => {
-                        if (targetType === "all") {
+                        if (targetType === MESSAGE_TARGET_TYPES.ALL) {
                           return;
                         }
 
                         const userIds = value?.filter(Boolean) ?? [];
 
-                        if (targetType === "personal" && userIds.length !== 1) {
+                        if (targetType === MESSAGE_TARGET_TYPES.PERSONAL && userIds.length !== 1) {
                           throw new Error("个人消息必须选择 1 位接收人");
                         }
 
-                        if (targetType === "group" && userIds.length < 2) {
+                        if (targetType === MESSAGE_TARGET_TYPES.GROUP && userIds.length < 2) {
                           throw new Error("群发消息至少选择 2 位接收人");
                         }
                       },
@@ -440,9 +446,9 @@ export default function MessagePublishEditor() {
                   <Select
                     mode="multiple"
                     allowClear
-                    placeholder={targetType === "all" ? "全员消息无需选择" : "请选择接收人"}
+                    placeholder={targetType === MESSAGE_TARGET_TYPES.ALL ? "全员消息无需选择" : "请选择接收人"}
                     options={userOptions}
-                    disabled={isReadOnly || targetType === "all"}
+                    disabled={isReadOnly || targetType === MESSAGE_TARGET_TYPES.ALL}
                     optionFilterProp="label"
                   />
                 </Form.Item>
@@ -474,7 +480,7 @@ export default function MessagePublishEditor() {
                 {record?.status ? (
                   <Tag
                     variant="filled"
-                    className={record.status === "sent" ? styles.statusTagSent : styles.statusTagDraft}
+                    className={record.status === MESSAGE_STATUSES.SENT ? styles.statusTagSent : styles.statusTagDraft}
                   >
                     {getMessageStatusLabel(record.status)}
                   </Tag>

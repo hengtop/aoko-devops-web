@@ -12,7 +12,13 @@ import {
   message,
 } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
-import AppConsolePageShell from "../../components/AppConsolePageShell";
+import {
+  APP_ROUTE_PATHS,
+  APPROVAL_NOTIFY_CHANNELS,
+  APPROVAL_TEMPLATE_STATUSES,
+  EDITOR_PAGE_MODES,
+} from "@constants";
+import AppConsolePageShell from "@components/AppConsolePageShell";
 import {
   createApprovalTemplate,
   getApprovalTemplateDetail,
@@ -20,8 +26,8 @@ import {
   updateApprovalTemplate,
   type ApprovalApproverSourceType,
   type ApprovalTemplateMutationPayload,
-} from "../../service/api";
-import editorStyles from "../ApprovalEditor/styles.module.less";
+} from "@service/api";
+import editorStyles from "@pages/ApprovalEditor/styles.module.less";
 import {
   approvalApproverSourceOptions,
   approvalNodeModeOptions,
@@ -31,7 +37,7 @@ import {
   buildApprovalTemplatePayload,
   defaultApprovalTemplateNodeValue,
   getApprovalTemplateUserId,
-} from "../ApprovalTemplate/shared";
+} from "@pages/ApprovalTemplate/shared";
 
 type TemplateFormValues = ApprovalTemplateMutationPayload;
 
@@ -44,7 +50,7 @@ export default function ApprovalTemplateEditor() {
   const [submitting, setSubmitting] = useState(false);
   const [userOptions, setUserOptions] = useState<Array<{ label: string; value: string }>>([]);
 
-  const pageMode = id ? "edit" : "create";
+  const pageMode = id ? EDITOR_PAGE_MODES.EDIT : EDITOR_PAGE_MODES.CREATE;
 
   useEffect(() => {
     let cancelled = false;
@@ -112,13 +118,13 @@ export default function ApprovalTemplateEditor() {
           name: response.data.name,
           code: response.data.code,
           bizType: response.data.bizType,
-          status: response.data.status ?? "enable",
+          status: response.data.status ?? APPROVAL_TEMPLATE_STATUSES.ENABLE,
           description: response.data.description,
           nodes:
             response.data.nodes?.map((node) => ({
               ...node,
               approverIds: [...(node.approverIds ?? [])],
-              notifyChannels: [...(node.notifyChannels ?? ["site"])],
+              notifyChannels: [...(node.notifyChannels ?? [APPROVAL_NOTIFY_CHANNELS.SITE])],
             })) ?? [{ ...defaultApprovalTemplateNodeValue }],
         });
       } catch (error) {
@@ -154,7 +160,7 @@ export default function ApprovalTemplateEditor() {
 
       setSubmitting(true);
 
-      if (pageMode === "edit") {
+      if (pageMode === EDITOR_PAGE_MODES.EDIT) {
         if (!id) {
           messageApi.error("当前记录缺少 id，无法更新");
           return;
@@ -180,7 +186,7 @@ export default function ApprovalTemplateEditor() {
         messageApi.success("审批模板已创建");
       }
 
-      navigate("/approval/template");
+      navigate(APP_ROUTE_PATHS.APPROVAL_TEMPLATE);
     } catch (error) {
       if (error && typeof error === "object" && "errorFields" in error) {
         return;
@@ -200,16 +206,16 @@ export default function ApprovalTemplateEditor() {
 
   return (
     <AppConsolePageShell
-      title={pageMode === "edit" ? "编辑审批模板" : "新建审批模板"}
+      title={pageMode === EDITOR_PAGE_MODES.EDIT ? "编辑审批模板" : "新建审批模板"}
       subtitle="审批模板的节点配置较多，单独页面更适合完整维护审批链路。"
       note="这里专注审批模板的创建与编辑。保存后会返回模板列表，策略和审批单会继续复用这里维护的模板。"
       actions={
         <Space>
-          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/approval/template")}>
+          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(APP_ROUTE_PATHS.APPROVAL_TEMPLATE)}>
             返回列表
           </Button>
           <Button type="primary" loading={submitting} onClick={() => void handleSubmit()}>
-            {pageMode === "edit" ? "保存修改" : "创建模板"}
+            {pageMode === EDITOR_PAGE_MODES.EDIT ? "保存修改" : "创建模板"}
           </Button>
         </Space>
       }
@@ -240,7 +246,7 @@ export default function ApprovalTemplateEditor() {
             >
               <Select options={approvalTemplateBizTypeOptions} placeholder="请选择业务类型" />
             </Form.Item>
-            <Form.Item name="status" label="状态" initialValue="enable">
+            <Form.Item name="status" label="状态" initialValue={APPROVAL_TEMPLATE_STATUSES.ENABLE}>
               <Select options={approvalTemplateStatusOptions} />
             </Form.Item>
           </div>

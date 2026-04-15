@@ -1,15 +1,20 @@
 import type { RequestOptionsInit, RequestOptionsWithResponse } from "umi-request";
-import type { BaseResponse } from "./api/types";
+import type { BaseResponse } from "@service/api/types";
+import {
+  APPROVAL_ID_HEADER,
+  APPROVAL_INSTANCE_STATUSES,
+  REQUEST_PREFIX as REQUEST_PREFIX_VALUE,
+} from "@constants";
 
-export const APPROVAL_ID_HEADER = "x-approval-id";
-export const REQUEST_PREFIX = "/aoko-devops";
+export const REQUEST_PREFIX = REQUEST_PREFIX_VALUE;
+
 export const APPROVAL_RESULT_STATUS = {
-  PENDING: "pending",
-  IN_PROGRESS: "in_progress",
-  APPROVED: "approved",
-  REJECTED: "rejected",
-  CANCELED: "canceled",
-  EXPIRED: "expired",
+  PENDING: APPROVAL_INSTANCE_STATUSES.PENDING,
+  IN_PROGRESS: APPROVAL_INSTANCE_STATUSES.IN_PROGRESS,
+  APPROVED: APPROVAL_INSTANCE_STATUSES.APPROVED,
+  REJECTED: APPROVAL_INSTANCE_STATUSES.REJECTED,
+  CANCELED: APPROVAL_INSTANCE_STATUSES.CANCELED,
+  EXPIRED: APPROVAL_INSTANCE_STATUSES.EXPIRED,
 } as const;
 
 export type ApprovalResultStatus =

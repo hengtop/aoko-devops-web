@@ -1,8 +1,10 @@
-import { request } from "../request";
-import type { ServiceRequestOptions } from "../request";
+import { request } from "@service/request";
+import type { ServiceRequestOptions } from "@service/request";
 import type { ApiPromise, BaseResponse } from "./types";
+import { API_PATHS } from "@constants/api";
+import { LOGIN_TYPES } from "@constants/status";
 
-export type LoginType = "password" | "phone" | "email";
+export type LoginType = (typeof LOGIN_TYPES)[keyof typeof LOGIN_TYPES];
 
 export interface LoginParams {
   username?: string;
@@ -18,7 +20,7 @@ export interface LoginToken {
 }
 
 export function login(params: LoginParams, options?: ServiceRequestOptions): ApiPromise<LoginToken> {
-  return request.post<BaseResponse<LoginToken>>("/user/login", {
+  return request.post<BaseResponse<LoginToken>>(API_PATHS.USER_LOGIN, {
     skipAuthFailureRedirect: true,
     ...options,
     data: params,
@@ -33,7 +35,7 @@ export function sendEmailCode(
   params: SendEmailCodeParams,
   options?: ServiceRequestOptions,
 ): ApiPromise<void> {
-  return request.post<BaseResponse<void>>("/email/sendCode", {
+  return request.post<BaseResponse<void>>(API_PATHS.EMAIL_SEND_CODE, {
     skipAuthFailureRedirect: true,
     ...options,
     data: params,
@@ -53,7 +55,7 @@ export function register(
   params: RegisterParams,
   options?: ServiceRequestOptions,
 ): ApiPromise<void> {
-  return request.post<BaseResponse<void>>("/user/register", {
+  return request.post<BaseResponse<void>>(API_PATHS.USER_REGISTER, {
     skipAuthFailureRedirect: true,
     ...options,
     data: params,
@@ -61,7 +63,7 @@ export function register(
 }
 
 export function logout(options?: ServiceRequestOptions): ApiPromise<void> {
-  return request.post<BaseResponse<void>>("/user/logout", {
+  return request.post<BaseResponse<void>>(API_PATHS.USER_LOGOUT, {
     ...options,
   });
 }

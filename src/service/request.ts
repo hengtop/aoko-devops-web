@@ -1,6 +1,6 @@
 import { extend } from "umi-request";
 import { message } from "antd";
-import type { BaseResponse, ResponseMessage } from "./api/types";
+import type { BaseResponse, ResponseMessage } from "@service/api/types";
 import {
   buildApprovalHeaders,
   buildApprovalRetryOptions,
@@ -10,8 +10,14 @@ import {
   shouldRetryApprovedApproval,
   type ApprovalRequestOptions,
 } from "./request-approval";
-import { useAuthStore, useMessageInboxStore } from "../store";
-import { buildLoginPath, LOGIN_PATH, resolveCurrentRoutePath } from "../utils";
+import {
+  AUTHORIZATION_BEARER_PREFIX,
+  AUTHORIZATION_HEADER,
+  JSON_CONTENT_TYPE,
+  TOKEN_INVALID_MESSAGE_KEY,
+} from "@constants";
+import { useAuthStore, useMessageInboxStore } from "@store";
+import { buildLoginPath, LOGIN_PATH, resolveCurrentRoutePath } from "@utils";
 
 export interface ServiceRequestOptions {
   useGlobalErrorHandler?: boolean;
@@ -30,7 +36,6 @@ type RequestError = Error & {
   };
 };
 
-const TOKEN_INVALID_MESSAGE_KEY = "auth-token-invalid";
 const TOKEN_INVALID_RESPONSE_CODES = new Set([401]);
 const TOKEN_INVALID_FALLBACK_MESSAGE = "登录状态已失效，请重新登录";
 
@@ -80,7 +85,7 @@ async function resolveTokenInvalidMessage(
 ) {
   const contentType = response.headers.get("content-type");
 
-  if (!contentType?.includes("application/json")) {
+  if (!contentType?.includes(JSON_CONTENT_TYPE)) {
     return fallback;
   }
 
@@ -158,7 +163,7 @@ request.interceptors.request.use((url, options) => {
   const token = getAccessToken();
   const headers = {
     ...buildApprovalHeaders(requestOptions.headers, requestOptions.approvalId),
-    ...(token ? { Authorization: `bearer ${token}` } : {}),
+    ...(token ? { [AUTHORIZATION_HEADER]: `${AUTHORIZATION_BEARER_PREFIX}${token}` } : {}),
   };
   const { approvalId: _approvalId, ...restOptions } = requestOptions;
 
@@ -182,7 +187,7 @@ request.interceptors.response.use(async (response, options) => {
   }
 
   const contentType = response.headers.get("content-type");
-  if (!contentType?.includes("application/json")) {
+  if (!contentType?.includes(JSON_CONTENT_TYPE)) {
     return response;
   }
 

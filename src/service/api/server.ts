@@ -1,9 +1,11 @@
-import { request } from "../request";
-import type { ServiceRequestOptions } from "../request";
+import { request } from "@service/request";
+import type { ServiceRequestOptions } from "@service/request";
 import type { ApiPromise, BaseResponse, PaginatedList } from "./types";
+import { API_PATHS } from "@constants/api";
+import { SERVER_AUTH_TYPES, SERVER_STATUSES } from "@constants/status";
 
-export type ServerStatus = "enable" | "disable";
-export type ServerAuthType = "password" | "key";
+export type ServerStatus = (typeof SERVER_STATUSES)[keyof typeof SERVER_STATUSES];
+export type ServerAuthType = (typeof SERVER_AUTH_TYPES)[keyof typeof SERVER_AUTH_TYPES];
 
 export interface ServerRecord {
   id?: string;
@@ -112,7 +114,7 @@ export function listServers(
   params: ServerListParams,
   options?: ServiceRequestOptions,
 ): ApiPromise<PaginatedList<ServerRecord>> {
-  return request.post<BaseResponse<PaginatedList<ServerRecord>>>("/server/list", {
+  return request.post<BaseResponse<PaginatedList<ServerRecord>>>(API_PATHS.SERVER_LIST, {
     ...options,
     data: params,
   });
@@ -122,7 +124,7 @@ export function getServerDetail(
   id: string,
   options?: ServiceRequestOptions,
 ): ApiPromise<ServerRecord> {
-  return request.post<BaseResponse<ServerRecord>>(`/server/detail/${id}`, {
+  return request.post<BaseResponse<ServerRecord>>(API_PATHS.SERVER_DETAIL(id), {
     ...options,
   });
 }
@@ -131,7 +133,7 @@ export function createServer(
   params: ServerMutationPayload,
   options?: ServiceRequestOptions,
 ): ApiPromise<void> {
-  return request.post<BaseResponse<void>>("/server/create", {
+  return request.post<BaseResponse<void>>(API_PATHS.SERVER_CREATE, {
     ...options,
     data: params,
   });
@@ -141,7 +143,7 @@ export function updateServer(
   params: UpdateServerPayload,
   options?: ServiceRequestOptions,
 ): ApiPromise<void> {
-  return request.post<BaseResponse<void>>("/server/update", {
+  return request.post<BaseResponse<void>>(API_PATHS.SERVER_UPDATE, {
     ...options,
     data: params,
   });
@@ -151,7 +153,7 @@ export function deleteServer(
   params: { id: string },
   options?: ServiceRequestOptions,
 ): ApiPromise<void> {
-  return request.post<BaseResponse<void>>("/server/delete", {
+  return request.post<BaseResponse<void>>(API_PATHS.SERVER_DELETE, {
     ...options,
     data: params,
   });
@@ -161,7 +163,7 @@ export function testServerConnection(
   id: string,
   options?: ServiceRequestOptions,
 ): ApiPromise<ServerConnectionTestResult> {
-  return request.post<BaseResponse<ServerConnectionTestResult>>(`/server/test-connection/${id}`, {
+  return request.post<BaseResponse<ServerConnectionTestResult>>(API_PATHS.SERVER_TEST_CONNECTION(id), {
     ...options,
   });
 }

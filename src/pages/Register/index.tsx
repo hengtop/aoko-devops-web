@@ -2,7 +2,8 @@ import { useMemo, useRef, useState } from "react";
 import type { MouseEvent } from "react";
 import { Button, Form, Input, message } from "antd";
 import { useNavigate } from "react-router-dom";
-import { register } from "../../service/api";
+import { APP_ROUTE_PATHS } from "@constants";
+import { register } from "@service/api";
 import styles from "./styles.module.less";
 
 type RegisterFormValues = {
@@ -85,7 +86,7 @@ export default function Register() {
       }
 
       await messageApi.success("注册成功，请登录", 1.2);
-      navigate("/login");
+      navigate(APP_ROUTE_PATHS.LOGIN);
     } catch (error) {
       if (error && typeof error === "object" && "handled" in error && error.handled) {
         return;
