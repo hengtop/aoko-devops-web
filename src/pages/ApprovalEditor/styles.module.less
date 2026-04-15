@@ -1,11 +1,12 @@
 .formCard {
-  background: rgba(12, 18, 30, 0.8);
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-bg);
+  border-radius: var(--surface-radius-lg);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--surface-shadow-soft);
 }
 
 .formCard :global(.ant-card-body) {
-  padding: 24px;
+  padding: 20px;
 }
 
 .editorForm {
@@ -14,15 +15,19 @@
   gap: 0;
 }
 
+.editorForm :global(.ant-form-item-label > label) {
+  color: var(--text-secondary);
+}
+
 .formGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 16px;
+  gap: 0 14px;
 }
 
 .blockTitle,
 .subBlockTitle {
-  color: #f5f9ff;
+  color: var(--text-heading);
   font-size: 14px;
   font-weight: 600;
 }
@@ -44,24 +49,25 @@
 
 .nodeCard,
 .ruleCard {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--muted-block-strong-bg);
+  border: 1px solid var(--muted-block-border);
+  border-radius: var(--surface-radius-lg);
 }
 
 .nodeCard :global(.ant-card-head),
 .ruleCard :global(.ant-card-head) {
-  border-bottom-color: rgba(255, 255, 255, 0.08);
-  color: #f5f9ff;
+  border-bottom-color: var(--table-head-border);
+  color: var(--text-heading);
 }
 
 .nodeCard :global(.ant-card-body),
 .ruleCard :global(.ant-card-body) {
-  padding: 20px;
+  padding: 18px;
 }
 
 .switchRow {
   display: flex;
-  gap: 24px;
+  gap: 20px;
 }
 
 .fullWidth {
@@ -71,10 +77,10 @@
 .hintBlock {
   margin-top: 8px;
   padding: 14px 16px;
-  border-radius: 14px;
-  border: 1px dashed rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.02);
-  color: rgba(231, 238, 251, 0.62);
+  border-radius: var(--surface-radius-md);
+  border: 1px solid var(--panel-highlight-border);
+  background: var(--panel-highlight-bg);
+  color: var(--text-secondary);
   line-height: 1.7;
   font-size: 13px;
 }

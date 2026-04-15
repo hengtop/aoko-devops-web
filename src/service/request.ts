@@ -10,7 +10,7 @@ import {
   shouldRetryApprovedApproval,
   type ApprovalRequestOptions,
 } from "./request-approval";
-import { useAuthStore } from "../store";
+import { useAuthStore, useMessageInboxStore } from "../store";
 import { buildLoginPath, LOGIN_PATH, resolveCurrentRoutePath } from "../utils";
 
 export interface ServiceRequestOptions {
@@ -32,6 +32,7 @@ type RequestError = Error & {
 
 const TOKEN_INVALID_MESSAGE_KEY = "auth-token-invalid";
 const TOKEN_INVALID_RESPONSE_CODES = new Set([401]);
+const TOKEN_INVALID_FALLBACK_MESSAGE = "登录状态已失效，请重新登录";
 
 let isTokenInvalidRedirecting = false;
 
@@ -73,7 +74,25 @@ function showTokenInvalidMessage(content: string) {
   });
 }
 
-function onTokenInvalid(content = "登录状态已失效，请重新登录") {
+async function resolveTokenInvalidMessage(
+  response: Response,
+  fallback = TOKEN_INVALID_FALLBACK_MESSAGE,
+) {
+  const contentType = response.headers.get("content-type");
+
+  if (!contentType?.includes("application/json")) {
+    return fallback;
+  }
+
+  try {
+    const data = (await response.clone().json()) as BaseResponse<unknown>;
+    return formatResponseMessage(data.msg, fallback);
+  } catch {
+    return fallback;
+  }
+}
+
+function onTokenInvalid(content = TOKEN_INVALID_FALLBACK_MESSAGE) {
   clearAccessToken();
 
   if (typeof window === "undefined") {
@@ -106,6 +125,7 @@ export function setAccessToken(token: string) {
 
 export function clearAccessToken() {
   useAuthStore.getState().clearAuth();
+  useMessageInboxStore.getState().resetInbox();
 }
 
 export const request = extend({
@@ -116,7 +136,7 @@ export const request = extend({
       error.response?.status === 401 &&
       shouldHandleAuthFailureRedirect(error.request?.options)
     ) {
-      onTokenInvalid(formatResponseMessage(error.data?.msg, "登录状态已失效，请重新登录"));
+      onTokenInvalid(formatResponseMessage(error.data?.msg, TOKEN_INVALID_FALLBACK_MESSAGE));
       error.handled = true;
       throw error;
     }
@@ -154,7 +174,7 @@ request.interceptors.request.use((url, options) => {
 
 request.interceptors.response.use(async (response, options) => {
   if (response.status === 401 && shouldHandleAuthFailureRedirect(options)) {
-    onTokenInvalid();
+    onTokenInvalid(await resolveTokenInvalidMessage(response));
   }
 
   if (!response.ok) {
@@ -170,7 +190,7 @@ request.interceptors.response.use(async (response, options) => {
     const data = (await response.clone().json()) as BaseResponse<unknown>;
     if (data && typeof data === "object" && isTokenInvalidCode(data.code)) {
       if (shouldHandleAuthFailureRedirect(options)) {
-        onTokenInvalid(formatResponseMessage(data.msg, "登录状态已失效，请重新登录"));
+        onTokenInvalid(formatResponseMessage(data.msg, TOKEN_INVALID_FALLBACK_MESSAGE));
       }
 
       return response;

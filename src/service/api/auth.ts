@@ -59,3 +59,9 @@ export function register(
     data: params,
   });
 }
+
+export function logout(options?: ServiceRequestOptions): ApiPromise<void> {
+  return request.post<BaseResponse<void>>("/user/logout", {
+    ...options,
+  });
+}

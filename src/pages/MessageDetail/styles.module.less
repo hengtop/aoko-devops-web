@@ -1,7 +1,7 @@
 .detailPage {
   min-height: calc(100vh - var(--app-topbar-height));
-  background: radial-gradient(circle at top, #16233f 0%, #090f1b 55%, #06090f 100%);
-  color: #e7eefb;
+  background: var(--page-shell-bg);
+  color: var(--text-primary);
   display: flex;
   flex-direction: column;
 }
@@ -9,21 +9,25 @@
 .pageBody {
   flex: 1;
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr) 320px;
-  gap: 20px;
-  padding: 20px 24px 28px;
+  grid-template-columns: var(--console-sidebar-width) minmax(0, 1fr) var(--console-aside-width);
+  gap: var(--console-gap);
+  padding: var(--console-shell-padding);
 }
 
 .sidebar,
 .heroCard,
 .contentCard,
 .infoCard {
-  background: rgba(12, 18, 30, 0.74);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--surface-shadow-soft);
+  backdrop-filter: blur(18px);
 }
 
 .sidebar {
-  border-radius: 16px;
+  position: sticky;
+  top: calc(var(--app-topbar-height) + 18px);
+  border-radius: 14px;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -31,16 +35,19 @@
 }
 
 .sidebarHeader {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .sidebarTip {
-  color: rgba(231, 238, 251, 0.62);
-  font-size: 13px;
+  color: var(--text-secondary);
+  font-size: 12px;
   line-height: 1.7;
-  border: 1px dashed rgba(255, 255, 255, 0.16);
-  border-radius: 12px;
+  border: 1px dashed var(--dashed-border);
+  border-radius: 10px;
   padding: 16px;
 }
 
@@ -52,7 +59,7 @@
 }
 
 .heroCard {
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 20px 24px;
   display: flex;
   align-items: center;
@@ -61,26 +68,26 @@
 }
 
 .sectionTitle {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
 }
 
 .sectionSubtitle {
-  margin-top: 6px;
-  color: rgba(231, 238, 251, 0.6);
-  font-size: 13px;
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
   line-height: 1.7;
 }
 
 .heroActions :global(.ant-btn) {
-  background: transparent;
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #e7eefb;
+  background: var(--button-secondary-bg);
+  border-color: var(--button-secondary-border);
+  color: var(--text-primary);
 }
 
 .contentCard,
 .infoCard {
-  border-radius: 18px;
+  border-radius: 14px;
 }
 
 .contentCard :global(.ant-card-body),
@@ -96,7 +103,7 @@
 }
 
 .metaText {
-  color: rgba(231, 238, 251, 0.62);
+  color: var(--text-secondary);
   font-size: 13px;
 }
 
@@ -107,27 +114,27 @@
 }
 
 .unreadTag {
-  background: rgba(255, 158, 87, 0.16);
-  color: #ffd3af;
+  background: var(--tag-orange-bg);
+  color: var(--tag-orange-text);
 }
 
 .readTag {
-  background: rgba(97, 231, 255, 0.14);
-  color: #d1f4ff;
+  background: var(--tag-info-bg);
+  color: var(--tag-info-text);
 }
 
 .article {
   margin-top: 18px;
   padding: 20px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  background: var(--muted-block-bg);
+  border: 1px solid var(--muted-block-border);
 }
 
 .articleTitle {
   font-size: 24px;
   font-weight: 700;
-  color: #f5f9ff;
+  color: var(--text-heading);
   line-height: 1.4;
 }
 
@@ -135,7 +142,7 @@
   margin-top: 16px;
   font-size: 14px;
   line-height: 1.9;
-  color: rgba(231, 238, 251, 0.82);
+  color: var(--text-primary);
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -146,7 +153,7 @@
 }
 
 .infoCardTitle {
-  color: #f1f6ff;
+  color: var(--text-heading);
 }
 
 .senderCard {
@@ -154,26 +161,30 @@
   align-items: center;
   gap: 14px;
   padding: 16px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(45, 123, 255, 0.18), rgba(97, 231, 255, 0.08));
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent-blue) 18%, transparent),
+    color-mix(in srgb, var(--accent-cyan) 8%, transparent)
+  );
 }
 
 .senderAvatar {
-  background: rgba(97, 231, 255, 0.18);
-  border: 1px solid rgba(97, 231, 255, 0.52);
-  color: #e1f8ff;
+  background: color-mix(in srgb, var(--accent-cyan) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-cyan) 52%, transparent);
+  color: color-mix(in srgb, var(--accent-cyan) 28%, var(--text-heading));
   font-weight: 700;
 }
 
 .senderName {
-  color: #f5f9ff;
+  color: var(--text-heading);
   font-size: 16px;
   font-weight: 600;
 }
 
 .senderMeta {
   margin-top: 6px;
-  color: rgba(231, 238, 251, 0.58);
+  color: var(--text-secondary);
   font-size: 12px;
   line-height: 1.6;
 }
@@ -183,11 +194,11 @@
 }
 
 .infoDescriptions :global(.ant-descriptions-item-label) {
-  color: rgba(231, 238, 251, 0.5);
+  color: var(--text-tertiary);
 }
 
 .infoDescriptions :global(.ant-descriptions-item-content) {
-  color: #e7eefb;
+  color: var(--text-primary);
 }
 
 @media (max-width: 1280px) {
@@ -204,6 +215,10 @@
   .pageBody {
     grid-template-columns: 1fr;
     padding: 16px;
+  }
+
+  .sidebar {
+    position: static;
   }
 
   .heroCard {

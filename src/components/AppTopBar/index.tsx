@@ -1,9 +1,18 @@
-import { BellOutlined, LogoutOutlined, RightOutlined } from "@ant-design/icons";
+import {
+  BellOutlined,
+  BulbOutlined,
+  LogoutOutlined,
+  MoonOutlined,
+  RightOutlined,
+  SunOutlined,
+} from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { Avatar, Badge, Button, Dropdown, Empty, Popover, Select, Spin, Tag } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore, useMessageInboxStore } from "../../store";
+import { logout } from "../../service/api";
 import { clearAccessToken } from "../../service/request";
+import { useAppTheme } from "../../theme";
 import {
   buildMessageSummary,
   formatMessageDateTime,
@@ -27,8 +36,10 @@ export default function AppTopBar() {
   const loading = useMessageInboxStore((state) => state.loading);
   const refreshInbox = useMessageInboxStore((state) => state.refreshInbox);
   const resetInbox = useMessageInboxStore((state) => state.resetInbox);
+  const { mode, isDark, toggleTheme } = useAppTheme();
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [popoverPathname, setPopoverPathname] = useState(location.pathname);
+  const [loggingOut, setLoggingOut] = useState(false);
   const resolvedPopoverOpen = popoverOpen && popoverPathname === location.pathname;
 
   useEffect(() => {
@@ -62,12 +73,41 @@ export default function AppTopBar() {
     navigate(`/message/${messageId}`);
   }
 
-  function handleLogout() {
-    clearAccessToken();
-    resetInbox();
-    setPopoverOpen(false);
-    navigate("/login", {
-      replace: true,
+  async function handleLogout() {
+    if (loggingOut) {
+      return;
+    }
+
+    setLoggingOut(true);
+
+    try {
+      if (token) {
+        const response = await logout();
+
+        if (!response.success) {
+          return;
+        }
+      }
+
+      setPopoverOpen(false);
+      navigate("/login", {
+        replace: true,
+      });
+      clearAccessToken();
+    } catch (error) {
+      if (error && typeof error === "object" && "handled" in error && error.handled) {
+        return;
+      }
+    } finally {
+      setPopoverOpen(false);
+      setLoggingOut(false);
+    }
+  }
+
+  function handleThemeToggle(event: React.MouseEvent<HTMLElement>) {
+    toggleTheme({
+      x: event.clientX,
+      y: event.clientY,
     });
   }
 
@@ -75,10 +115,13 @@ export default function AppTopBar() {
     {
       key: "logout",
       icon: <LogoutOutlined />,
-      label: "退出登录",
+      label: loggingOut ? "退出中..." : "退出登录",
       danger: true,
+      disabled: loggingOut,
       className: styles.logoutMenuItem,
-      onClick: handleLogout,
+      onClick: () => {
+        void handleLogout();
+      },
     },
   ];
 
@@ -167,6 +210,27 @@ export default function AppTopBar() {
       </div>
 
       <div className={styles.userArea}>
+        <Button
+          type="text"
+          className={styles.themeToggle}
+          aria-label={isDark ? "切换到浅色模式" : "切换到深色模式"}
+          title={isDark ? "切换到浅色模式" : "切换到深色模式"}
+          onClick={handleThemeToggle}
+        >
+          <span className={styles.themeToggleTrack}>
+            <span className={styles.themeToggleIcon}>
+              {isDark ? <MoonOutlined /> : <SunOutlined />}
+            </span>
+            <span className={styles.themeToggleCopy}>
+              <span className={styles.themeToggleLabel}>Theme</span>
+              <span className={styles.themeToggleValue}>
+                {mode === "dark" ? "深色模式" : "浅色模式"}
+              </span>
+            </span>
+            <BulbOutlined className={styles.themeToggleAccent} />
+          </span>
+        </Button>
+
         <Popover
           trigger="click"
           placement="bottomRight"

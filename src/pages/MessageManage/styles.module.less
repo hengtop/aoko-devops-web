@@ -1,7 +1,7 @@
 .managePage {
   min-height: calc(100vh - var(--app-topbar-height));
-  background: radial-gradient(circle at top, #16233f 0%, #090f1b 55%, #06090f 100%);
-  color: #e7eefb;
+  background: var(--page-shell-bg);
+  color: var(--text-primary);
   display: flex;
   flex-direction: column;
 }
@@ -9,45 +9,54 @@
 .manageBody {
   flex: 1;
   display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 20px;
-  padding: 20px 24px 28px;
+  grid-template-columns: var(--console-sidebar-width) minmax(0, 1fr);
+  gap: var(--console-gap);
+  padding: var(--console-shell-padding);
 }
 
 .sidebar,
 .sectionHeader,
 .panelCard,
 .metricCard {
-  background: rgba(12, 18, 30, 0.74);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--surface-shadow-soft);
+  backdrop-filter: blur(18px);
 }
 
 .sidebar {
-  border-radius: 16px;
-  padding: 20px;
+  position: sticky;
+  top: calc(var(--app-topbar-height) + 18px);
+  border-radius: var(--surface-radius-lg);
+  padding: 18px 16px 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .sidebarHeader {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding-inline: 6px;
 }
 
 .sidebarNote {
-  color: rgba(231, 238, 251, 0.6);
-  font-size: 13px;
+  color: var(--text-secondary);
+  font-size: 12px;
   line-height: 1.7;
-  border-radius: 12px;
-  border: 1px dashed rgba(255, 255, 255, 0.14);
-  padding: 16px;
+  border-radius: var(--surface-radius-md);
+  border: 1px solid var(--panel-highlight-border);
+  background: var(--panel-highlight-bg);
+  padding: 14px 15px;
 }
 
 .mainSection {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
   min-width: 0;
 }
 
@@ -55,81 +64,81 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-radius: 16px;
-  padding: 20px 24px;
+  border-radius: var(--surface-radius-lg);
+  padding: 20px 22px;
   gap: 16px;
 }
 
 .sectionTitle {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
 }
 
 .sectionSubtitle {
-  color: rgba(231, 238, 251, 0.6);
-  font-size: 13px;
-  margin-top: 6px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-top: 8px;
   line-height: 1.7;
 }
 
 .quickActions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
 }
 
 .quickActions :global(.ant-btn-primary) {
-  background: linear-gradient(135deg, #2d7bff 0%, #4dbdf7 45%, #61e7ff 100%) !important;
-  border: unset;
-  color: #041326 !important;
+  background: var(--button-accent-gradient) !important;
+  border: none !important;
+  color: var(--button-accent-text) !important;
 }
 
 .quickActions :global(.ant-btn-default) {
-  background: transparent;
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #e7eefb;
+  background: var(--button-secondary-bg);
+  border-color: var(--button-secondary-border);
+  color: var(--text-primary);
 }
 
 .metricGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: 14px;
 }
 
 .metricCard {
-  border-radius: 16px;
+  border-radius: var(--surface-radius-lg);
 }
 
 .metricCard :global(.ant-card-body) {
-  padding: 18px 20px;
+  padding: 16px 18px;
 }
 
 .metricLabel {
-  color: rgba(231, 238, 251, 0.58);
-  font-size: 13px;
+  color: var(--text-secondary);
+  font-size: 12px;
 }
 
 .metricValue {
-  margin-top: 10px;
-  font-size: 28px;
+  margin-top: 8px;
+  font-size: 26px;
   font-weight: 700;
-  color: #f5f9ff;
+  color: var(--text-heading);
 }
 
 .panelCard {
-  border-radius: 18px;
+  border-radius: var(--surface-radius-lg);
 }
 
 .panelCard :global(.ant-card-body) {
-  padding: 20px 24px;
+  padding: 18px 18px;
 }
 
 .filterForm {
-  margin-bottom: 18px;
-  gap: 8px 0;
+  margin-bottom: 16px;
+  gap: 6px 0;
 }
 
 .filterForm :global(.ant-form-item-label > label) {
-  color: rgba(231, 238, 251, 0.72);
+  color: var(--text-secondary);
 }
 
 .filterInput,
@@ -145,37 +154,42 @@
   background: transparent;
 }
 
+.messageTable :global(.ant-table-container) {
+  border-radius: var(--surface-radius-md);
+  overflow: hidden;
+}
+
 .messageTable :global(.ant-table-thead > tr > th) {
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(231, 238, 251, 0.72);
-  border-bottom-color: rgba(255, 255, 255, 0.08);
+  background: var(--table-head-bg);
+  color: var(--table-head-text);
+  border-bottom-color: var(--table-head-border);
 }
 
 .messageTable :global(.ant-table-tbody > tr > td) {
-  background: transparent;
-  border-bottom-color: rgba(255, 255, 255, 0.06);
-  color: #e7eefb;
+  background: var(--table-row-soft-bg);
+  border-bottom-color: var(--table-border);
+  color: var(--text-primary);
 }
 
 .tablePrimary {
-  color: #f5f9ff;
+  color: var(--text-heading);
   font-weight: 600;
   line-height: 1.5;
 }
 
 .tableSecondary {
   margin-top: 6px;
-  color: rgba(231, 238, 251, 0.42);
+  color: var(--text-tertiary);
   font-size: 12px;
 }
 
 .summaryCell {
-  color: rgba(231, 238, 251, 0.72);
+  color: var(--text-secondary);
   line-height: 1.7;
 }
 
 .timestampText {
-  color: rgba(231, 238, 251, 0.72);
+  color: var(--text-secondary);
 }
 
 .targetTag,
@@ -187,23 +201,27 @@
 
 .targetTag {
   border: none;
-  background: rgba(97, 231, 255, 0.12);
-  color: #d1f4ff;
+  background: var(--tag-info-bg);
+  color: var(--tag-info-text);
 }
 
 .statusTagDraft {
-  background: rgba(255, 193, 87, 0.18);
-  color: #ffe0a3;
+  background: var(--tag-warning-bg);
+  color: var(--tag-warning-text);
 }
 
 .statusTagSent {
-  background: rgba(53, 211, 154, 0.18);
-  color: #c9ffe8;
+  background: var(--tag-success-bg);
+  color: var(--tag-success-text);
 }
 
 @media (max-width: 1100px) {
   .manageBody {
     grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
   }
 
   .sectionHeader {

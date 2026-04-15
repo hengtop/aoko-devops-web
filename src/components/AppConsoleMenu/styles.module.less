@@ -1,91 +1,98 @@
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .menuGroup {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .menuGroupActive .subMenu {
-  border-left: 1px solid rgba(97, 231, 255, 0.14);
-  margin-left: 18px;
-  padding-left: 30px;
+  border-left: 1px solid var(--panel-highlight-border);
+  margin-left: 17px;
+  padding-left: 22px;
 }
 
 .menuItem {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 11px;
   width: 100%;
-  padding: 14px 14px 14px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(255, 255, 255, 0.03);
-  color: #e7eefb;
+  padding: 12px 12px 12px 10px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: var(--muted-block-strong-bg);
+  color: var(--text-primary);
   text-align: left;
   cursor: pointer;
   transition:
     border-color 0.2s ease,
     background 0.2s ease,
-    transform 0.2s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .menuItem:hover {
   transform: translateY(-1px);
-  border-color: rgba(97, 231, 255, 0.28);
-  background: rgba(97, 231, 255, 0.08);
+  border-color: color-mix(in srgb, var(--panel-highlight-border) 160%, transparent);
+  background: var(--button-secondary-hover-bg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--panel-highlight-border) 72%, transparent);
 }
 
 .menuItemActive {
-  border-color: rgba(97, 231, 255, 0.36);
-  background: linear-gradient(135deg, rgba(45, 123, 255, 0.2), rgba(97, 231, 255, 0.1));
-  box-shadow: inset 0 0 0 1px rgba(97, 231, 255, 0.08);
+  border-color: color-mix(in srgb, var(--panel-highlight-border) 150%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent-blue) 18%, transparent), color-mix(in srgb, var(--accent-cyan) 8%, transparent)),
+    var(--muted-block-bg);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--panel-highlight-border) 72%, transparent),
+    0 10px 24px rgba(4, 11, 21, 0.18);
 }
 
 .menuIcon {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
   display: grid;
   place-items: center;
-  background: rgba(255, 255, 255, 0.06);
-  color: #b8dcff;
-  font-size: 16px;
+  background: var(--surface-bg-subtle);
+  color: var(--text-accent);
+  font-size: 15px;
   flex-shrink: 0;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .menuItemActive .menuIcon {
-  background: rgba(97, 231, 255, 0.14);
-  color: #dcf8ff;
+  background: color-mix(in srgb, var(--accent-blue) 18%, transparent);
+  color: var(--text-heading);
 }
 
 .menuContent {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
   flex: 1;
 }
 
 .menuLabel {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
 }
 
 .menuHint {
   font-size: 12px;
-  color: rgba(231, 238, 251, 0.58);
+  color: var(--text-tertiary);
+  line-height: 1.45;
 }
 
 .subMenu {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-left: 48px;
+  gap: 6px;
+  padding-left: 42px;
   max-height: 0;
   opacity: 0;
   overflow: hidden;
@@ -104,10 +111,10 @@
 .subMenuItem {
   width: 100%;
   padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(255, 255, 255, 0.02);
-  color: #dce8ff;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: var(--surface-bg-muted);
+  color: var(--text-accent);
   text-align: left;
   cursor: pointer;
   transition:
@@ -118,13 +125,13 @@
 
 .subMenuItem:hover {
   transform: translateY(-1px);
-  border-color: rgba(97, 231, 255, 0.2);
-  background: rgba(97, 231, 255, 0.05);
+  border-color: color-mix(in srgb, var(--panel-highlight-border) 130%, transparent);
+  background: color-mix(in srgb, var(--accent-blue) 8%, transparent);
 }
 
 .subMenuItemActive {
-  border-color: rgba(97, 231, 255, 0.28);
-  background: rgba(45, 123, 255, 0.14);
+  border-color: color-mix(in srgb, var(--panel-highlight-border) 160%, transparent);
+  background: color-mix(in srgb, var(--accent-blue) 11%, transparent);
 }
 
 .subMenuLabel {
@@ -137,7 +144,7 @@
   display: block;
   margin-top: 4px;
   font-size: 12px;
-  color: rgba(231, 238, 251, 0.5);
+  color: var(--text-tertiary);
 }
 
 .menuToggleIcon {
@@ -148,8 +155,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--muted-block-border);
+  background: var(--muted-block-strong-bg);
   transition:
     transform 0.2s ease,
     border-color 0.2s ease,
@@ -159,19 +166,19 @@
 .menuToggleGlyph {
   width: 7px;
   height: 7px;
-  border-right: 1.5px solid rgba(231, 238, 251, 0.72);
-  border-bottom: 1.5px solid rgba(231, 238, 251, 0.72);
+  border-right: 1.5px solid var(--text-secondary);
+  border-bottom: 1.5px solid var(--text-secondary);
   transform: rotate(-45deg);
   transform-origin: center;
   transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .menuToggleIconExpanded {
-  border-color: rgba(97, 231, 255, 0.24);
-  background: rgba(97, 231, 255, 0.08);
+  border-color: color-mix(in srgb, var(--panel-highlight-border) 130%, transparent);
+  background: var(--button-secondary-hover-bg);
 }
 
 .menuToggleIconExpanded .menuToggleGlyph {
-  transform: rotate(45deg);
-  border-color: #dcf8ff;
+  transform: rotate(45deg) translateY(-1px);
+  border-color: var(--text-heading);
 }

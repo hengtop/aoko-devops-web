@@ -1,9 +1,10 @@
 .drawer :global(.ant-drawer-header) {
-  border-bottom-color: rgba(255, 255, 255, 0.08);
+  border-bottom-color: var(--table-head-border);
+  background: var(--surface-overlay);
 }
 
 .drawer :global(.ant-drawer-body) {
-  background: #0b1220;
+  background: var(--surface-elevated);
 }
 
 .loadingBlock {
@@ -19,17 +20,18 @@
 }
 
 .panelCard {
-  background: rgba(12, 18, 30, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--surface-radius-lg);
 }
 
 .panelCard :global(.ant-card-head) {
-  border-bottom-color: rgba(255, 255, 255, 0.08);
-  color: #f5f9ff;
+  border-bottom-color: var(--table-head-border);
+  color: var(--text-heading);
 }
 
 .panelCard :global(.ant-card-body) {
-  padding: 18px 20px;
+  padding: 16px 18px;
 }
 
 .metaGrid {
@@ -39,13 +41,13 @@
 }
 
 .metaLabel {
-  color: rgba(231, 238, 251, 0.58);
+  color: var(--text-secondary);
   font-size: 12px;
 }
 
 .metaValue {
   margin-top: 6px;
-  color: #f5f9ff;
+  color: var(--text-heading);
   line-height: 1.6;
   word-break: break-all;
 }
@@ -57,9 +59,9 @@
 .reasonText {
   margin-top: 6px;
   padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  color: rgba(231, 238, 251, 0.78);
+  border-radius: var(--surface-radius-md);
+  background: var(--muted-block-bg);
+  color: var(--text-primary);
   line-height: 1.7;
 }
 
@@ -68,15 +70,15 @@
 }
 
 .taskTable :global(.ant-table-thead > tr > th) {
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(231, 238, 251, 0.72);
-  border-bottom-color: rgba(255, 255, 255, 0.08);
+  background: var(--table-head-bg);
+  color: var(--table-head-text);
+  border-bottom-color: var(--table-head-border);
 }
 
 .taskTable :global(.ant-table-tbody > tr > td) {
   background: transparent;
-  border-bottom-color: rgba(255, 255, 255, 0.06);
-  color: #e7eefb;
+  border-bottom-color: var(--table-border);
+  color: var(--text-primary);
 }
 
 .instanceStatusTag,
@@ -87,18 +89,18 @@
 }
 
 .instanceStatusTag {
-  background: rgba(97, 231, 255, 0.14);
-  color: #d1f4ff;
+  background: var(--tag-info-bg);
+  color: var(--tag-info-text);
 }
 
 .taskStatusTag {
-  background: rgba(45, 123, 255, 0.18);
-  color: #dcecff;
+  background: var(--tag-primary-bg);
+  color: var(--tag-primary-text);
 }
 
 .actionTag {
-  background: rgba(53, 211, 154, 0.18);
-  color: #c9ffe8;
+  background: var(--tag-success-bg);
+  color: var(--tag-success-text);
 }
 
 .actionList {
@@ -109,34 +111,34 @@
 
 .actionItem {
   padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--surface-radius-md);
+  background: var(--muted-block-bg);
 }
 
 .actionHeader {
-  color: rgba(231, 238, 251, 0.62);
+  color: var(--text-secondary);
   font-size: 12px;
 }
 
 .actionComment {
   margin-top: 8px;
-  color: rgba(231, 238, 251, 0.82);
+  color: var(--text-primary);
   line-height: 1.7;
 }
 
 .jsonBlock {
   margin: 0;
   padding: 14px;
-  border-radius: 12px;
-  background: rgba(4, 10, 18, 0.75);
-  color: #d8ecff;
+  border-radius: var(--surface-radius-md);
+  background: var(--code-bg);
+  color: var(--text-accent);
   font-size: 12px;
   line-height: 1.7;
   overflow: auto;
 }
 
 .emptyText {
-  color: rgba(231, 238, 251, 0.48);
+  color: var(--text-tertiary);
 }
 
 @media (max-width: 860px) {

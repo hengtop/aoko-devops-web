@@ -1,6 +1,10 @@
 import { useMemo } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
-import { atomOneDarkReasonable } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import {
+  atomOneDarkReasonable,
+  atomOneLight,
+} from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { useAppTheme } from "../../theme";
 import { getConfigCodePresentation } from "./utils";
 import styles from "./styles.module.less";
 
@@ -23,10 +27,12 @@ export default function ConfigCodeViewer({
   showMeta = true,
   showLineNumbers = variant === "full",
 }: ConfigCodeViewerProps) {
+  const { isDark } = useAppTheme();
   const presentation = useMemo(
     () => getConfigCodePresentation(ext, fileName, content),
     [content, ext, fileName],
   );
+  const syntaxTheme = isDark ? atomOneDarkReasonable : atomOneLight;
 
   return (
     <div className={`${styles.viewer} ${variant === "compact" ? styles.viewerCompact : styles.viewerFull}`}>
@@ -41,7 +47,7 @@ export default function ConfigCodeViewer({
       <div className={styles.codeShell}>
         <SyntaxHighlighter
           language={presentation.language}
-          style={atomOneDarkReasonable}
+          style={syntaxTheme}
           showLineNumbers={showLineNumbers}
           wrapLongLines
           PreTag="div"
@@ -55,7 +61,7 @@ export default function ConfigCodeViewer({
           lineNumberStyle={{
             minWidth: "2.25em",
             paddingRight: "14px",
-            color: "rgba(178, 194, 217, 0.42)",
+            color: "var(--code-line-number)",
           }}
           codeTagProps={{
             style: {

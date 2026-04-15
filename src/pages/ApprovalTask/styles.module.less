@@ -1,8 +1,9 @@
 .searchCard,
 .tableCard {
-  background: rgba(12, 18, 30, 0.8);
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-bg);
+  border-radius: var(--surface-radius-lg);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--surface-shadow-soft);
 }
 
 .searchCard :global(.ant-card-body) {
@@ -39,26 +40,26 @@
 }
 
 .taskTable :global(.ant-table-container) {
-  border-radius: 14px;
+  border-radius: 12px;
   overflow: hidden;
 }
 
 .taskTable :global(.ant-table-thead > tr > th) {
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(231, 238, 251, 0.76);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--table-head-bg);
+  color: var(--table-head-text);
+  border-bottom: 1px solid var(--table-head-border);
   font-size: 12px;
   font-weight: 600;
 }
 
 .taskTable :global(.ant-table-tbody > tr > td) {
-  background: rgba(6, 10, 18, 0.45);
-  color: #e7eefb;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--table-row-bg);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--table-border);
 }
 
 .taskTable :global(.ant-table-tbody > tr:hover > td) {
-  background: rgba(16, 24, 40, 0.78) !important;
+  background: var(--table-row-hover-bg) !important;
 }
 
 .tablePrimary {
@@ -68,12 +69,12 @@
 
 .tableSecondary {
   margin-top: 4px;
-  color: rgba(231, 238, 251, 0.5);
+  color: var(--text-tertiary);
   font-size: 12px;
 }
 
 .timestampText {
-  color: rgba(231, 238, 251, 0.72);
+  color: var(--text-secondary);
 }
 
 .bizTag,
@@ -84,18 +85,18 @@
 }
 
 .bizTag {
-  background: rgba(97, 231, 255, 0.14);
-  color: #d1f4ff;
+  background: var(--tag-info-bg);
+  color: var(--tag-info-text);
 }
 
 .taskTag {
-  background: rgba(45, 123, 255, 0.18);
-  color: #dcecff;
+  background: var(--tag-primary-bg);
+  color: var(--tag-primary-text);
 }
 
 .instanceTag {
-  background: rgba(53, 211, 154, 0.18);
-  color: #c9ffe8;
+  background: var(--tag-success-bg);
+  color: var(--tag-success-text);
 }
 
 @media (max-width: 960px) {

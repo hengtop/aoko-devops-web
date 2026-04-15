@@ -1,8 +1,9 @@
 .searchCard,
 .tableCard {
-  background: rgba(12, 18, 30, 0.8);
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-bg);
+  border-radius: var(--surface-radius-lg);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--surface-shadow-soft);
 }
 
 .searchCard :global(.ant-card-body) {
@@ -32,30 +33,30 @@
 
 .templateTable :global(.ant-table) {
   background: transparent;
-  color: #e7eefb;
+  color: var(--text-primary);
 }
 
 .templateTable :global(.ant-table-container) {
-  border-radius: 14px;
+  border-radius: 12px;
   overflow: hidden;
 }
 
 .templateTable :global(.ant-table-thead > tr > th) {
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(231, 238, 251, 0.76);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--table-head-bg);
+  color: var(--table-head-text);
+  border-bottom: 1px solid var(--table-head-border);
   font-size: 12px;
   font-weight: 600;
 }
 
 .templateTable :global(.ant-table-tbody > tr > td) {
-  background: rgba(6, 10, 18, 0.45);
-  color: #e7eefb;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--table-row-bg);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--table-border);
 }
 
 .templateTable :global(.ant-table-tbody > tr:hover > td) {
-  background: rgba(16, 24, 40, 0.78) !important;
+  background: var(--table-row-hover-bg) !important;
 }
 
 .tablePrimary {
@@ -65,12 +66,12 @@
 
 .tableSecondary {
   margin-top: 4px;
-  color: rgba(231, 238, 251, 0.5);
+  color: var(--text-tertiary);
   font-size: 12px;
 }
 
 .timestampText {
-  color: rgba(231, 238, 251, 0.72);
+  color: var(--text-secondary);
 }
 
 .codeTag,
@@ -82,27 +83,27 @@
 }
 
 .codeTag {
-  background: rgba(45, 123, 255, 0.18);
-  color: #cfe4ff;
+  background: var(--tag-primary-bg);
+  color: var(--tag-primary-text);
 }
 
 .bizTag {
-  background: rgba(97, 231, 255, 0.14);
-  color: #d1f4ff;
+  background: var(--tag-info-bg);
+  color: var(--tag-info-text);
 }
 
 .statusTagEnabled {
-  background: rgba(53, 211, 154, 0.18);
-  color: #c9ffe8;
+  background: var(--tag-success-bg);
+  color: var(--tag-success-text);
 }
 
 .statusTagDisabled {
-  background: rgba(255, 193, 87, 0.18);
-  color: #ffe0a3;
+  background: var(--tag-warning-bg);
+  color: var(--tag-warning-text);
 }
 
 .nodeSummary {
-  color: rgba(231, 238, 251, 0.78);
+  color: var(--text-primary);
 }
 
 .actionButton,
@@ -122,7 +123,7 @@
 
 .blockTitle {
   margin-bottom: 12px;
-  color: #f5f9ff;
+  color: var(--text-heading);
   font-size: 14px;
   font-weight: 600;
 }
@@ -134,13 +135,13 @@
 }
 
 .nodeCard {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--muted-block-bg);
+  border: 1px solid var(--muted-block-border);
 }
 
 .nodeCard :global(.ant-card-head) {
-  border-bottom-color: rgba(255, 255, 255, 0.08);
-  color: #f5f9ff;
+  border-bottom-color: var(--table-head-border);
+  color: var(--text-heading);
 }
 
 .nodeCard :global(.ant-card-body) {

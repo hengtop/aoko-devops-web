@@ -1,0 +1,87 @@
+:root {
+  color-scheme: var(--app-color-scheme, dark);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent-blue) 28%, transparent);
+  color: var(--text-heading);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent-blue) 34%, transparent) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-blue) 34%, transparent);
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:where(.ant-app),
+:where(.ant-card),
+:where(.ant-drawer-content),
+:where(.ant-modal-content),
+:where(.ant-popover .ant-popover-inner),
+:where(.ant-dropdown .ant-dropdown-menu),
+:where(.ant-select-dropdown) {
+  backdrop-filter: blur(18px);
+}
+
+:where(.ant-card) {
+  box-shadow: var(--surface-shadow-soft);
+}
+
+:where(.ant-btn),
+:where(.ant-input-outlined),
+:where(.ant-input-affix-wrapper),
+:where(.ant-input-number-outlined),
+:where(.ant-picker-outlined),
+:where(.ant-select-outlined .ant-select-selector),
+:where(.ant-tag) {
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+:where(.ant-btn:hover) {
+  transform: translateY(-1px);
+}
+
+:where(.ant-btn:active) {
+  transform: translateY(0);
+}
+
+:where(.ant-btn-icon-only:hover) {
+  transform: none;
+}
+
+:where(.ant-input-outlined),
+:where(.ant-input-affix-wrapper),
+:where(.ant-input-number-outlined),
+:where(.ant-picker-outlined),
+:where(.ant-select-outlined .ant-select-selector) {
+  backdrop-filter: blur(12px);
+}
+
+:where(.ant-table-wrapper) .ant-table-tbody > tr > td {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+:where(.ant-modal-content),
+:where(.ant-drawer-content) {
+  box-shadow: var(--surface-shadow);
+}
