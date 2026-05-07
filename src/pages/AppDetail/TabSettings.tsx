@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Popconfirm, Space, Table, Tabs, Tag, Typography } from "antd";
+import { Button, message, Popconfirm, Space, Table, Tabs, Tag, Typography } from "antd";
 import type { TableProps } from "antd";
 import { EyeInvisibleOutlined, EyeOutlined, PlusOutlined } from "@ant-design/icons";
 import {
@@ -7,6 +7,7 @@ import {
   VARIABLE_SCOPE_TYPE_LABELS,
 } from "@constants";
 import {
+  deleteRepository,
   listCredentials,
   listRepositories,
   listVariables,
@@ -14,6 +15,8 @@ import {
   type RepositoryRecord,
   type VariableRecord,
 } from "@service/api";
+import RepositoryDrawer from "./RepositoryDrawer";
+import WebhookEventsModal from "./WebhookEventsModal";
 import styles from "./styles.module.less";
 
 const { Text } = Typography;
@@ -26,16 +29,32 @@ type Props = {
 function RepositoriesTab({ appId }: { appId: string }) {
   const [repos, setRepos] = useState<RepositoryRecord[]>([]);
   const [loading, setLoading] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editRecord, setEditRecord] = useState<RepositoryRecord | null>(null);
+  const [webhookRepoId, setWebhookRepoId] = useState<string>("");
+  const [webhookOpen, setWebhookOpen] = useState(false);
+
+  async function loadRepos() {
+    setLoading(true);
+    const res = await listRepositories({ applicationId: appId, pageNum: 1, pageSize: 20 });
+    if (res.success) setRepos(res.data?.list ?? []);
+    setLoading(false);
+  }
 
   useEffect(() => {
-    async function load() {
-      setLoading(true);
-      const res = await listRepositories({ applicationId: appId, pageNum: 1, pageSize: 20 });
-      if (res.success) setRepos(res.data?.list ?? []);
-      setLoading(false);
-    }
-    load();
+    loadRepos();
   }, [appId]);
+
+  async function handleDelete(record: RepositoryRecord) {
+    const id = record.id ?? record._id ?? "";
+    const res = await deleteRepository(id);
+    if (res.success) {
+      message.success("仓库已删除");
+      loadRepos();
+    } else {
+      message.error("删除失败");
+    }
+  }
 
   const columns: TableProps<RepositoryRecord>["columns"] = [
     { title: "名称", dataIndex: "repoName", key: "repoName" },
@@ -65,14 +84,32 @@ function RepositoriesTab({ appId }: { appId: string }) {
     {
       title: "操作",
       key: "action",
-      render: () => <Button size="small">编辑</Button>,
+      render: (_: unknown, record: RepositoryRecord) => (
+        <Space>
+          <Button size="small" onClick={() => { setEditRecord(record); setDrawerOpen(true); }}>
+            编辑
+          </Button>
+          <Button
+            size="small"
+            onClick={() => {
+              setWebhookRepoId(record.id ?? record._id ?? "");
+              setWebhookOpen(true);
+            }}
+          >
+            Webhook
+          </Button>
+          <Popconfirm title="删除后无法恢复，确认删除该仓库绑定？" onConfirm={() => handleDelete(record)}>
+            <Button size="small" danger>删除</Button>
+          </Popconfirm>
+        </Space>
+      ),
     },
   ];
 
   return (
     <div className={styles.settingSection}>
       <div className={styles.tabToolbar}>
-        <Button type="primary" icon={<PlusOutlined />}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditRecord(null); setDrawerOpen(true); }}>
           绑定仓库
         </Button>
       </div>
@@ -83,6 +120,18 @@ function RepositoriesTab({ appId }: { appId: string }) {
         loading={loading}
         size="middle"
         pagination={false}
+      />
+      <RepositoryDrawer
+        open={drawerOpen}
+        appId={appId}
+        editRecord={editRecord}
+        onClose={() => setDrawerOpen(false)}
+        onSuccess={loadRepos}
+      />
+      <WebhookEventsModal
+        open={webhookOpen}
+        repositoryId={webhookRepoId}
+        onClose={() => setWebhookOpen(false)}
       />
     </div>
   );
