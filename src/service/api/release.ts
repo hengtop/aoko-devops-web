@@ -7,8 +7,8 @@ import type { ReleaseStatus, ReleaseStage } from "@constants/cicd";
 export type { ReleaseStatus, ReleaseStage };
 
 export interface GitInfo {
-  branch: string;
-  commitHash: string;
+  branch?: string;
+  commitHash?: string;
   commitMessage?: string;
   commitAuthor?: string;
   tag?: string;
@@ -74,8 +74,8 @@ export interface ReleaseStatistics {
 export function createRelease(
   params: CreateReleaseParams,
   options?: ServiceRequestOptions,
-): ApiPromise<void> {
-  return request.post<BaseResponse<void>>(API_PATHS.RELEASE_CREATE, {
+): ApiPromise<ReleaseRecord> {
+  return request.post<BaseResponse<ReleaseRecord>>(API_PATHS.RELEASE_CREATE, {
     ...options,
     data: params,
   });

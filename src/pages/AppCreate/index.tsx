@@ -1,19 +1,27 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Button, Card, Form, Input, message, Select, Space, Typography } from "antd";
+import { Button, Card, Form, Input, message, Radio, Select, Space, Typography } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import AppConsoleMenu from "@components/AppConsoleMenu";
 import AppFooter from "@components/AppFooter";
+import { buildAppDetailPath } from "@constants";
 import { createApplication, listProducts, type ProductRecord } from "@service/api";
 import styles from "./styles.module.less";
 
+// 公司默认 Git 服务域名前缀，后端统一配置
+const DEFAULT_REPO_PREFIX = "https://gitlab.example.com/";
+
 const { Title, Text } = Typography;
+
+type RepoMode = "default" | "existing";
 
 type FormValues = {
   productId: string;
   name: string;
   code: string;
-  repo_url: string;
+  repoMode: RepoMode;
+  repoCode?: string;   // 默认模式：code 部分
+  repo_url?: string;   // 已有仓库模式：完整地址
   description?: string;
   structure?: string;
   level?: string;
@@ -50,6 +58,7 @@ export default function AppCreate() {
   const [submitting, setSubmitting] = useState(false);
   const [products, setProducts] = useState<ProductRecord[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
+  const [repoMode, setRepoMode] = useState<RepoMode>("default");
 
   const defaultProductId = searchParams.get("productId") ?? undefined;
 
@@ -77,12 +86,18 @@ export default function AppCreate() {
 
   async function handleSubmit(values: FormValues) {
     setSubmitting(true);
+
+    const repoUrl =
+      values.repoMode === "default"
+        ? `${DEFAULT_REPO_PREFIX}${values.repoCode ?? values.code}`
+        : (values.repo_url ?? "");
+
     const res = await createApplication({
       tenantId: "default",
       productId: values.productId,
       name: values.name,
       code: values.code,
-      repo_url: values.repo_url,
+      repo_url: repoUrl,
       description: values.description,
       structure: values.structure,
       level: values.level,
@@ -90,8 +105,12 @@ export default function AppCreate() {
 
     if (res.success) {
       message.success("应用创建成功");
-      // 创建成功后跳转到应用详情，使用 name 作为临时 id（实际 id 需从接口返回）
-      navigate(-1);
+      const appId = res.data?.id ?? res.data?._id ?? "";
+      if (appId) {
+        navigate(buildAppDetailPath(appId));
+      } else {
+        navigate(-1);
+      }
     } else {
       const msg = Array.isArray(res.msg) ? res.msg.join("，") : (res.msg ?? "创建失败");
       message.error(msg);
@@ -108,10 +127,10 @@ export default function AppCreate() {
         </aside>
         <div className={styles.main}>
           <div className={styles.header}>
-          <Button type="text" icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)}>
-            返回
-          </Button>
-        </div>
+            <Button type="text" size="small" icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)}>
+              返回
+            </Button>
+          </div>
 
         <div className={styles.formContainer}>
           <div className={styles.formTitle}>
@@ -127,6 +146,7 @@ export default function AppCreate() {
               layout="vertical"
               onFinish={handleSubmit}
               requiredMark={false}
+              initialValues={{ repoMode: "default" }}
             >
               <Form.Item
                 label="所属产品线"
@@ -158,7 +178,10 @@ export default function AppCreate() {
                   placeholder="例如：用户中台"
                   onChange={(e) => {
                     const code = slugify(e.target.value);
-                    if (code) form.setFieldValue("code", code);
+                    if (code) {
+                      form.setFieldValue("code", code);
+                      form.setFieldValue("repoCode", code);
+                    }
                   }}
                 />
               </Form.Item>
@@ -175,16 +198,50 @@ export default function AppCreate() {
                 ]}
                 extra="应用唯一标识，创建后不可修改"
               >
-                <Input placeholder="例如：user-center" />
+                <Input
+                  placeholder="例如：user-center"
+                  onChange={(e) => form.setFieldValue("repoCode", e.target.value)}
+                />
               </Form.Item>
 
-              <Form.Item
-                label="仓库地址"
-                name="repo_url"
-                rules={[{ required: true, message: "请输入仓库地址" }]}
-              >
-                <Input placeholder="例如：https://github.com/org/repo.git" />
+              <Form.Item label="仓库配置方式" name="repoMode">
+                <Radio.Group
+                  onChange={(e) => setRepoMode(e.target.value)}
+                  options={[
+                    { value: "default", label: "自动创建（使用公司默认 Git 服务）" },
+                    { value: "existing", label: "已有仓库（粘贴仓库地址）" },
+                  ]}
+                />
               </Form.Item>
+
+              {repoMode === "default" && (
+                <Form.Item
+                  label="仓库 Code"
+                  name="repoCode"
+                  rules={[{ required: true, message: "请输入仓库 Code" }]}
+                  extra={
+                    <span>
+                      最终仓库地址：
+                      <Typography.Text code style={{ fontSize: 12 }}>
+                        {DEFAULT_REPO_PREFIX}{form.getFieldValue("repoCode") || "<code>"}
+                      </Typography.Text>
+                    </span>
+                  }
+                >
+                  <Input addonBefore={<span style={{ color: "#999", fontSize: 12 }}>{DEFAULT_REPO_PREFIX}</span>} placeholder="与应用 Code 相同，可修改" />
+                </Form.Item>
+              )}
+
+              {repoMode === "existing" && (
+                <Form.Item
+                  label="仓库地址"
+                  name="repo_url"
+                  rules={[{ required: true, message: "请输入仓库地址" }]}
+                  extra="凭证可在创建后到「应用设置 → 仓库配置」中绑定"
+                >
+                  <Input placeholder="https://github.com/org/repo.git" />
+                </Form.Item>
+              )}
 
               <Form.Item label="应用描述" name="description">
                 <Input.TextArea rows={3} placeholder="简要描述应用的功能" />

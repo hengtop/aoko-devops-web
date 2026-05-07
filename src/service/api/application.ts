@@ -50,8 +50,8 @@ export interface ApplicationListParams {
 export function createApplication(
   params: CreateApplicationParams,
   options?: ServiceRequestOptions,
-): ApiPromise<void> {
-  return request.post<BaseResponse<void>>(API_PATHS.APPLICATION_CREATE, {
+): ApiPromise<ApplicationRecord> {
+  return request.post<BaseResponse<ApplicationRecord>>(API_PATHS.APPLICATION_CREATE, {
     ...options,
     data: params,
   });

@@ -4,7 +4,7 @@ import { Button, Card, Form, Input, message, Select, Typography } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import AppConsoleMenu from "@components/AppConsoleMenu";
 import AppFooter from "@components/AppFooter";
-import { APP_ROUTE_PATHS, buildAppDetailPath } from "@constants";
+import { APP_ROUTE_PATHS, buildAppDetailPath, buildReleaseDetailPath } from "@constants";
 import { createRelease, getApplicationDetail, listRepositories, type RepositoryRecord } from "@service/api";
 import styles from "./styles.module.less";
 
@@ -13,10 +13,24 @@ const { Title, Text } = Typography;
 type FormValues = {
   version: string;
   title: string;
-  branch: string;
+  branch?: string;
   description?: string;
   repositoryId?: string;
 };
+
+function generateDefaultBranch(): string {
+  const now = new Date();
+  const pad = (n: number, len = 2) => String(n).padStart(len, "0");
+  const ts =
+    now.getFullYear().toString() +
+    pad(now.getMonth() + 1) +
+    pad(now.getDate()) +
+    pad(now.getHours()) +
+    pad(now.getMinutes()) +
+    pad(now.getSeconds());
+  const rand = Math.floor(Math.random() * 90000) + 10000;
+  return `sprint_S${ts}${rand}`;
+}
 
 export default function ReleaseCreate() {
   const navigate = useNavigate();
@@ -34,12 +48,15 @@ export default function ReleaseCreate() {
       getApplicationDetail({ id: appId }).then((res) => {
         if (res.success && res.data) setProductId(res.data.productId ?? "");
       });
+      // 设置默认分支名
+      form.setFieldValue("branch", generateDefaultBranch());
     }
-  }, [appId]);
+  }, [appId, form]);
 
   async function handleSubmit(values: FormValues) {
     if (!appId) return;
     setSubmitting(true);
+    const branch = values.branch?.trim() || generateDefaultBranch();
     const res = await createRelease({
       applicationId: appId,
       tenantId: "default",
@@ -48,12 +65,17 @@ export default function ReleaseCreate() {
       title: values.title,
       description: values.description,
       currentStage: "DEV",
-      git: { branch: values.branch, commitHash: "" },
+      git: { branch },
     });
     setSubmitting(false);
     if (res.success) {
       message.success("迭代创建成功");
-      navigate(appId ? buildAppDetailPath(appId) + "?tab=releases" : APP_ROUTE_PATHS.PRODUCT);
+      const releaseId = res.data?.id ?? res.data?._id ?? "";
+      if (appId && releaseId) {
+        navigate(buildReleaseDetailPath(appId, releaseId));
+      } else {
+        navigate(appId ? buildAppDetailPath(appId) + "?tab=releases" : APP_ROUTE_PATHS.PRODUCT);
+      }
     }
   }
 
@@ -69,6 +91,7 @@ export default function ReleaseCreate() {
           <div className={styles.pageHeader}>
             <Button
               type="text"
+              size="small"
               icon={<ArrowLeftOutlined />}
               onClick={() => (appId ? navigate(buildAppDetailPath(appId)) : navigate(-1))}
             >
@@ -107,9 +130,9 @@ export default function ReleaseCreate() {
               <Form.Item
                 label="构建分支"
                 name="branch"
-                rules={[{ required: true, message: "请输入分支名称" }]}
+                extra="留空将自动生成默认分支名"
               >
-                <Input placeholder="例如 main、release/v1.2" />
+                <Input placeholder="例如 main、release/v1.2，留空自动生成" />
               </Form.Item>
 
               {repos.length > 0 && (
