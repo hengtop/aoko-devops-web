@@ -7,6 +7,7 @@ import {
   VARIABLE_SCOPE_TYPE_LABELS,
 } from "@constants";
 import {
+  deleteCredential,
   deleteRepository,
   listCredentials,
   listRepositories,
@@ -15,6 +16,7 @@ import {
   type RepositoryRecord,
   type VariableRecord,
 } from "@service/api";
+import CredentialDrawer from "./CredentialDrawer";
 import RepositoryDrawer from "./RepositoryDrawer";
 import WebhookEventsModal from "./WebhookEventsModal";
 import styles from "./styles.module.less";
@@ -141,16 +143,30 @@ function RepositoriesTab({ appId }: { appId: string }) {
 function CredentialsTab({ appId }: { appId: string }) {
   const [credentials, setCredentials] = useState<CredentialRecord[]>([]);
   const [loading, setLoading] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editRecord, setEditRecord] = useState<CredentialRecord | null>(null);
+
+  async function loadCredentials() {
+    setLoading(true);
+    const res = await listCredentials({ applicationId: appId, pageNum: 1, pageSize: 50 });
+    if (res.success) setCredentials(res.data?.list ?? []);
+    setLoading(false);
+  }
 
   useEffect(() => {
-    async function load() {
-      setLoading(true);
-      const res = await listCredentials({ applicationId: appId, pageNum: 1, pageSize: 50 });
-      if (res.success) setCredentials(res.data?.list ?? []);
-      setLoading(false);
-    }
-    load();
+    loadCredentials();
   }, [appId]);
+
+  async function handleDelete(record: CredentialRecord) {
+    const id = record.id ?? record._id ?? "";
+    const res = await deleteCredential(id);
+    if (res.success) {
+      message.success("凭据已删除");
+      loadCredentials();
+    } else {
+      message.error("删除失败");
+    }
+  }
 
   const columns: TableProps<CredentialRecord>["columns"] = [
     { title: "名称", dataIndex: "name", key: "name" },
@@ -163,13 +179,19 @@ function CredentialsTab({ appId }: { appId: string }) {
       ),
     },
     { title: "描述", dataIndex: "description", key: "description", render: (v: string) => v ?? "—" },
+    { title: "创建时间", dataIndex: "createdAt", key: "createdAt", render: (v: string) => v?.slice(0, 10) ?? "—" },
     {
       title: "操作",
       key: "action",
-      render: (_: unknown, _record) => (
+      render: (_: unknown, record: CredentialRecord) => (
         <Space>
-          <Button size="small">编辑</Button>
-          <Popconfirm title="确认删除该凭据？">
+          <Button size="small" onClick={() => { setEditRecord(record); setDrawerOpen(true); }}>
+            编辑
+          </Button>
+          <Popconfirm
+            title="删除后关联的仓库绑定可能失效，确认删除？"
+            onConfirm={() => handleDelete(record)}
+          >
             <Button size="small" danger>
               删除
             </Button>
@@ -182,7 +204,7 @@ function CredentialsTab({ appId }: { appId: string }) {
   return (
     <div className={styles.settingSection}>
       <div className={styles.tabToolbar}>
-        <Button type="primary" icon={<PlusOutlined />}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditRecord(null); setDrawerOpen(true); }}>
           新增凭据
         </Button>
       </div>
@@ -193,6 +215,13 @@ function CredentialsTab({ appId }: { appId: string }) {
         loading={loading}
         size="middle"
         pagination={false}
+      />
+      <CredentialDrawer
+        open={drawerOpen}
+        appId={appId}
+        editRecord={editRecord}
+        onClose={() => setDrawerOpen(false)}
+        onSuccess={loadCredentials}
       />
     </div>
   );
