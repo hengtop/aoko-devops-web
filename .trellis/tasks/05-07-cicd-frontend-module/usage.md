@@ -185,3 +185,88 @@ created → queued → running → success / failed / canceled / timeout
 3. **变量加密**：`isSecret=true` 的变量值在列表页以 `••••••••` 显示，可点击眼睛图标临时展示
 4. **凭据内容**不会在列表接口返回，编辑时需重新填写
 5. **流水线运行**跳转 `/pipeline-run/:runId` 需要后端返回 `id` 字段，确认 API 响应格式
+
+---
+
+## 六、页面布局规范（重要，防止再次出现布局问题）
+
+### 问题背景
+
+在本次开发过程中，部分页面（Product、ProductCreate、ProductDetail、AppCreate、AppDetail、PipelineCreate、PipelineDetail、PipelineRunDetail、ReleaseCreate、ReleaseDetail）采用了 `flex + margin-left: 220px` 的方式实现侧边菜单布局，导致：
+
+- 菜单与内容区错位
+- 页面宽度异常（内容区溢出或收缩）
+- 与项目其他页面视觉风格不一致
+
+### 正确的布局模式
+
+所有控制台主页面必须采用以下结构，**严禁使用 `flex + margin-left` 方式**：
+
+**TSX 结构：**
+```tsx
+<div className={styles.layout}>        {/* 外层容器：flex column */}
+  <div className={styles.body}>        {/* grid 双列容器 */}
+    <aside className={styles.sidebar}>
+      <div className={styles.sidebarHeader}>菜单</div>
+      <AppConsoleMenu />
+    </aside>
+    <main className={styles.main}>     {/* 主内容区，min-width: 0 防止溢出 */}
+      {/* 页面内容 */}
+    </main>
+  </div>
+  <AppFooter />
+</div>
+```
+
+**LESS 样式：**
+```less
+.layout {
+  min-height: calc(100vh - var(--app-topbar-height));
+  background: var(--page-shell-bg);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: var(--console-sidebar-width) minmax(0, 1fr);
+  gap: var(--console-gap);
+  padding: var(--console-shell-padding);
+  align-items: start;
+}
+
+.sidebar {
+  position: sticky;
+  top: calc(var(--app-topbar-height) + 18px);
+  border-radius: var(--surface-radius-lg);
+  padding: 18px 16px 16px;
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--surface-shadow-soft);
+  backdrop-filter: blur(18px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sidebarHeader {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding-inline: 6px;
+}
+
+.main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+```
+
+> 参考实现：`src/pages/Server/`、`src/pages/Template/`、`src/pages/Configuration/`
+
