@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Button, message, Popconfirm, Space, Table, Tabs, Tag, Typography } from "antd";
+import { useEffect, useMemo, useState } from "react";
+import { Button, Input, message, Popconfirm, Select, Space, Table, Tabs, Tag, Typography } from "antd";
 import type { TableProps } from "antd";
 import { EyeInvisibleOutlined, EyeOutlined, PlusOutlined } from "@ant-design/icons";
 import {
@@ -9,15 +9,21 @@ import {
 import {
   deleteCredential,
   deleteRepository,
+  deleteVariable,
   listCredentials,
+  listEnvironments,
+  listPipelines,
   listRepositories,
   listVariables,
   type CredentialRecord,
+  type EnvironmentRecord,
+  type PipelineRecord,
   type RepositoryRecord,
   type VariableRecord,
 } from "@service/api";
 import CredentialDrawer from "./CredentialDrawer";
 import RepositoryDrawer from "./RepositoryDrawer";
+import VariableDrawer from "./VariableDrawer";
 import WebhookEventsModal from "./WebhookEventsModal";
 import styles from "./styles.module.less";
 
@@ -228,23 +234,58 @@ function CredentialsTab({ appId }: { appId: string }) {
 }
 
 // ── Variables ──────────────────────────────────────────
-function VariablesTab({ appId }: { appId: string }) {
+interface VariablesTabProps {
+  appId: string;
+  environments: EnvironmentRecord[];
+  pipelines: PipelineRecord[];
+}
+
+function VariablesTab({ appId, environments, pipelines }: VariablesTabProps) {
   const [variables, setVariables] = useState<VariableRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [showSecret, setShowSecret] = useState<Record<string, boolean>>({});
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editRecord, setEditRecord] = useState<VariableRecord | null>(null);
+  const [scopeFilter, setScopeFilter] = useState<string>("");
+  const [keySearch, setKeySearch] = useState("");
+
+  async function loadVariables() {
+    setLoading(true);
+    const res = await listVariables({ applicationId: appId, pageNum: 1, pageSize: 200 });
+    if (res.success) setVariables(res.data?.list ?? []);
+    setLoading(false);
+  }
 
   useEffect(() => {
-    async function load() {
-      setLoading(true);
-      const res = await listVariables({ applicationId: appId, pageNum: 1, pageSize: 100 });
-      if (res.success) setVariables(res.data?.list ?? []);
-      setLoading(false);
-    }
-    load();
+    loadVariables();
   }, [appId]);
 
+  async function handleDelete(record: VariableRecord) {
+    const id = record.id ?? record._id ?? "";
+    const res = await deleteVariable(id);
+    if (res.success) {
+      message.success("变量已删除");
+      loadVariables();
+    } else {
+      message.error("删除失败");
+    }
+  }
+
+  const filtered = useMemo(() => {
+    return variables.filter((v) => {
+      if (scopeFilter && v.scopeType !== scopeFilter) return false;
+      if (keySearch && !v.key.toLowerCase().includes(keySearch.toLowerCase())) return false;
+      return true;
+    });
+  }, [variables, scopeFilter, keySearch]);
+
   const columns: TableProps<VariableRecord>["columns"] = [
-    { title: "Key", dataIndex: "key", key: "key", render: (v: string) => <code>{v}</code> },
+    {
+      title: "Key",
+      dataIndex: "key",
+      key: "key",
+      render: (v: string) => <code>{v}</code>,
+    },
     {
       title: "Value",
       dataIndex: "value",
@@ -292,14 +333,31 @@ function VariablesTab({ appId }: { appId: string }) {
       render: (v: boolean) => <Tag color={v ? "red" : "default"}>{v ? "是" : "否"}</Tag>,
     },
     {
+      title: "描述",
+      dataIndex: "description",
+      key: "description",
+      render: (v: string) => v ?? "—",
+    },
+    {
       title: "操作",
       key: "action",
-      render: () => (
+      render: (_: unknown, record: VariableRecord) => (
         <Space>
-          <Button size="small">编辑</Button>
-          <Button size="small" danger>
-            删除
+          <Button
+            size="small"
+            onClick={() => {
+              setEditRecord(record);
+              setDrawerOpen(true);
+            }}
+          >
+            编辑
           </Button>
+          <Popconfirm
+            title={`确认删除变量 ${record.key}？删除后可能影响构建和部署流程。`}
+            onConfirm={() => handleDelete(record)}
+          >
+            <Button size="small" danger>删除</Button>
+          </Popconfirm>
         </Space>
       ),
     },
@@ -308,17 +366,54 @@ function VariablesTab({ appId }: { appId: string }) {
   return (
     <div className={styles.settingSection}>
       <div className={styles.tabToolbar}>
-        <Button type="primary" icon={<PlusOutlined />}>
+        <Space>
+          <Input
+            placeholder="搜索变量名"
+            allowClear
+            style={{ width: 200 }}
+            value={keySearch}
+            onChange={(e) => setKeySearch(e.target.value)}
+          />
+          <Select
+            placeholder="全部作用域"
+            allowClear
+            style={{ width: 140 }}
+            value={scopeFilter || undefined}
+            onChange={(v) => setScopeFilter(v ?? "")}
+            options={[
+              { value: "application", label: "应用级" },
+              { value: "environment", label: "环境级" },
+              { value: "pipeline", label: "流水线级" },
+            ]}
+          />
+        </Space>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => {
+            setEditRecord(null);
+            setDrawerOpen(true);
+          }}
+        >
           新增变量
         </Button>
       </div>
       <Table
         columns={columns}
-        dataSource={variables}
+        dataSource={filtered}
         rowKey={(r) => r.id ?? r._id ?? ""}
         loading={loading}
         size="middle"
-        pagination={false}
+        pagination={{ pageSize: 20 }}
+      />
+      <VariableDrawer
+        open={drawerOpen}
+        appId={appId}
+        editRecord={editRecord}
+        environments={environments}
+        pipelines={pipelines}
+        onClose={() => setDrawerOpen(false)}
+        onSuccess={loadVariables}
       />
     </div>
   );
@@ -326,10 +421,29 @@ function VariablesTab({ appId }: { appId: string }) {
 
 // ── Main Settings Tab ────────────────────────────────────
 export default function TabSettings({ appId }: Props) {
+  const [environments, setEnvironments] = useState<EnvironmentRecord[]>([]);
+  const [pipelines, setPipelines] = useState<PipelineRecord[]>([]);
+
+  useEffect(() => {
+    async function load() {
+      const [envRes, plRes] = await Promise.all([
+        listEnvironments({ applicationId: appId, pageNum: 1, pageSize: 50 }),
+        listPipelines({ applicationId: appId, pageNum: 1, pageSize: 50 }),
+      ]);
+      if (envRes.success) setEnvironments(envRes.data?.list ?? []);
+      if (plRes.success) setPipelines(plRes.data?.list ?? []);
+    }
+    load();
+  }, [appId]);
+
   const items = [
     { key: "repositories", label: "仓库配置", children: <RepositoriesTab appId={appId} /> },
     { key: "credentials", label: "凭据管理", children: <CredentialsTab appId={appId} /> },
-    { key: "variables", label: "变量管理", children: <VariablesTab appId={appId} /> },
+    {
+      key: "variables",
+      label: "变量管理",
+      children: <VariablesTab appId={appId} environments={environments} pipelines={pipelines} />,
+    },
   ];
 
   return (
