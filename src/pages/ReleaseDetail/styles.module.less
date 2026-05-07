@@ -1,0 +1,155 @@
+.pageLayout {
+  min-height: calc(100vh - var(--app-topbar-height));
+  background: var(--page-shell-bg);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.pageBody {
+  flex: 1;
+  display: grid;
+  grid-template-columns: var(--console-sidebar-width) minmax(0, 1fr);
+  gap: var(--console-gap);
+  padding: var(--console-shell-padding);
+  align-items: start;
+}
+
+.sidebar {
+  position: sticky;
+  top: calc(var(--app-topbar-height) + 18px);
+  border-radius: var(--surface-radius-lg);
+  padding: 18px 16px 16px;
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--surface-shadow-soft);
+  backdrop-filter: blur(18px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sidebarHeader {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding-inline: 6px;
+}
+
+.pageMain {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pageContent {
+  flex: 1;
+  padding: 24px;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.headerInfo {
+  flex: 1;
+}
+
+.loadingCenter {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.infoCard {
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  margin-bottom: 16px;
+}
+
+/* Deploy Pipeline Flow */
+.deployFlow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 24px;
+}
+
+.deployFlowItem {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.deployFlowArrow {
+  font-size: 18px;
+  color: var(--color-text-tertiary);
+  margin: 0 8px;
+  flex-shrink: 0;
+}
+
+.envCard {
+  width: 180px;
+  min-height: 90px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-bg-container);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.envCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.envCardMeta {
+  margin-top: 4px;
+}
+
+.envCardEmpty {
+  margin-top: 6px;
+}
+
+.emptyFlow {
+  margin-bottom: 24px;
+}
+
+/* Log Viewer */
+.logBox {
+  margin-top: 16px;
+  border-radius: 6px;
+  background: #1a1a2e;
+  padding: 12px;
+  min-height: 120px;
+}
+
+.logPre {
+  margin: 0;
+  font-family: "JetBrains Mono", "Cascadia Code", "Fira Code", monospace;
+  font-size: 12px;
+  color: #e0e0e0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}

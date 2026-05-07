@@ -25,6 +25,17 @@ const Template = lazy(() => import("@pages/Template"));
 const Login = lazy(() => import("@pages/Login"));
 const Register = lazy(() => import("@pages/Register"));
 const Forbidden = lazy(() => import("@pages/Forbidden"));
+// CI/CD pages
+const Product = lazy(() => import("@pages/Product"));
+const ProductCreate = lazy(() => import("@pages/ProductCreate"));
+const ProductDetail = lazy(() => import("@pages/ProductDetail"));
+const AppCreate = lazy(() => import("@pages/AppCreate"));
+const AppDetail = lazy(() => import("@pages/AppDetail"));
+const ReleaseCreate = lazy(() => import("@pages/ReleaseCreate"));
+const ReleaseDetail = lazy(() => import("@pages/ReleaseDetail"));
+const PipelineCreate = lazy(() => import("@pages/PipelineCreate"));
+const PipelineDetail = lazy(() => import("@pages/PipelineDetail"));
+const PipelineRunDetail = lazy(() => import("@pages/PipelineRunDetail"));
 
 type AppRouteConfig = {
   path: string;
@@ -123,6 +134,51 @@ const consoleRoutes: AppRouteConfig[] = [
   {
     path: APP_ROUTE_PATHS.CONFIGURATION_EDIT,
     component: ConfigurationEditor,
+  },
+  // ── CI/CD ──
+  {
+    path: APP_ROUTE_PATHS.PRODUCT,
+    component: Product,
+  },
+  {
+    path: APP_ROUTE_PATHS.PRODUCT_CREATE,
+    component: ProductCreate,
+  },
+  {
+    path: APP_ROUTE_PATHS.PRODUCT_DETAIL,
+    component: ProductDetail,
+  },
+  {
+    path: APP_ROUTE_PATHS.APP_CREATE,
+    component: AppCreate,
+  },
+  {
+    path: APP_ROUTE_PATHS.APP_DETAIL,
+    component: AppDetail,
+  },
+  {
+    path: APP_ROUTE_PATHS.APP_DETAIL_TAB,
+    component: AppDetail,
+  },
+  {
+    path: APP_ROUTE_PATHS.RELEASE_CREATE,
+    component: ReleaseCreate,
+  },
+  {
+    path: APP_ROUTE_PATHS.RELEASE_DETAIL,
+    component: ReleaseDetail,
+  },
+  {
+    path: APP_ROUTE_PATHS.PIPELINE_CREATE,
+    component: PipelineCreate,
+  },
+  {
+    path: APP_ROUTE_PATHS.PIPELINE_DETAIL,
+    component: PipelineDetail,
+  },
+  {
+    path: APP_ROUTE_PATHS.PIPELINE_RUN_DETAIL,
+    component: PipelineRunDetail,
   },
 ];
 

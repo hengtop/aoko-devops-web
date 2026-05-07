@@ -1,0 +1,132 @@
+.layout {
+  min-height: calc(100vh - var(--app-topbar-height));
+  background: var(--page-shell-bg);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: var(--console-sidebar-width) minmax(0, 1fr);
+  gap: var(--console-gap);
+  padding: var(--console-shell-padding);
+  align-items: start;
+}
+
+.sidebar {
+  position: sticky;
+  top: calc(var(--app-topbar-height) + 18px);
+  border-radius: var(--surface-radius-lg);
+  padding: 18px 16px 16px;
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--surface-shadow-soft);
+  backdrop-filter: blur(18px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sidebarHeader {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding-inline: 6px;
+}
+
+.main {
+  min-width: 0;
+  padding: 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.productHeader {
+  :global(.ant-card-body) {
+    padding: 20px 24px;
+  }
+}
+
+.productHeaderContent {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.productAvatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: var(--ant-color-primary-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: var(--ant-color-primary);
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+}
+
+.productInfo {
+  flex: 1;
+}
+
+.productActions {
+  flex-shrink: 0;
+}
+
+.appsTab {
+  padding-top: 4px;
+}
+
+.tabToolbar {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.appCard {
+  cursor: pointer;
+
+  :global(.ant-card-body) {
+    padding: 16px;
+  }
+}
+
+.appCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.appCardInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.appName {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.appRepoUrl {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--ant-color-border-secondary);
+}

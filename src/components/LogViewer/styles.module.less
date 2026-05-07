@@ -1,0 +1,52 @@
+.logViewer {
+  background: #0d1117;
+  border-radius: 8px;
+  overflow-y: auto;
+  border: 1px solid #21262d;
+}
+
+.logContent {
+  margin: 0;
+  padding: 12px 0;
+  font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #e6edf3;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.logLine {
+  display: flex;
+  align-items: flex-start;
+  padding: 0 12px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+.lineNum {
+  flex-shrink: 0;
+  width: 40px;
+  color: #484f58;
+  user-select: none;
+  text-align: right;
+  padding-right: 16px;
+  font-size: 11px;
+}
+
+.lineText {
+  flex: 1;
+  word-break: break-all;
+}
+
+.cursor {
+  animation: blink 1s step-end infinite;
+  color: #58a6ff;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}

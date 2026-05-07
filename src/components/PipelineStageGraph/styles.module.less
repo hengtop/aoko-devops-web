@@ -1,0 +1,57 @@
+.graph {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  overflow-x: auto;
+  padding: 4px 0 8px;
+}
+
+.stageWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.stageCard {
+  width: 160px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-bg-container);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.stageCardActive {
+  border-color: var(--color-primary) !important;
+  background: var(--color-primary-bg);
+}
+
+.stageHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.stageDuration {
+  margin-bottom: 4px;
+}
+
+.jobChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.arrow {
+  font-size: 16px;
+  color: var(--color-text-tertiary);
+  padding: 0 8px;
+}

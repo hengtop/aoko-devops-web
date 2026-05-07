@@ -1,0 +1,70 @@
+.layout {
+  min-height: calc(100vh - var(--app-topbar-height));
+  background: var(--page-shell-bg);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: var(--console-sidebar-width) minmax(0, 1fr);
+  gap: var(--console-gap);
+  padding: var(--console-shell-padding);
+  align-items: start;
+}
+
+.sidebar {
+  position: sticky;
+  top: calc(var(--app-topbar-height) + 18px);
+  border-radius: var(--surface-radius-lg);
+  padding: 18px 16px 16px;
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--surface-shadow-soft);
+  backdrop-filter: blur(18px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sidebarHeader {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding-inline: 6px;
+}
+
+.main {
+  min-width: 0;
+  padding: 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+
+.header {
+  margin-bottom: 20px;
+}
+
+.formContainer {
+  max-width: 640px;
+}
+
+.formTitle {
+  margin-bottom: 20px;
+
+  h4 {
+    margin-bottom: 4px !important;
+  }
+}
+
+.formCard {
+  :global(.ant-card-body) {
+    padding: 24px;
+  }
+}

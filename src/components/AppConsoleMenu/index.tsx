@@ -5,6 +5,7 @@ import {
   DeploymentUnitOutlined,
   FileTextOutlined,
   NotificationOutlined,
+  RocketOutlined,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -31,6 +32,12 @@ const menuItems: MenuItem[] = [
     label: "工作台",
     hint: "总览与活动信息",
     icon: AppstoreOutlined,
+  },
+  {
+    key: APP_ROUTE_PATHS.PRODUCT,
+    label: "产品管理",
+    hint: "产品线与应用",
+    icon: RocketOutlined,
   },
   {
     key: APP_ROUTE_PATHS.TEMPLATE,

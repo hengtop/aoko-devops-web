@@ -3,6 +3,7 @@ import {
   BulbOutlined,
   LogoutOutlined,
   MoonOutlined,
+  PlusOutlined,
   RightOutlined,
   SunOutlined,
 } from "@ant-design/icons";
@@ -213,6 +214,17 @@ export default function AppTopBar() {
           <div className={styles.logoTitle}>AOKO DevOps</div>
           <div className={styles.logoSub}>DevOps 工作台</div>
         </div>
+      </div>
+
+      <div className={styles.quickActions}>
+        <Button
+          type="primary"
+          size="small"
+          icon={<PlusOutlined />}
+          onClick={() => navigate(APP_ROUTE_PATHS.PRODUCT_CREATE)}
+        >
+          创建项目
+        </Button>
       </div>
 
       <div className={styles.userArea}>

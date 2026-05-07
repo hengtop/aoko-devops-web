@@ -1,0 +1,61 @@
+.pageLayout {
+  min-height: calc(100vh - var(--app-topbar-height));
+  background: var(--page-shell-bg);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.pageBody {
+  flex: 1;
+  display: grid;
+  grid-template-columns: var(--console-sidebar-width) minmax(0, 1fr);
+  gap: var(--console-gap);
+  padding: var(--console-shell-padding);
+  align-items: start;
+}
+
+.sidebar {
+  position: sticky;
+  top: calc(var(--app-topbar-height) + 18px);
+  border-radius: var(--surface-radius-lg);
+  padding: 18px 16px 16px;
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--surface-shadow-soft);
+  backdrop-filter: blur(18px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sidebarHeader {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding-inline: 6px;
+}
+
+.pageMain {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pageContent {
+  flex: 1;
+  padding: 24px;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.formCard {
+  max-width: 600px;
+}

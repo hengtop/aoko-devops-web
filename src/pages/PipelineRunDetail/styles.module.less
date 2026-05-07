@@ -1,0 +1,189 @@
+.pageLayout {
+  min-height: calc(100vh - var(--app-topbar-height));
+  background: var(--page-shell-bg);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.pageBody {
+  flex: 1;
+  display: grid;
+  grid-template-columns: var(--console-sidebar-width) minmax(0, 1fr);
+  gap: var(--console-gap);
+  padding: var(--console-shell-padding);
+  align-items: start;
+}
+
+.sidebar {
+  position: sticky;
+  top: calc(var(--app-topbar-height) + 18px);
+  border-radius: var(--surface-radius-lg);
+  padding: 18px 16px 16px;
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--surface-shadow-soft);
+  backdrop-filter: blur(18px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sidebarHeader {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding-inline: 6px;
+}
+
+.pageMain {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pageContent {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.headerInfo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.loadingCenter {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.infoCard {
+  flex-shrink: 0;
+}
+
+/* Main area: stage list + job detail */
+.mainArea {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 16px;
+  min-height: 500px;
+  align-items: start;
+}
+
+/* Stage List */
+.stageList {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--color-bg-container);
+}
+
+.stageItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-border-secondary);
+  transition: background 0.15s;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: var(--color-bg-elevated);
+  }
+}
+
+.stageItemActive {
+  background: var(--color-primary-bg) !important;
+  border-right: 2px solid var(--color-primary);
+}
+
+.stageItemIcon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.stageItemInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.stageItemName {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stageItemMeta {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  margin-top: 2px;
+}
+
+/* Job Area */
+.jobArea {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 16px;
+  background: var(--color-bg-container);
+}
+
+.jobEmpty {
+  padding: 40px;
+  text-align: center;
+}
+
+.jobList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.jobItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.15s;
+
+  &:hover {
+    background: var(--color-bg-elevated);
+  }
+}
+
+.jobItemActive {
+  background: var(--color-primary-bg) !important;
+  border-color: var(--color-primary-border);
+}
+
+/* Log area */
+.logArea {
+  margin-top: 8px;
+}

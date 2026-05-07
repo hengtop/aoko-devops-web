@@ -49,4 +49,107 @@ export const API_PATHS = {
   APPROVAL_ADD_APPROVER: (id: string) => `/approval/${id}/add-approver`,
   APPROVAL_TASK_MY_PENDING: "/approval-task/my/pending",
   APPROVAL_TASK_MY_DONE: "/approval-task/my/done",
+
+  // ===== Product =====
+  PRODUCT_CREATE: "/product/create",
+  PRODUCT_LIST: "/product/list",
+  PRODUCT_DETAIL: "/product/detail",
+  PRODUCT_UPDATE: "/product/update",
+  PRODUCT_DELETE: "/product/delete",
+  PRODUCT_ADD_USER: "/product/relative/user",
+  PRODUCT_REMOVE_USER: "/product/remove/user",
+  PRODUCT_USER_LIST: "/product/user",
+
+  // ===== Application =====
+  APPLICATION_CREATE: "/application/create",
+  APPLICATION_LIST: "/application/list",
+  APPLICATION_DETAIL: "/application/detail",
+  APPLICATION_UPDATE: "/application/update",
+  APPLICATION_DELETE: "/application/delete",
+  APPLICATION_ADD_USER: "/application/relative/user",
+  APPLICATION_REMOVE_USER: "/application/remove/user",
+  APPLICATION_USER_LIST: "/application/user",
+
+  // ===== Release =====
+  RELEASE_CREATE: "/release/create",
+  RELEASE_LIST: "/release/list",
+  RELEASE_DETAIL: (id: string) => `/release/detail/${id}`,
+  RELEASE_UPDATE: (id: string) => `/release/update/${id}`,
+  RELEASE_BUILD: (id: string) => `/release/build/${id}`,
+  RELEASE_READY: (id: string) => `/release/ready/${id}`,
+  RELEASE_CANCEL: (id: string) => `/release/cancel/${id}`,
+  RELEASE_DELETE: (id: string) => `/release/delete/${id}`,
+  RELEASE_ADD_USER: "/release/relative/user",
+  RELEASE_REMOVE_USER: "/release/remove/user",
+  RELEASE_USER_LIST: "/release/user",
+  RELEASE_STATISTICS: (applicationId: string) =>
+    `/release/application/${applicationId}/statistics`,
+
+  // ===== Deployment =====
+  DEPLOYMENT_CREATE: "/deployments/create",
+  DEPLOYMENT_LIST: "/deployments/list",
+  DEPLOYMENT_DETAIL: (id: string) => `/deployments/detail/${id}`,
+  DEPLOYMENT_START: (id: string) => `/deployments/start/${id}`,
+  DEPLOYMENT_CANCEL: (id: string) => `/deployments/cancel/${id}`,
+  DEPLOYMENT_ROLLBACK: (id: string) => `/deployments/rollback/${id}`,
+  DEPLOYMENT_LOGS: (id: string) => `/deployments/logs/${id}`,
+  DEPLOYMENT_HISTORY: (id: string) => `/deployments/history/${id}`,
+  DEPLOYMENT_STATISTICS: "/deployments/statistics/overview",
+
+  // ===== Pipeline =====
+  PIPELINE_CREATE: "/pipeline/create",
+  PIPELINE_LIST: "/pipeline/list",
+  PIPELINE_DETAIL: "/pipeline/detail",
+  PIPELINE_UPDATE: "/pipeline/update",
+  PIPELINE_DELETE: "/pipeline/delete",
+  PIPELINE_TOGGLE: "/pipeline/toggle",
+  PIPELINE_VALIDATE: "/pipeline/validate",
+
+  // ===== Pipeline Run =====
+  PIPELINE_RUN_TRIGGER: "/pipeline-run/trigger",
+  PIPELINE_RUN_LIST: "/pipeline-run/list",
+  PIPELINE_RUN_DETAIL: "/pipeline-run/detail",
+  PIPELINE_RUN_CANCEL: "/pipeline-run/cancel",
+  PIPELINE_RUN_RETRY: "/pipeline-run/retry",
+  PIPELINE_RUN_STAGES: "/pipeline-run/stages",
+  PIPELINE_RUN_JOBS: "/pipeline-run/jobs",
+  PIPELINE_RUN_JOB_DETAIL: "/pipeline-run/job-detail",
+
+  // ===== Environment =====
+  ENVIRONMENT_CREATE: "/environment/create",
+  ENVIRONMENT_LIST: "/environment/list",
+  ENVIRONMENT_DETAIL: "/environment/detail",
+  ENVIRONMENT_UPDATE: "/environment/update",
+  ENVIRONMENT_DELETE: "/environment/delete",
+  ENVIRONMENT_CURRENT_DEPLOYMENT: "/environment/current-deployment",
+  ENVIRONMENT_LOCK: "/environment/lock",
+  ENVIRONMENT_UNLOCK: "/environment/unlock",
+
+  // ===== Repository =====
+  REPOSITORY_CREATE: "/repository/create",
+  REPOSITORY_LIST: "/repository/list",
+  REPOSITORY_DETAIL: "/repository/detail",
+  REPOSITORY_UPDATE: "/repository/update",
+  REPOSITORY_DELETE: "/repository/delete",
+  REPOSITORY_WEBHOOK_EVENTS: "/repository/webhook-events",
+
+  // ===== Credential =====
+  CREDENTIAL_CREATE: "/credential/create",
+  CREDENTIAL_LIST: "/credential/list",
+  CREDENTIAL_DETAIL: "/credential/detail",
+  CREDENTIAL_UPDATE: "/credential/update",
+  CREDENTIAL_DELETE: "/credential/delete",
+
+  // ===== Variable =====
+  VARIABLE_CREATE: "/variable/create",
+  VARIABLE_LIST: "/variable/list",
+  VARIABLE_UPDATE: "/variable/update",
+  VARIABLE_DELETE: "/variable/delete",
+
+  // ===== Artifact =====
+  ARTIFACT_REGISTER: "/artifact/register",
+  ARTIFACT_LIST: "/artifact/list",
+  ARTIFACT_DETAIL: "/artifact/detail",
+  ARTIFACT_UPDATE_STATUS: "/artifact/update-status",
+  ARTIFACT_RELEASABLE: "/artifact/releasable",
 } as const;

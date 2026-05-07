@@ -1,0 +1,122 @@
+.pageLayout {
+  min-height: calc(100vh - var(--app-topbar-height));
+  background: var(--page-shell-bg);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.pageBody {
+  flex: 1;
+  display: grid;
+  grid-template-columns: var(--console-sidebar-width) minmax(0, 1fr);
+  gap: var(--console-gap);
+  padding: var(--console-shell-padding);
+  align-items: start;
+}
+
+.sidebar {
+  position: sticky;
+  top: calc(var(--app-topbar-height) + 18px);
+  border-radius: var(--surface-radius-lg);
+  padding: 18px 16px 16px;
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--surface-shadow-soft);
+  backdrop-filter: blur(18px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sidebarHeader {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding-inline: 6px;
+}
+
+.pageMain {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pageContent {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.headerInfo {
+  flex: 1;
+}
+
+.loadingCenter {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.infoCard {
+  margin-bottom: 0;
+}
+
+.stagesCard {
+  margin-bottom: 0;
+}
+
+.stageFlow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.stageFlowItem {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.stageBox {
+  min-width: 120px;
+  max-width: 180px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg-elevated);
+}
+
+.stageName {
+  font-weight: 500;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.stageJobs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.stageArrow {
+  font-size: 18px;
+  color: var(--color-text-tertiary);
+  padding: 0 8px;
+  margin-top: -16px;
+}
