@@ -103,6 +103,8 @@ export default function ReleaseCreate() {
     const branch = values.branch?.trim() || generateDefaultBranch();
     // 若选择的是已有分支则带上 commitHash，新分支由服务端 resolve-branch 处理
     const commitHash = selectedCommitHash;
+    // 关联仓库 ID（服务端用于 resolve-branch）
+    const repositoryId = values.repositoryId ?? undefined;
     try {
       const res = await createRelease({
         applicationId: appId,
@@ -113,6 +115,7 @@ export default function ReleaseCreate() {
         description: values.description,
         currentStage: "DEV",
         git: { branch, ...(commitHash ? { commitHash } : {}) },
+        ...(repositoryId ? { repositoryId } : {}),
       });
       if (res.success) {
         message.success("迭代创建成功");

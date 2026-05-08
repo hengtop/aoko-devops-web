@@ -9,6 +9,8 @@ export type { ReleaseStatus, ReleaseStage };
 export interface GitInfo {
   branch?: string;
   commitHash?: string;
+  /** 新建分支时的来源分支 */
+  sourceBranch?: string;
   commitMessage?: string;
   commitAuthor?: string;
   tag?: string;
@@ -43,6 +45,8 @@ export interface CreateReleaseParams {
   description?: string;
   currentStage: ReleaseStage;
   git: GitInfo;
+  /** 关联代码仓库ID，用于服务端自动创建/解析分支 */
+  repositoryId?: string;
   metadata?: Record<string, unknown>;
 }
 
@@ -52,6 +56,8 @@ export interface UpdateReleaseParams {
   description?: string;
   currentStage?: ReleaseStage;
   git?: Partial<GitInfo>;
+  /** 关联代码仓库ID，用于服务端自动创建/解析分支 */
+  repositoryId?: string;
   metadata?: Record<string, unknown>;
 }
 
