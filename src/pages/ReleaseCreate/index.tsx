@@ -1,16 +1,30 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Card, Form, Input, message, Select, Spin, Typography } from "antd";
-import { ArrowLeftOutlined, BranchesOutlined } from "@ant-design/icons";
+import {
+  Button,
+  Card,
+  Collapse,
+  Form,
+  Input,
+  InputNumber,
+  message,
+  Select,
+  Space,
+  Spin,
+  Typography,
+} from "antd";
+import { ArrowLeftOutlined, BranchesOutlined, MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import AppConsoleMenu from "@components/AppConsoleMenu";
 import AppFooter from "@components/AppFooter";
 import { APP_ROUTE_PATHS, buildAppDetailPath, buildReleaseDetailPath } from "@constants";
 import {
   createRelease,
   getApplicationDetail,
+  listEnvironments,
   listRepositories,
   listRepositoryBranches,
   type BranchInfo,
+  type EnvironmentRecord,
   type RepositoryRecord,
 } from "@service/api";
 import styles from "./styles.module.less";
@@ -23,6 +37,16 @@ type FormValues = {
   branch?: string;
   description?: string;
   repositoryId?: string;
+  // 构建配置
+  environmentId?: string;
+  buildCommandsRaw?: string;
+  artifactPath?: string;
+  artifactType?: string;
+  dockerfilePath?: string;
+  imageRepo?: string;
+  timeoutSec?: number;
+  workDir?: string;
+  envVars?: { key: string; value: string }[];
 };
 
 function generateDefaultBranch(): string {
@@ -46,12 +70,14 @@ export default function ReleaseCreate() {
   const [submitting, setSubmitting] = useState(false);
   const [repos, setRepos] = useState<RepositoryRecord[]>([]);
   const [productId, setProductId] = useState("");
+  const [buildEnvs, setBuildEnvs] = useState<EnvironmentRecord[]>([]);
   // 分支相关状态
   const [branches, setBranches] = useState<BranchInfo[]>([]);
   const [loadingBranches, setLoadingBranches] = useState(false);
   const [branchSearchText, setBranchSearchText] = useState("");
   // 已选分支的 commitHash（仅选择已有分支时有值，手动输入新分支名时为 undefined）
   const [selectedCommitHash, setSelectedCommitHash] = useState<string | undefined>();
+  const watchedArtifactType = Form.useWatch("artifactType", form);
 
   useEffect(() => {
     if (appId) {
@@ -70,8 +96,13 @@ export default function ReleaseCreate() {
       getApplicationDetail({ id: appId }).then((res) => {
         if (res.success && res.data) setProductId(res.data.productId ?? "");
       });
+      listEnvironments({ applicationId: appId, pageNum: 1, pageSize: 50 }).then((res) => {
+        if (res.success) setBuildEnvs(res.data?.list ?? []);
+      });
       // 设置默认分支名
       form.setFieldValue("branch", generateDefaultBranch());
+      // 设置构建配置默认值
+      form.setFieldsValue({ artifactPath: "dist/", artifactType: "zip", timeoutSec: 600 });
     }
   }, [appId, form]);
 
@@ -105,6 +136,25 @@ export default function ReleaseCreate() {
     const commitHash = selectedCommitHash;
     // 关联仓库 ID（服务端用于 resolve-branch）
     const repositoryId = values.repositoryId ?? undefined;
+
+    // 组装构建配置
+    const buildCommands = (values.buildCommandsRaw ?? "")
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean);
+    const envVarsObj: Record<string, string> = {};
+    (values.envVars ?? []).forEach(({ key, value }) => { if (key) envVarsObj[key] = value; });
+    const buildConfig = buildCommands.length > 0 ? {
+      buildCommands,
+      artifactPath: values.artifactPath,
+      artifactType: values.artifactType,
+      dockerfilePath: values.artifactType === "docker-image" ? values.dockerfilePath : undefined,
+      imageRepo: values.artifactType === "docker-image" ? values.imageRepo : undefined,
+      timeoutSec: values.timeoutSec,
+      workDir: values.workDir || undefined,
+      envVars: Object.keys(envVarsObj).length > 0 ? envVarsObj : undefined,
+    } : undefined;
+
     try {
       const res = await createRelease({
         applicationId: appId,
@@ -116,6 +166,8 @@ export default function ReleaseCreate() {
         currentStage: "DEV",
         git: { branch, ...(commitHash ? { commitHash } : {}) },
         ...(repositoryId ? { repositoryId } : {}),
+        ...(values.environmentId ? { environmentId: values.environmentId } : {}),
+        ...(buildConfig ? { buildConfig } : {}),
       });
       if (res.success) {
         message.success("迭代创建成功");
@@ -268,6 +320,89 @@ export default function ReleaseCreate() {
               <Form.Item label="描述" name="description">
                 <Input.TextArea rows={3} placeholder="选填，本次迭代的说明" />
               </Form.Item>
+
+              {/* 构建配置折叠区 */}
+              <Collapse ghost size="small" style={{ marginBottom: 8, border: "1px solid var(--border-color-base)", borderRadius: 6 }}>
+                <Collapse.Panel header="构建配置（选填，创建后也可编辑）" key="build">
+                  {buildEnvs.length > 0 && (
+                    <Form.Item label="构建环境" name="environmentId" extra="选择此迭代使用的构建服务器环境">
+                      <Select
+                        placeholder="选择构建环境（可选）"
+                        allowClear
+                        options={buildEnvs.map((e) => ({ value: e.id ?? e._id ?? "", label: e.name }))}
+                      />
+                    </Form.Item>
+                  )}
+
+                  <Form.Item
+                    label="构建命令"
+                    name="buildCommandsRaw"
+                    extra="每行一条命令，按顺序执行"
+                  >
+                    <Input.TextArea
+                      rows={4}
+                      placeholder={"npm ci\nnpm run build"}
+                      style={{ fontFamily: "monospace" }}
+                    />
+                  </Form.Item>
+
+                  <Form.Item label="产物类型" name="artifactType">
+                    <Select
+                      options={[
+                        { value: "zip", label: "ZIP 压缩包" },
+                        { value: "docker-image", label: "Docker 镜像" },
+                        { value: "binary", label: "二进制文件" },
+                        { value: "static", label: "静态资源" },
+                      ]}
+                    />
+                  </Form.Item>
+
+                  {watchedArtifactType === "docker-image" ? (
+                    <>
+                      <Form.Item label="Dockerfile 路径" name="dockerfilePath">
+                        <Input placeholder="Dockerfile" />
+                      </Form.Item>
+                      <Form.Item label="镜像仓库地址" name="imageRepo">
+                        <Input placeholder="留空使用应用名" />
+                      </Form.Item>
+                    </>
+                  ) : (
+                    <Form.Item label="产物路径" name="artifactPath" extra="构建输出目录">
+                      <Input placeholder="dist/" />
+                    </Form.Item>
+                  )}
+
+                  <Form.Item label="超时时间（秒）" name="timeoutSec">
+                    <InputNumber min={60} max={7200} style={{ width: "100%" }} />
+                  </Form.Item>
+
+                  <Form.Item label="构建环境变量">
+                    <Form.List name="envVars">
+                      {(fields, { add, remove }) => (
+                        <>
+                          {fields.map((field) => (
+                            <Space key={field.key} align="baseline" style={{ display: "flex", marginBottom: 4 }}>
+                              <Form.Item {...field} name={[field.name, "key"]} noStyle>
+                                <Input placeholder="KEY" style={{ width: 140 }} />
+                              </Form.Item>
+                              <Form.Item {...field} name={[field.name, "value"]} noStyle>
+                                <Input placeholder="VALUE" style={{ width: 180 }} />
+                              </Form.Item>
+                              <MinusCircleOutlined
+                                onClick={() => remove(field.name)}
+                                style={{ color: "var(--color-error)" }}
+                              />
+                            </Space>
+                          ))}
+                          <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} size="small">
+                            添加环境变量
+                          </Button>
+                        </>
+                      )}
+                    </Form.List>
+                  </Form.Item>
+                </Collapse.Panel>
+              </Collapse>
 
               <Form.Item>
                 <Button type="primary" htmlType="submit" loading={submitting}>

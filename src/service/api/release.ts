@@ -17,6 +17,32 @@ export interface GitInfo {
   repositoryUrl?: string;
 }
 
+export interface BuildConfig {
+  buildCommands: string[];
+  artifactPath?: string;
+  /** zip | docker-image | binary | static */
+  artifactType?: string;
+  dockerfilePath?: string;
+  imageRepo?: string;
+  preCommands?: string[];
+  postCommands?: string[];
+  envVars?: Record<string, string>;
+  /** 构建超时秒数，默认 600 */
+  timeoutSec?: number;
+  workDir?: string;
+}
+
+export interface BuildArtifact {
+  type: string;
+  dockerImage?: string;
+  dockerImageDigest?: string;
+  packageUrl?: string;
+  packageSize?: number;
+  packageChecksum?: string;
+  buildJobId?: string;
+  buildNumber?: number;
+}
+
 export interface ReleaseRecord {
   id?: string;
   _id?: string;
@@ -32,6 +58,20 @@ export interface ReleaseRecord {
   createdBy?: string;
   pipelineId?: string;
   artifactId?: string;
+  /** 构建环境 ID（build 类型 Environment） */
+  environmentId?: string;
+  /** 构建配置 */
+  buildConfig?: BuildConfig;
+  /** 构建产物信息 */
+  buildArtifact?: BuildArtifact;
+  /** 构建开始时间 */
+  buildStartedAt?: string;
+  /** 构建完成时间 */
+  buildCompletedAt?: string;
+  /** 构建日志摘要 */
+  buildLog?: string;
+  /** 错误信息 */
+  errorMessage?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -47,6 +87,10 @@ export interface CreateReleaseParams {
   git: GitInfo;
   /** 关联代码仓库ID，用于服务端自动创建/解析分支 */
   repositoryId?: string;
+  /** 构建环境 ID */
+  environmentId?: string;
+  /** 构建配置 */
+  buildConfig?: BuildConfig;
   metadata?: Record<string, unknown>;
 }
 
@@ -58,6 +102,10 @@ export interface UpdateReleaseParams {
   git?: Partial<GitInfo>;
   /** 关联代码仓库ID，用于服务端自动创建/解析分支 */
   repositoryId?: string;
+  /** 构建环境 ID */
+  environmentId?: string;
+  /** 构建配置 */
+  buildConfig?: BuildConfig;
   metadata?: Record<string, unknown>;
 }
 
