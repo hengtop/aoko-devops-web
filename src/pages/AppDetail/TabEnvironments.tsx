@@ -66,6 +66,8 @@ function EnvironmentDrawer({ open, appId, editRecord, onClose, onSuccess }: Draw
   const [servers, setServers] = useState<ServerRecord[]>([]);
   const [loadingServers, setLoadingServers] = useState(false);
   const isEdit = !!editRecord;
+  const watchedType = Form.useWatch("type", form);
+  const isBuildEnv = watchedType === "build";
 
   useEffect(() => {
     if (open) {
@@ -100,7 +102,7 @@ function EnvironmentDrawer({ open, appId, editRecord, onClose, onSuccess }: Draw
           id: getEnvId(editRecord),
           name: values.name,
           type: values.type,
-          deployType: values.deployType,
+          deployType: isBuildEnv ? "ssh" : values.deployType,
           serverIds: values.serverIds ?? [],
           description: values.description,
         });
@@ -118,7 +120,7 @@ function EnvironmentDrawer({ open, appId, editRecord, onClose, onSuccess }: Draw
           name: values.name,
           code: values.code,
           type: values.type,
-          deployType: values.deployType,
+          deployType: isBuildEnv ? "ssh" : values.deployType,
           serverIds: values.serverIds ?? [],
           description: values.description,
         };
@@ -174,9 +176,11 @@ function EnvironmentDrawer({ open, appId, editRecord, onClose, onSuccess }: Draw
           <Select placeholder="选择环境类型" options={environmentTypeOptions} />
         </Form.Item>
 
-        <Form.Item label="部署方式" name="deployType" rules={[{ required: true, message: "请选择部署方式" }]}>
-          <Select placeholder="选择部署方式" options={environmentDeployTypeOptions} />
-        </Form.Item>
+        {!isBuildEnv && (
+          <Form.Item label="部署方式" name="deployType" rules={[{ required: true, message: "请选择部署方式" }]}>
+            <Select placeholder="选择部署方式" options={environmentDeployTypeOptions} />
+          </Form.Item>
+        )}
 
         <Form.Item label="绑定服务器" name="serverIds">
           <Select
