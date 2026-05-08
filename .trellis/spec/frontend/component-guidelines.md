@@ -119,4 +119,73 @@ export default function Configuration() {
 
 <!-- Component-related mistakes your team has made -->
 
-(To be filled by the team)
+## Form Page UX Conventions
+
+### 提交按钮 Loading 状态
+
+表单提交必须用 `try/finally` 保证 loading 状态复原：
+
+```tsx
+async function handleSubmit(values: FormValues) {
+  setSubmitting(true);
+  try {
+    const res = await someApi(values);
+    if (res.success) { /* 跳转 */ }
+    else { message.error(res.msg); }
+  } finally {
+    setSubmitting(false); // 网络异常也会执行
+  }
+}
+```
+
+❌ **不要这样写**（接口异常会导致按钮卡在 loading）：
+```tsx
+setSubmitting(true);
+const res = await someApi(values);
+// ... 处理结果
+setSubmitting(false); // 如果上面抛异常，这行不会执行
+```
+
+### 创建成功后跳转
+
+创建类页面在成功后应跳转到详情页，而非 `navigate(-1)`：
+
+```tsx
+// 创建应用 → 跳转到应用详情
+const appId = res.data?.id ?? res.data?._id ?? "";
+navigate(buildAppDetailPath(appId));
+
+// 创建迭代 → 跳转到迭代详情
+const releaseId = res.data?.id ?? res.data?._id ?? "";
+navigate(buildReleaseDetailPath(appId, releaseId));
+```
+
+后端返回 id 字段可能是 `id` 或 `_id`（MongoDB ObjectId），始终使用 `res.data?.id ?? res.data?._id` 兼容两种写法。
+
+### 表单字段联动
+
+- **应用名称 → Code 自动填充**：已移除，两个字段独立输入，避免用户误改一个字段影响另一个
+- **表单居中**：独立创建/编辑页的表单容器使用 `max-width: 640px; margin: 0 auto; width: 100%`
+- **返回按钮**：使用 `<Button type="text" size="small" icon={<ArrowLeftOutlined />}>` 避免按钮过高
+
+### 函数声明顺序（ESLint no-use-before-define）
+
+在 `useEffect` 内调用的函数必须声明在 `useEffect` **之前**，否则触发 ESLint `react-hooks/immutability` 错误：
+
+```tsx
+// ✅ 正确
+async function loadApps() { ... } // 先声明
+
+useEffect(() => {
+  loadApps(); // 再使用
+}, [id]);
+```
+
+```tsx
+// ❌ 错误 - loadApps 在 useEffect 后声明
+useEffect(() => {
+  loadApps(); // 访问时还未声明
+}, [id]);
+
+async function loadApps() { ... }
+```
