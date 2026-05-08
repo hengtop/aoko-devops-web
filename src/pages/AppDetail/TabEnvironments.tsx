@@ -30,6 +30,7 @@ import {
   type EnvironmentRecord,
   type CreateEnvironmentParams,
 } from "@service/api";
+import { listServers, type ServerRecord } from "@service/api/server";
 import styles from "./styles.module.less";
 
 type Props = {
@@ -55,22 +56,34 @@ type FormValues = {
   code: string;
   type: EnvironmentRecord["type"];
   deployType: EnvironmentRecord["deployType"];
+  serverIds?: string[];
   description?: string;
 };
 
 function EnvironmentDrawer({ open, appId, editRecord, onClose, onSuccess }: DrawerProps) {
   const [form] = Form.useForm<FormValues>();
   const [submitting, setSubmitting] = useState(false);
+  const [servers, setServers] = useState<ServerRecord[]>([]);
+  const [loadingServers, setLoadingServers] = useState(false);
   const isEdit = !!editRecord;
 
   useEffect(() => {
     if (open) {
+      // Load server list
+      setLoadingServers(true);
+      listServers({ pageNum: 1, pageSize: 200 })
+        .then((res) => {
+          if (res.success) setServers(res.data?.list ?? []);
+        })
+        .finally(() => setLoadingServers(false));
+
       if (editRecord) {
         form.setFieldsValue({
           name: editRecord.name,
           code: editRecord.code,
           type: editRecord.type,
           deployType: editRecord.deployType,
+          serverIds: editRecord.serverIds ?? [],
           description: editRecord.description,
         });
       } else {
@@ -88,6 +101,7 @@ function EnvironmentDrawer({ open, appId, editRecord, onClose, onSuccess }: Draw
           name: values.name,
           type: values.type,
           deployType: values.deployType,
+          serverIds: values.serverIds ?? [],
           description: values.description,
         });
         if (res.success) {
@@ -105,7 +119,7 @@ function EnvironmentDrawer({ open, appId, editRecord, onClose, onSuccess }: Draw
           code: values.code,
           type: values.type,
           deployType: values.deployType,
-          serverIds: [],
+          serverIds: values.serverIds ?? [],
           description: values.description,
         };
         const res = await createEnvironment(params);
@@ -162,6 +176,22 @@ function EnvironmentDrawer({ open, appId, editRecord, onClose, onSuccess }: Draw
 
         <Form.Item label="部署方式" name="deployType" rules={[{ required: true, message: "请选择部署方式" }]}>
           <Select placeholder="选择部署方式" options={environmentDeployTypeOptions} />
+        </Form.Item>
+
+        <Form.Item label="绑定服务器" name="serverIds">
+          <Select
+            mode="multiple"
+            placeholder="选择要绑定的服务器（可多选）"
+            loading={loadingServers}
+            allowClear
+            filterOption={(input, option) =>
+              String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+            options={servers.map((s) => ({
+              value: s.id ?? s._id ?? "",
+              label: `${s.name}（${s.ip ?? "-"}）`,
+            }))}
+          />
         </Form.Item>
 
         <Form.Item label="描述" name="description">
