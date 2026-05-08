@@ -42,15 +42,6 @@ const LEVEL_OPTIONS = [
   { value: "P3", label: "P3 - 低优先" },
 ];
 
-function slugify(text: string) {
-  return text
-    .toLowerCase()
-    .replace(/[\s_]+/g, "-")
-    .replace(/[^a-z0-9-]/g, "")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-}
-
 export default function AppCreate() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -92,30 +83,33 @@ export default function AppCreate() {
         ? `${DEFAULT_REPO_PREFIX}${values.repoCode ?? values.code}`
         : (values.repo_url ?? "");
 
-    const res = await createApplication({
-      tenantId: "default",
-      productId: values.productId,
-      name: values.name,
-      code: values.code,
-      repo_url: repoUrl,
-      description: values.description,
-      structure: values.structure,
-      level: values.level,
-    });
+    try {
+      const res = await createApplication({
+        tenantId: "default",
+        productId: values.productId,
+        name: values.name,
+        code: values.code,
+        repo_url: repoUrl,
+        description: values.description,
+        structure: values.structure,
+        level: values.level,
+      });
 
-    if (res.success) {
-      message.success("应用创建成功");
-      const appId = res.data?.id ?? res.data?._id ?? "";
-      if (appId) {
-        navigate(buildAppDetailPath(appId));
+      if (res.success) {
+        message.success("应用创建成功");
+        const appId = res.data?.id ?? res.data?._id ?? "";
+        if (appId) {
+          navigate(buildAppDetailPath(appId));
+        } else {
+          navigate(-1);
+        }
       } else {
-        navigate(-1);
+        const msg = Array.isArray(res.msg) ? res.msg.join("，") : (res.msg ?? "创建失败");
+        message.error(msg);
       }
-    } else {
-      const msg = Array.isArray(res.msg) ? res.msg.join("，") : (res.msg ?? "创建失败");
-      message.error(msg);
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   }
 
   return (
@@ -174,16 +168,7 @@ export default function AppCreate() {
                 name="name"
                 rules={[{ required: true, message: "请输入应用名称" }]}
               >
-                <Input
-                  placeholder="例如：用户中台"
-                  onChange={(e) => {
-                    const code = slugify(e.target.value);
-                    if (code) {
-                      form.setFieldValue("code", code);
-                      form.setFieldValue("repoCode", code);
-                    }
-                  }}
-                />
+                <Input placeholder="例如：用户中台" />
               </Form.Item>
 
               <Form.Item

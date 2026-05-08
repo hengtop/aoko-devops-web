@@ -57,25 +57,31 @@ export default function ReleaseCreate() {
     if (!appId) return;
     setSubmitting(true);
     const branch = values.branch?.trim() || generateDefaultBranch();
-    const res = await createRelease({
-      applicationId: appId,
-      tenantId: "default",
-      productId,
-      version: values.version,
-      title: values.title,
-      description: values.description,
-      currentStage: "DEV",
-      git: { branch },
-    });
-    setSubmitting(false);
-    if (res.success) {
-      message.success("迭代创建成功");
-      const releaseId = res.data?.id ?? res.data?._id ?? "";
-      if (appId && releaseId) {
-        navigate(buildReleaseDetailPath(appId, releaseId));
+    try {
+      const res = await createRelease({
+        applicationId: appId,
+        tenantId: "default",
+        productId,
+        version: values.version,
+        title: values.title,
+        description: values.description,
+        currentStage: "DEV",
+        git: { branch },
+      });
+      if (res.success) {
+        message.success("迭代创建成功");
+        const releaseId = res.data?.id ?? res.data?._id ?? "";
+        if (appId && releaseId) {
+          navigate(buildReleaseDetailPath(appId, releaseId));
+        } else {
+          navigate(appId ? buildAppDetailPath(appId) + "?tab=releases" : APP_ROUTE_PATHS.PRODUCT);
+        }
       } else {
-        navigate(appId ? buildAppDetailPath(appId) + "?tab=releases" : APP_ROUTE_PATHS.PRODUCT);
+        const msg = Array.isArray(res.msg) ? res.msg.join("，") : (res.msg ?? "创建失败");
+        message.error(msg);
       }
+    } finally {
+      setSubmitting(false);
     }
   }
 

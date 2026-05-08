@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Button,
   Card,
@@ -12,8 +12,8 @@ import {
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import AppConsoleMenu from "@components/AppConsoleMenu";
 import AppFooter from "@components/AppFooter";
-import { APP_ROUTE_PATHS } from "@constants";
-import { createProduct } from "@service/api";
+import { APP_ROUTE_PATHS, buildProductDetailPath } from "@constants";
+import { createProduct, getProductDetail, updateProduct } from "@service/api";
 import styles from "./styles.module.less";
 
 const { Title, Text } = Typography;
@@ -24,37 +24,61 @@ type FormValues = {
   description?: string;
 };
 
-function slugify(text: string) {
-  return text
-    .toLowerCase()
-    .replace(/[\s_]+/g, "-")
-    .replace(/[^a-z0-9-]/g, "")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-}
-
 export default function ProductCreate() {
   const navigate = useNavigate();
+  const { id } = useParams<{ id?: string }>();
+  const isEdit = Boolean(id);
   const [form] = Form.useForm<FormValues>();
   const [submitting, setSubmitting] = useState(false);
 
+  // 编辑模式：回填数据
+  useEffect(() => {
+    if (!id) return;
+    getProductDetail({ id }).then((res) => {
+      if (res.success && res.data) {
+        form.setFieldsValue({
+          name: res.data.name,
+          code: res.data.code,
+          description: res.data.description,
+        });
+      }
+    });
+  }, [id, form]);
+
   async function handleSubmit(values: FormValues) {
     setSubmitting(true);
-    const res = await createProduct({
-      tenantId: "default",
-      name: values.name,
-      code: values.code,
-      description: values.description,
-    });
-
-    if (res.success) {
-      message.success("产品创建成功");
-      navigate(APP_ROUTE_PATHS.PRODUCT);
-    } else {
-      const msg = Array.isArray(res.msg) ? res.msg.join("，") : (res.msg ?? "创建失败");
-      message.error(msg);
+    try {
+      if (isEdit && id) {
+        const res = await updateProduct({
+          id,
+          name: values.name,
+          description: values.description,
+        });
+        if (res.success) {
+          message.success("产品更新成功");
+          navigate(buildProductDetailPath(id));
+        } else {
+          const msg = Array.isArray(res.msg) ? res.msg.join("，") : (res.msg ?? "更新失败");
+          message.error(msg);
+        }
+      } else {
+        const res = await createProduct({
+          tenantId: "default",
+          name: values.name,
+          code: values.code,
+          description: values.description,
+        });
+        if (res.success) {
+          message.success("产品创建成功");
+          navigate(APP_ROUTE_PATHS.PRODUCT);
+        } else {
+          const msg = Array.isArray(res.msg) ? res.msg.join("，") : (res.msg ?? "创建失败");
+          message.error(msg);
+        }
+      }
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   }
 
   return (
@@ -68,17 +92,18 @@ export default function ProductCreate() {
         <div className={styles.header}>
           <Button
             type="text"
+            size="small"
             icon={<ArrowLeftOutlined />}
-            onClick={() => navigate(APP_ROUTE_PATHS.PRODUCT)}
+            onClick={() => (isEdit && id ? navigate(buildProductDetailPath(id)) : navigate(APP_ROUTE_PATHS.PRODUCT))}
           >
-            返回产品列表
+            返回
           </Button>
         </div>
 
         <div className={styles.formContainer}>
           <div className={styles.formTitle}>
             <Title level={4} style={{ margin: 0 }}>
-              创建产品
+              {isEdit ? "编辑产品" : "创建产品"}
             </Title>
             <Text type="secondary">产品是应用的集合，一个产品线下可以创建多个应用</Text>
           </div>
@@ -95,15 +120,7 @@ export default function ProductCreate() {
                 name="name"
                 rules={[{ required: true, message: "请输入产品名称" }]}
               >
-                <Input
-                  placeholder="例如：电商平台"
-                  onChange={(e) => {
-                    const code = slugify(e.target.value);
-                    if (code) {
-                      form.setFieldValue("code", code);
-                    }
-                  }}
-                />
+                <Input placeholder="例如：电商平台" />
               </Form.Item>
 
               <Form.Item
@@ -116,9 +133,9 @@ export default function ProductCreate() {
                     message: "仅支持小写字母、数字和连字符",
                   },
                 ]}
-                extra="用于系统标识，创建后不可修改，建议使用英文小写"
+                extra={isEdit ? "产品 Code 创建后不可修改" : "用于系统标识，创建后不可修改，建议使用英文小写"}
               >
-                <Input placeholder="例如：ecommerce-platform" />
+                <Input placeholder="例如：ecommerce-platform" disabled={isEdit} />
               </Form.Item>
 
               <Form.Item label="描述" name="description">
@@ -135,9 +152,9 @@ export default function ProductCreate() {
                     htmlType="submit"
                     loading={submitting}
                   >
-                    创建产品
+                    {isEdit ? "保存修改" : "创建产品"}
                   </Button>
-                  <Button onClick={() => navigate(APP_ROUTE_PATHS.PRODUCT)}>
+                  <Button onClick={() => (isEdit && id ? navigate(buildProductDetailPath(id)) : navigate(APP_ROUTE_PATHS.PRODUCT))}>
                     取消
                   </Button>
                 </Space>

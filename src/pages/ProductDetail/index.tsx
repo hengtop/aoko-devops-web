@@ -21,7 +21,7 @@ import {
 } from "@ant-design/icons";
 import AppConsoleMenu from "@components/AppConsoleMenu";
 import AppFooter from "@components/AppFooter";
-import { APP_ROUTE_PATHS, buildAppDetailPath } from "@constants";
+import { APP_ROUTE_PATHS, buildAppDetailPath, buildProductEditPath } from "@constants";
 import {
   getProductDetail,
   listApplications,
@@ -210,7 +210,7 @@ export default function ProductDetail() {
               )}
             </div>
             <div className={styles.productActions}>
-              <Button icon={<EditOutlined />}>编辑</Button>
+              <Button icon={<EditOutlined />} onClick={() => navigate(buildProductEditPath(id))}>编辑</Button>
             </div>
           </div>
         </Card>

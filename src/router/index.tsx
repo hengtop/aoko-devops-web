@@ -145,6 +145,10 @@ const consoleRoutes: AppRouteConfig[] = [
     component: ProductCreate,
   },
   {
+    path: APP_ROUTE_PATHS.PRODUCT_EDIT,
+    component: ProductCreate,
+  },
+  {
     path: APP_ROUTE_PATHS.PRODUCT_DETAIL,
     component: ProductDetail,
   },

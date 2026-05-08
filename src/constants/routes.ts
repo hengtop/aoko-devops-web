@@ -30,6 +30,7 @@ export const APP_ROUTE_PATHS = {
   // ===== Product =====
   PRODUCT: "/product",
   PRODUCT_CREATE: "/product/create",
+  PRODUCT_EDIT: "/product/:id/edit",
   PRODUCT_DETAIL: "/product/:id",
 
   // ===== Application =====
@@ -81,6 +82,10 @@ export function buildApprovalPolicyEditPath(policyId: string) {
 
 export function buildProductDetailPath(productId: string) {
   return `/product/${productId}`;
+}
+
+export function buildProductEditPath(productId: string) {
+  return `/product/${productId}/edit`;
 }
 
 export function buildAppDetailPath(appId: string, tab?: string) {
