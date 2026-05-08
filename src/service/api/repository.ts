@@ -118,3 +118,50 @@ export function listWebhookEvents(
     { ...options, data: params },
   );
 }
+
+// ===== 分支相关 =====
+
+export interface BranchInfo {
+  /** 分支名称 */
+  name: string;
+  /** 最新 commit hash */
+  commitHash: string;
+}
+
+export interface ResolveBranchResult extends BranchInfo {
+  /** true = 新创建的分支，false = 已存在的分支 */
+  created: boolean;
+}
+
+export interface ResolveBranchParams {
+  repositoryId: string;
+  branchName: string;
+  /** 新建分支时的源分支，默认为仓库 defaultBranch */
+  sourceBranch?: string;
+}
+
+/**
+ * 获取仓库所有分支列表（调用远程 Git 平台）
+ */
+export function listRepositoryBranches(
+  repositoryId: string,
+  options?: ServiceRequestOptions,
+): ApiPromise<BranchInfo[]> {
+  return request.post<BaseResponse<BranchInfo[]>>(
+    API_PATHS.REPOSITORY_BRANCHES,
+    { ...options, data: { repositoryId } },
+  );
+}
+
+/**
+ * 获取或创建分支（已存在直接回填，不存在则基于 sourceBranch 创建）
+ */
+export function resolveBranch(
+  params: ResolveBranchParams,
+  options?: ServiceRequestOptions,
+): ApiPromise<ResolveBranchResult> {
+  return request.post<BaseResponse<ResolveBranchResult>>(
+    API_PATHS.REPOSITORY_RESOLVE_BRANCH,
+    { ...options, data: params },
+  );
+}

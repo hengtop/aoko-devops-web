@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Card, Form, Input, message, Select, Typography } from "antd";
-import { ArrowLeftOutlined } from "@ant-design/icons";
+import { Button, Card, Form, Input, message, Select, Spin, Typography } from "antd";
+import { ArrowLeftOutlined, BranchesOutlined } from "@ant-design/icons";
 import AppConsoleMenu from "@components/AppConsoleMenu";
 import AppFooter from "@components/AppFooter";
 import { APP_ROUTE_PATHS, buildAppDetailPath, buildReleaseDetailPath } from "@constants";
-import { createRelease, getApplicationDetail, listRepositories, type RepositoryRecord } from "@service/api";
+import {
+  createRelease,
+  getApplicationDetail,
+  listRepositories,
+  listRepositoryBranches,
+  type BranchInfo,
+  type RepositoryRecord,
+} from "@service/api";
 import styles from "./styles.module.less";
 
 const { Title, Text } = Typography;
@@ -39,11 +46,24 @@ export default function ReleaseCreate() {
   const [submitting, setSubmitting] = useState(false);
   const [repos, setRepos] = useState<RepositoryRecord[]>([]);
   const [productId, setProductId] = useState("");
+  // 分支相关状态
+  const [branches, setBranches] = useState<BranchInfo[]>([]);
+  const [loadingBranches, setLoadingBranches] = useState(false);
+  const [branchSearchText, setBranchSearchText] = useState("");
 
   useEffect(() => {
     if (appId) {
       listRepositories({ applicationId: appId, pageNum: 1, pageSize: 50 }).then((res) => {
-        if (res.success) setRepos(res.data?.list ?? []);
+        if (res.success) {
+          const list = res.data?.list ?? [];
+          setRepos(list);
+          // 若只有一个仓库，自动选中并加载分支
+          if (list.length === 1) {
+            const repoId = list[0].id ?? list[0]._id ?? "";
+            form.setFieldValue("repositoryId", repoId);
+            fetchBranches(repoId);
+          }
+        }
       });
       getApplicationDetail({ id: appId }).then((res) => {
         if (res.success && res.data) setProductId(res.data.productId ?? "");
@@ -52,6 +72,27 @@ export default function ReleaseCreate() {
       form.setFieldValue("branch", generateDefaultBranch());
     }
   }, [appId, form]);
+
+  async function fetchBranches(repositoryId: string) {
+    setBranches([]);
+    setLoadingBranches(true);
+    const res = await listRepositoryBranches(repositoryId);
+    setLoadingBranches(false);
+    if (res.success && res.data) {
+      setBranches(res.data);
+    }
+  }
+
+  function handleRepoChange(repositoryId: string) {
+    // 切换仓库时清空已选分支并重新加载
+    form.setFieldValue("branch", generateDefaultBranch());
+    setBranchSearchText("");
+    if (repositoryId) {
+      fetchBranches(repositoryId);
+    } else {
+      setBranches([]);
+    }
+  }
 
   async function handleSubmit(values: FormValues) {
     if (!appId) return;
@@ -133,17 +174,14 @@ export default function ReleaseCreate() {
                 <Input placeholder="简要描述本次迭代内容" />
               </Form.Item>
 
-              <Form.Item
-                label="构建分支"
-                name="branch"
-                extra="留空将自动生成默认分支名"
-              >
-                <Input placeholder="例如 main、release/v1.2，留空自动生成" />
-              </Form.Item>
-
               {repos.length > 0 && (
                 <Form.Item label="关联仓库" name="repositoryId">
-                  <Select placeholder="选择仓库（可选）" allowClear>
+                  <Select
+                    placeholder="选择仓库（可选）"
+                    allowClear
+                    onChange={(val) => handleRepoChange(val as string)}
+                    onClear={() => { setBranches([]); setBranchSearchText(""); }}
+                  >
                     {repos.map((r) => (
                       <Select.Option key={r.id ?? r._id} value={r.id ?? r._id}>
                         {r.repoName}
@@ -152,6 +190,61 @@ export default function ReleaseCreate() {
                   </Select>
                 </Form.Item>
               )}
+
+              <Form.Item
+                label="构建分支"
+                name="branch"
+                extra={
+                  branches.length > 0
+                    ? "从下拉选择已有分支，或直接输入新分支名（服务端自动创建）"
+                    : "留空将自动生成默认分支名，也可手动输入"
+                }
+              >
+                {branches.length > 0 ? (
+                  <Select
+                    showSearch
+                    allowClear
+                    placeholder="选择或输入分支名"
+                    suffixIcon={loadingBranches ? <Spin size="small" /> : <BranchesOutlined />}
+                    loading={loadingBranches}
+                    searchValue={branchSearchText}
+                    onSearch={(val) => setBranchSearchText(val)}
+                    filterOption={(input, opt) =>
+                      String(opt?.value ?? "").toLowerCase().includes(input.toLowerCase())
+                    }
+                    notFoundContent={
+                      branchSearchText
+                        ? <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                            未找到分支，将使用「{branchSearchText}」创建新分支
+                          </span>
+                        : "暂无分支"
+                    }
+                    onBlur={() => {
+                      // 用户直接输入时回填到 form
+                      if (branchSearchText && !branches.find((b) => b.name === branchSearchText)) {
+                        form.setFieldValue("branch", branchSearchText);
+                      }
+                    }}
+                    options={branches.map((b) => ({
+                      value: b.name,
+                      label: (
+                        <span>
+                          <BranchesOutlined style={{ marginRight: 6, color: "var(--text-tertiary)" }} />
+                          {b.name}
+                          <span style={{ marginLeft: 8, fontSize: 11, color: "var(--text-tertiary)" }}>
+                            {b.commitHash.slice(0, 7)}
+                          </span>
+                        </span>
+                      ),
+                    }))}
+                  />
+                ) : (
+                  <Input
+                    placeholder="例如 main、release/v1.2，留空自动生成"
+                    prefix={<BranchesOutlined style={{ color: "var(--text-tertiary)" }} />}
+                  />
+                )}
+              </Form.Item>
 
               <Form.Item label="描述" name="description">
                 <Input.TextArea rows={3} placeholder="选填，本次迭代的说明" />

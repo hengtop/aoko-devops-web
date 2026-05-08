@@ -132,6 +132,8 @@ export const API_PATHS = {
   REPOSITORY_UPDATE: "/repository/update",
   REPOSITORY_DELETE: "/repository/delete",
   REPOSITORY_WEBHOOK_EVENTS: "/repository/webhook-events",
+  REPOSITORY_BRANCHES: "/repository/branches",
+  REPOSITORY_RESOLVE_BRANCH: "/repository/resolve-branch",
 
   // ===== Credential =====
   CREDENTIAL_CREATE: "/credential/create",
