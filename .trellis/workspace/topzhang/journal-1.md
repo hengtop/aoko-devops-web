@@ -29,3 +29,36 @@
 
 ---
 
+
+
+## Session 1: UX改造 + 仓库分支接口接入 + finish-work收尾
+
+**Date**: 2026-05-08
+**Task**: UX改造 + 仓库分支接口接入 + finish-work收尾
+**Branch**: `main`
+
+### Summary
+
+完成 05-07-ux-improvements 任务：修复提交按钮loading(try/finally)、移除名称/code联动、产品编辑按钮补充跳转+ProductCreate改造为编辑模式、createApplication/createRelease成功后跳转详情页、AppCreate双仓库模式、迭代分支Select+commitHash回填+repositoryId透传。接入后端新增 /repository/branches 和 /repository/resolve-branch 接口。修复ESLint no-use-before-define。更新spec component-guidelines.md记录表单UX规范。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `64d7ae4` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

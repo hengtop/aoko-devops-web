@@ -1,13 +1,13 @@
 {
   "id": "05-07-ux-improvements",
   "title": "应用创建/迭代创建交互体验改造",
-  "status": "in_progress",
+  "status": "completed",
   "priority": "P1",
   "creator": "topzhang",
   "assignee": "topzhang",
   "createdAt": "2026-05-07",
-  "completedAt": null,
-  "notes": "修复创建应用/迭代后的跳转、仓库配置双模式、迭代分支默认值、表单居中布局、返回按钮样式等问题",
+  "completedAt": "2026-05-08",
+  "notes": "修复创建应用/迭代后的跳转、仓库配置双模式、迭代分支默认值、表单居中布局、返回按钮样式等问题，补充仓库分支接口接入、commitHash回填、repositoryId透传",
   "issues": [
     "1. 创建/编辑应用后需跳转到应用详情页（当前 navigate(-1) 无法保证跳到详情）",
     "2. 创建应用的仓库配置支持两种模式：默认仓库（自动生成地址+code）和已有仓库（手动粘贴地址）",
@@ -15,5 +15,13 @@
     "4. 后端 createRelease 不应强制要求 commitHash，前端传空字符串已规避但需确认",
     "5. 表单独立页面需要居中展示，返回按钮高度过高需要修小",
     "6. 迭代创建成功后跳转到迭代详情页"
+  ],
+  "additionalWork": [
+    "接入 /repository/branches 分支列表接口，ReleaseCreate 选仓库后拉取并展示分支 Select",
+    "选择已有分支时自动回填 commitHash",
+    "createRelease / updateRelease 透传 repositoryId 到后端",
+    "产品详情编辑按钮补充跳转，ProductCreate 改造为支持创建+编辑双模式",
+    "修复提交按钮 loading 状态（统一改为 try/finally）",
+    "修复 ProductDetail loadApps 函数顺序导致的 ESLint no-use-before-define 错误"
   ]
 }
