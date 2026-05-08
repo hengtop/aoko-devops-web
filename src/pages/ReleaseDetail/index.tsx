@@ -697,10 +697,12 @@ export default function ReleaseDetail() {
   const status = release?.status;
   const isBuilding = status === "building";
   const isBuildFailed = status === "build_failed";
+  const isPending = status === "pending";
   const isBuildSuccess = status === "build_success";
   const isCancelled = status === "cancelled" || status === "archived";
   const isReady = status === "ready";
-  const canBuild = status === "draft" || isBuildFailed;
+  // draft/pending/build_failed 均可触发构建（后端 startBuild 内部处理 draft→pending→building）
+  const canBuild = status === "draft" || isPending || isBuildFailed;
   const canMarkReady = isBuildSuccess;
   const canCancel = !isCancelled;
   const canDeploy = isReady;
