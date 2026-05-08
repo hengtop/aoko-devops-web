@@ -12,6 +12,7 @@
       "@components/*": ["src/components/*"],
       "@constants": ["src/constants/index.ts"],
       "@constants/*": ["src/constants/*"],
+      "@hooks/*": ["src/hooks/*"],
       "@pages/*": ["src/pages/*"],
       "@router": ["src/router/index.tsx"],
       "@router/*": ["src/router/*"],

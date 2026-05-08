@@ -1,8 +1,15 @@
+.logViewerWrapper {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
 .logViewer {
   background: #0d1117;
   border-radius: 8px;
   overflow-y: auto;
   border: 1px solid #21262d;
+  height: 100%;
 }
 
 .logContent {
@@ -36,6 +43,23 @@
   font-size: 11px;
 }
 
+.lineTime {
+  flex-shrink: 0;
+  width: 64px;
+  padding-right: 8px;
+  font-size: 11px;
+  user-select: none;
+  opacity: 0.7;
+}
+
+.lineSource {
+  flex-shrink: 0;
+  padding-right: 8px;
+  font-size: 11px;
+  user-select: none;
+  white-space: nowrap;
+}
+
 .lineText {
   flex: 1;
   word-break: break-all;
@@ -44,6 +68,23 @@
 .cursor {
   animation: blink 1s step-end infinite;
   color: #58a6ff;
+}
+
+.scrollBtn {
+  position: absolute !important;
+  bottom: 16px;
+  right: 16px;
+  background: rgba(33, 38, 45, 0.92) !important;
+  border-color: #30363d !important;
+  color: #8b949e !important;
+  font-size: 12px !important;
+  backdrop-filter: blur(4px);
+  z-index: 10;
+
+  &:hover {
+    color: #e6edf3 !important;
+    border-color: #58a6ff !important;
+  }
 }
 
 @keyframes blink {

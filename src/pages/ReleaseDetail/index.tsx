@@ -62,6 +62,8 @@ import {
   type TargetServer,
 } from "@service/api";
 import { listServers } from "@service/api/server";
+import { useLogStream } from "../../hooks/useLogStream";
+import LogViewer from "@components/LogViewer";
 import styles from "./styles.module.less";
 
 const { Title, Text } = Typography;
@@ -494,43 +496,21 @@ type BuildLogDrawerProps = {
   onClose: () => void;
 };
 
-const LOG_LEVEL_COLORS: Record<string, string> = {
-  info: "inherit",
-  warn: "#faad14",
-  error: "#ff4d4f",
-  debug: "#8c8c8c",
-};
-
 function BuildLogDrawer({ open, releaseId, isBuilding, onClose }: BuildLogDrawerProps) {
-  const [logs, setLogs] = useState<Array<{ level: string; message: string; createdAt?: string; source?: string }>>([]);
-  const [loading, setLoading] = useState(false);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { logs, status, isStreaming, clear } = useLogStream(releaseId, open);
 
-  async function fetchLogs() {
-    const res = await getDeploymentLogs({ deploymentId: releaseId, pageNum: 1, pageSize: 200 });
-    if (res.success && res.data) {
-      const list = Array.isArray(res.data) ? res.data : (res.data as any)?.list ?? [];
-      setLogs(list);
-    }
+  const statusTag = isStreaming
+    ? <Tag color="processing">实时连接中</Tag>
+    : status === "done"
+      ? <Tag color="success">已完成</Tag>
+      : status === "failed"
+        ? <Tag color="error">连接失败</Tag>
+        : null;
+
+  function handleCopy() {
+    const text = logs.map((l) => `[${l.level}] ${l.source ? `[${l.source}] ` : ""}${l.message}`).join("\n");
+    navigator.clipboard.writeText(text).then(() => message.success("已复制到剪贴板"));
   }
-
-  useEffect(() => {
-    if (!open) {
-      if (pollRef.current) clearInterval(pollRef.current);
-      return;
-    }
-    setLoading(true);
-    fetchLogs().finally(() => setLoading(false));
-
-    if (isBuilding) {
-      pollRef.current = setInterval(() => { fetchLogs(); }, 3000);
-    }
-
-    return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, releaseId, isBuilding]);
 
   return (
     <Drawer
@@ -539,37 +519,30 @@ function BuildLogDrawer({ open, releaseId, isBuilding, onClose }: BuildLogDrawer
           <FileTextOutlined />
           构建日志
           {isBuilding && <Tag color="processing">构建中…</Tag>}
+          {statusTag}
         </Space>
       }
       open={open}
       onClose={onClose}
-      width={720}
+      width={800}
       destroyOnClose
       extra={
-        <Button size="small" icon={<ReloadOutlined />} onClick={() => fetchLogs()}>
-          刷新
-        </Button>
+        <Space size={4}>
+          <Button size="small" onClick={handleCopy} disabled={logs.length === 0}>
+            复制全文
+          </Button>
+          <Button size="small" danger onClick={clear} disabled={logs.length === 0}>
+            清空
+          </Button>
+        </Space>
       }
+      styles={{ body: { padding: 16, display: "flex", flexDirection: "column", height: "100%" } }}
     >
-      {loading ? (
-        <div style={{ textAlign: "center", padding: 40 }}><Spin /></div>
-      ) : logs.length === 0 ? (
-        <Typography.Text type="secondary">暂无构建日志</Typography.Text>
-      ) : (
-        <div style={{ background: "#1e1e1e", borderRadius: 6, padding: "12px 16px", maxHeight: "80vh", overflowY: "auto" }}>
-          {logs.map((log, idx) => (
-            <div key={idx} style={{ marginBottom: 2 }}>
-              <span style={{ color: "#666", fontSize: 11, marginRight: 8 }}>
-                {log.createdAt ? new Date(log.createdAt).toLocaleTimeString() : ""}
-              </span>
-              <span style={{ color: "#888", fontSize: 11, marginRight: 8 }}>[{log.source ?? "build"}]</span>
-              <span style={{ color: LOG_LEVEL_COLORS[log.level] ?? "inherit", fontSize: 12, whiteSpace: "pre-wrap", fontFamily: "monospace" }}>
-                {log.message}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
+      <LogViewer
+        logs={logs}
+        loading={isStreaming}
+        height="calc(100vh - 120px)"
+      />
     </Drawer>
   );
 }

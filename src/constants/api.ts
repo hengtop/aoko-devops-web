@@ -160,4 +160,7 @@ export const API_PATHS = {
   ARTIFACT_DETAIL: "/artifact/detail",
   ARTIFACT_UPDATE_STATUS: "/artifact/update-status",
   ARTIFACT_RELEASABLE: "/artifact/releasable",
+
+  // ===== Log Stream (SSE) =====
+  LOG_STREAM: (deploymentId: string) => `/log/stream/${deploymentId}`,
 } as const;

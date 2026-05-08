@@ -9,6 +9,7 @@ const srcAliases = {
   "@assets": resolve(srcDir, "assets"),
   "@components": resolve(srcDir, "components"),
   "@constants": resolve(srcDir, "constants"),
+  "@hooks": resolve(srcDir, "hooks"),
   "@pages": resolve(srcDir, "pages"),
   "@router": resolve(srcDir, "router"),
   "@service": resolve(srcDir, "service"),
