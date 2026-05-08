@@ -62,3 +62,36 @@
 ### Next Steps
 
 - None - task complete
+
+---
+
+## Session 3: 环境CRUD + 流水线创建 + 服务器绑定 + 部署修复
+
+**Date**: 2026-05-08
+**Branch**: `main`
+
+### Summary
+
+完成 TabEnvironments 环境 CRUD（EnvironmentDrawer 增/删/改/锁定/解锁）、PipelineCreate 全功能（repositoryId、variables、approvalRequired、stage condition、job timeout、创建后跳转详情）、Pipeline Trigger API 类型与函数、环境-服务器绑定（EnvironmentDrawer 添加服务器多选）、ReleaseDetail 发起部署修复（从 env.serverIds 构建 targetServers）、全局 loading 状态修复（try/finally）。
+
+### Main Changes
+
+1. **TabEnvironments CRUD** — EnvironmentDrawer 支持添加/编辑/删除环境，锁定/解锁操作
+2. **PipelineCreate 全功能** — repositoryId 选择器、pipeline variables (key/value/isSecret)、approvalRequired 开关、stage condition、job timeoutSec、创建后导航到详情页
+3. **Pipeline Trigger API** — 新增 `PipelineTriggerRecord`、`CreatePipelineTriggerParams`、`UpdatePipelineTriggerParams` 类型及 CRUD 函数
+4. **环境-服务器绑定** — EnvironmentDrawer 新增 `serverIds` 多选字段，Drawer 打开时加载服务器列表，创建/更新时传递 serverIds
+5. **部署修复** — ReleaseDetail `handleDeploy` 从 `env.serverIds` 拉取服务器详情构建 `TargetServer[]`，空服务器时 warning 提示
+6. **Loading 状态修复** — ReleaseDetail 所有异步操作（handleBuild/handleMarkReady/handleCancel/handleDeploy/loadLogs）改用 try/finally
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `527deb8` | feat: complete TabEnvironments - add/edit/delete drawer with full CRUD |
+| `8972fb2` | feat: complete PipelineCreate - repositoryId, variables, approvalRequired, stage condition, job timeout, navigate to detail; add pipeline-trigger API |
+| `1713093` | feat: add server multi-select binding in EnvironmentDrawer |
+| `b9a93a2` | fix: build targetServers from env.serverIds on deploy, add try/finally to all loading states |
+
+### Status
+
+[OK] **Completed**
