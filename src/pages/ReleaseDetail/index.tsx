@@ -89,7 +89,7 @@ function EnvCard({ env, deployment, onDeploy, disabled }: EnvCardProps) {
       style={{ cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.6 : 1 }}
     >
       <div className={styles.envCardHeader}>
-        <Tag color={env.type === "prod" ? "red" : env.type === "staging" ? "orange" : "blue"}>
+        <Tag color={env.type === "prod" ? "red" : env.type === "staging" ? "orange" : env.type === "build" ? "purple" : "blue"}>
           {env.name}
         </Tag>
         <Badge color={statusColor} text={statusLabel} />

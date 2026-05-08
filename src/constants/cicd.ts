@@ -122,6 +122,7 @@ export const ENVIRONMENT_TYPES = {
   TEST: "test",
   STAGING: "staging",
   PROD: "prod",
+  BUILD: "build",
 } as const;
 
 export type EnvironmentType = (typeof ENVIRONMENT_TYPES)[keyof typeof ENVIRONMENT_TYPES];
@@ -131,6 +132,7 @@ export const ENVIRONMENT_TYPE_LABELS: Record<EnvironmentType, string> = {
   test: "测试",
   staging: "预发",
   prod: "生产",
+  build: "构建",
 };
 
 export const ENVIRONMENT_TYPE_COLORS: Record<EnvironmentType, string> = {
@@ -138,6 +140,7 @@ export const ENVIRONMENT_TYPE_COLORS: Record<EnvironmentType, string> = {
   test: "gold",
   staging: "orange",
   prod: "red",
+  build: "purple",
 };
 
 export const ENVIRONMENT_DEPLOY_TYPES = {
