@@ -49,7 +49,9 @@ import {
   type DeploymentRecord,
   type EnvironmentRecord,
   type ReleaseRecord,
+  type TargetServer,
 } from "@service/api";
+import { listServers } from "@service/api/server";
 import styles from "./styles.module.less";
 
 const { Title, Text } = Typography;
@@ -128,33 +130,72 @@ function DeployDrawer({
   async function handleDeploy(_values: { description?: string }) {
     if (!env) return;
     setSubmitting(true);
-    const createRes = await createDeployment({
-      releaseId,
-      environment: env.type,
-      deployStrategy: "rolling",
-      targetServers: [],
-      deployConfig: {},
-    });
-    if (createRes.success && createRes.data) {
-      const deployId = createRes.data.id ?? createRes.data._id ?? "";
-      const startRes = await startDeployment(deployId);
-      if (startRes.success) {
-        message.success("部署已触发");
-        form.resetFields();
-        onRefresh();
+    try {
+      // 从环境的 serverIds 拉取服务器详情，构建 TargetServer[]
+      let targetServers: TargetServer[] = [];
+      if (env.serverIds && env.serverIds.length > 0) {
+        const sRes = await listServers({ pageNum: 1, pageSize: 200 });
+        if (sRes.success) {
+          const serverMap = new Map(
+            (sRes.data?.list ?? []).map((s) => [s.id ?? s._id ?? "", s]),
+          );
+          targetServers = env.serverIds
+            .map((sid) => {
+              const s = serverMap.get(sid);
+              if (!s) return null;
+              return {
+                serverId: sid,
+                serverName: s.name,
+                ip: s.ip ?? "",
+              } satisfies TargetServer;
+            })
+            .filter((x): x is TargetServer => x !== null);
+        }
       }
+      if (targetServers.length === 0) {
+        message.warning("该环境未绑定任何服务器，请先在环境配置中绑定服务器");
+        return;
+      }
+      const createRes = await createDeployment({
+        releaseId,
+        environment: env.type,
+        deployStrategy: "rolling",
+        targetServers,
+        deployConfig: {},
+      });
+      if (createRes.success && createRes.data) {
+        const deployId = createRes.data.id ?? createRes.data._id ?? "";
+        const startRes = await startDeployment(deployId);
+        if (startRes.success) {
+          message.success("部署已触发");
+          form.resetFields();
+          onRefresh();
+        } else {
+          const msg = Array.isArray(startRes.msg) ? startRes.msg.join("，") : (startRes.msg ?? "启动部署失败");
+          message.error(msg);
+        }
+      } else {
+        const msg = Array.isArray(createRes.msg) ? createRes.msg.join("，") : (createRes.msg ?? "创建部署失败");
+        message.error(msg);
+      }
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   }
 
   async function loadLogs(deployId: string) {
     setSelectedDeployId(deployId);
     setLogLoading(true);
-    const res = await getDeploymentLogs({ deploymentId: deployId });
-    if (res.success && res.data) {
-      setLogContent(typeof res.data === "string" ? res.data : JSON.stringify(res.data, null, 2));
+    try {
+      const res = await getDeploymentLogs({ deploymentId: deployId });
+      if (res.success && res.data) {
+        setLogContent(typeof res.data === "string" ? res.data : JSON.stringify(res.data, null, 2));
+      } else {
+        message.error("获取日志失败");
+      }
+    } finally {
+      setLogLoading(false);
     }
-    setLogLoading(false);
   }
 
   const deployColumns: TableProps<DeploymentRecord>["columns"] = [
@@ -287,34 +328,49 @@ export default function ReleaseDetail() {
   async function handleBuild() {
     if (!releaseId) return;
     setActionLoading(true);
-    const res = await startReleaseBuild(releaseId);
-    if (res.success) {
-      message.success("构建已触发");
-      loadRelease();
+    try {
+      const res = await startReleaseBuild(releaseId);
+      if (res.success) {
+        message.success("构建已触发");
+        loadRelease();
+      } else {
+        message.error(Array.isArray(res.msg) ? res.msg.join("，") : (res.msg ?? "构建触发失败"));
+      }
+    } finally {
+      setActionLoading(false);
     }
-    setActionLoading(false);
   }
 
   async function handleMarkReady() {
     if (!releaseId) return;
     setActionLoading(true);
-    const res = await markReleaseReady(releaseId);
-    if (res.success) {
-      message.success("已标记为就绪");
-      loadRelease();
+    try {
+      const res = await markReleaseReady(releaseId);
+      if (res.success) {
+        message.success("已标记为就绪");
+        loadRelease();
+      } else {
+        message.error(Array.isArray(res.msg) ? res.msg.join("，") : (res.msg ?? "操作失败"));
+      }
+    } finally {
+      setActionLoading(false);
     }
-    setActionLoading(false);
   }
 
   async function handleCancel() {
     if (!releaseId) return;
     setActionLoading(true);
-    const res = await cancelRelease(releaseId);
-    if (res.success) {
-      message.success("迭代已取消");
-      loadRelease();
+    try {
+      const res = await cancelRelease(releaseId);
+      if (res.success) {
+        message.success("迭代已取消");
+        loadRelease();
+      } else {
+        message.error(Array.isArray(res.msg) ? res.msg.join("，") : (res.msg ?? "取消失败"));
+      }
+    } finally {
+      setActionLoading(false);
     }
-    setActionLoading(false);
   }
 
   const latestDeploymentByEnv = environments.reduce<Record<string, DeploymentRecord>>(
