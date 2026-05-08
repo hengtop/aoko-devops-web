@@ -78,8 +78,8 @@ export interface PipelineListParams {
 export function createPipeline(
   params: CreatePipelineParams,
   options?: ServiceRequestOptions,
-): ApiPromise<void> {
-  return request.post<BaseResponse<void>>(API_PATHS.PIPELINE_CREATE, {
+): ApiPromise<PipelineRecord> {
+  return request.post<BaseResponse<PipelineRecord>>(API_PATHS.PIPELINE_CREATE, {
     ...options,
     data: params,
   });
@@ -143,5 +143,77 @@ export function validatePipelineDefinition(
   return request.post<BaseResponse<{ valid: boolean }>>(API_PATHS.PIPELINE_VALIDATE, {
     ...options,
     data: { definition },
+  });
+}
+
+// ===== Pipeline Trigger =====
+
+export type PipelineTriggerType = "webhook" | "manual" | "schedule";
+
+export interface PipelineTriggerRecord {
+  id?: string;
+  _id?: string;
+  pipelineId: string;
+  triggerType: PipelineTriggerType;
+  eventType?: string;
+  branchPattern?: string;
+  tagPattern?: string;
+  cronExpr?: string;
+  enabled: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreatePipelineTriggerParams {
+  pipelineId: string;
+  triggerType: PipelineTriggerType;
+  eventType?: string;
+  branchPattern?: string;
+  tagPattern?: string;
+  cronExpr?: string;
+  enabled?: boolean;
+}
+
+export interface UpdatePipelineTriggerParams extends Partial<CreatePipelineTriggerParams> {
+  id: string;
+}
+
+export function listPipelineTriggers(
+  pipelineId: string,
+  options?: ServiceRequestOptions,
+): ApiPromise<PipelineTriggerRecord[]> {
+  return request.post<BaseResponse<PipelineTriggerRecord[]>>(
+    API_PATHS.PIPELINE_TRIGGER_LIST,
+    { ...options, data: { pipelineId } },
+  );
+}
+
+export function createPipelineTrigger(
+  params: CreatePipelineTriggerParams,
+  options?: ServiceRequestOptions,
+): ApiPromise<void> {
+  return request.post<BaseResponse<void>>(API_PATHS.PIPELINE_TRIGGER_CREATE, {
+    ...options,
+    data: params,
+  });
+}
+
+export function updatePipelineTrigger(
+  params: UpdatePipelineTriggerParams,
+  options?: ServiceRequestOptions,
+): ApiPromise<void> {
+  return request.post<BaseResponse<void>>(API_PATHS.PIPELINE_TRIGGER_UPDATE, {
+    ...options,
+    data: params,
+  });
+}
+
+export function deletePipelineTrigger(
+  id: string,
+  options?: ServiceRequestOptions,
+): ApiPromise<void> {
+  return request.post<BaseResponse<void>>(API_PATHS.PIPELINE_TRIGGER_DELETE, {
+    ...options,
+    data: { id },
   });
 }

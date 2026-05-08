@@ -105,6 +105,12 @@ export const API_PATHS = {
   PIPELINE_TOGGLE: "/pipeline/toggle",
   PIPELINE_VALIDATE: "/pipeline/validate",
 
+  // ===== Pipeline Trigger =====
+  PIPELINE_TRIGGER_CREATE: "/pipeline-trigger/create",
+  PIPELINE_TRIGGER_LIST: "/pipeline-trigger/list",
+  PIPELINE_TRIGGER_UPDATE: "/pipeline-trigger/update",
+  PIPELINE_TRIGGER_DELETE: "/pipeline-trigger/delete",
+
   // ===== Pipeline Run =====
   PIPELINE_RUN_TRIGGER: "/pipeline-run/trigger",
   PIPELINE_RUN_LIST: "/pipeline-run/list",
