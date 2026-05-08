@@ -44,21 +44,6 @@ export default function ProductDetail() {
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [loadingApps, setLoadingApps] = useState(false);
 
-  useEffect(() => {
-    async function load() {
-      setLoadingProduct(true);
-      const res = await getProductDetail({ id });
-      if (res.success && res.data) {
-        setProduct(res.data);
-        loadApps();
-      } else {
-        message.error("获取产品详情失败");
-      }
-      setLoadingProduct(false);
-    }
-    load();
-  }, [id]);
-
   async function loadApps() {
     setLoadingApps(true);
     const res = await listApplications({ productId: id, pageNum: 1, pageSize: 100 });
@@ -67,6 +52,22 @@ export default function ProductDetail() {
     }
     setLoadingApps(false);
   }
+
+  useEffect(() => {
+    async function load() {
+      setLoadingProduct(true);
+      const res = await getProductDetail({ id });
+      if (res.success && res.data) {
+        setProduct(res.data);
+        await loadApps();
+      } else {
+        message.error("获取产品详情失败");
+      }
+      setLoadingProduct(false);
+    }
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   if (loadingProduct) {
     return (
