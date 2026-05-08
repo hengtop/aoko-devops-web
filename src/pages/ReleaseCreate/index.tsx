@@ -50,6 +50,8 @@ export default function ReleaseCreate() {
   const [branches, setBranches] = useState<BranchInfo[]>([]);
   const [loadingBranches, setLoadingBranches] = useState(false);
   const [branchSearchText, setBranchSearchText] = useState("");
+  // 已选分支的 commitHash（仅选择已有分支时有值，手动输入新分支名时为 undefined）
+  const [selectedCommitHash, setSelectedCommitHash] = useState<string | undefined>();
 
   useEffect(() => {
     if (appId) {
@@ -87,6 +89,7 @@ export default function ReleaseCreate() {
     // 切换仓库时清空已选分支并重新加载
     form.setFieldValue("branch", generateDefaultBranch());
     setBranchSearchText("");
+    setSelectedCommitHash(undefined);
     if (repositoryId) {
       fetchBranches(repositoryId);
     } else {
@@ -98,6 +101,8 @@ export default function ReleaseCreate() {
     if (!appId) return;
     setSubmitting(true);
     const branch = values.branch?.trim() || generateDefaultBranch();
+    // 若选择的是已有分支则带上 commitHash，新分支由服务端 resolve-branch 处理
+    const commitHash = selectedCommitHash;
     try {
       const res = await createRelease({
         applicationId: appId,
@@ -107,7 +112,7 @@ export default function ReleaseCreate() {
         title: values.title,
         description: values.description,
         currentStage: "DEV",
-        git: { branch },
+        git: { branch, ...(commitHash ? { commitHash } : {}) },
       });
       if (res.success) {
         message.success("迭代创建成功");
@@ -212,6 +217,16 @@ export default function ReleaseCreate() {
                     filterOption={(input, opt) =>
                       String(opt?.value ?? "").toLowerCase().includes(input.toLowerCase())
                     }
+                    onChange={(val: string) => {
+                      // 从已有分支列表选中：回填 commitHash；清空或手动输入时清除
+                      const matched = branches.find((b) => b.name === val);
+                      setSelectedCommitHash(matched?.commitHash);
+                      setBranchSearchText("");
+                    }}
+                    onClear={() => {
+                      setSelectedCommitHash(undefined);
+                      setBranchSearchText("");
+                    }}
                     notFoundContent={
                       branchSearchText
                         ? <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
@@ -220,9 +235,10 @@ export default function ReleaseCreate() {
                         : "暂无分支"
                     }
                     onBlur={() => {
-                      // 用户直接输入时回填到 form
+                      // 用户直接输入时回填到 form（新分支名，无 commitHash）
                       if (branchSearchText && !branches.find((b) => b.name === branchSearchText)) {
                         form.setFieldValue("branch", branchSearchText);
+                        setSelectedCommitHash(undefined);
                       }
                     }}
                     options={branches.map((b) => ({
