@@ -24,6 +24,7 @@ export interface LogLine {
   message: string;
   serverId?: string;
   operator?: string;
+  buildRound?: number;
   createdAt?: string;
 }
 
@@ -36,7 +37,11 @@ export interface UseLogStreamReturn {
   clear: () => void;
 }
 
-export function useLogStream(deploymentId: string, enabled: boolean): UseLogStreamReturn {
+export function useLogStream(
+  deploymentId: string,
+  enabled: boolean,
+  buildRound?: number,
+): UseLogStreamReturn {
   const [logs, setLogs] = useState<LogLine[]>([]);
   const [status, setStatus] = useState<StreamStatus>("idle");
   const abortRef = useRef<AbortController | null>(null);
@@ -59,9 +64,13 @@ export function useLogStream(deploymentId: string, enabled: boolean): UseLogStre
 
     const token = getAccessToken();
     const lastId = lastIdRef.current;
-    const url = lastId
-      ? `${REQUEST_PREFIX}${`/log/stream/${deploymentId}`}?lastId=${encodeURIComponent(lastId)}`
-      : `${REQUEST_PREFIX}/log/stream/${deploymentId}`;
+
+    // 构建 query 参数：lastId（断线续连） + buildRound（按轮次过滤）
+    const params = new URLSearchParams();
+    if (lastId) params.set("lastId", lastId);
+    if (buildRound != null) params.set("buildRound", String(buildRound));
+    const qs = params.toString();
+    const url = `${REQUEST_PREFIX}/log/stream/${deploymentId}${qs ? `?${qs}` : ""}`;
 
     fetchEventSource(url, {
       signal: ctrl.signal,
@@ -122,7 +131,7 @@ export function useLogStream(deploymentId: string, enabled: boolean): UseLogStre
     return () => {
       ctrl.abort();
     };
-  }, [enabled, deploymentId]);
+  }, [enabled, deploymentId, buildRound]);
 
   return {
     logs,

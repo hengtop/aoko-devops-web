@@ -493,11 +493,36 @@ type BuildLogDrawerProps = {
   open: boolean;
   releaseId: string;
   isBuilding: boolean;
+  /** 当前最新构建轮次（来自 release.buildRound） */
+  totalRounds: number;
   onClose: () => void;
 };
 
-function BuildLogDrawer({ open, releaseId, isBuilding, onClose }: BuildLogDrawerProps) {
-  const { logs, status, isStreaming, clear } = useLogStream(releaseId, open);
+function BuildLogDrawer({ open, releaseId, isBuilding, totalRounds, onClose }: BuildLogDrawerProps) {
+  // 默认展示最新轮次；关闭时重置回最新
+  const [selectedRound, setSelectedRound] = useState<number>(totalRounds || 1);
+
+  // totalRounds 更新时（新一轮构建触发），自动跳到最新轮次
+  useEffect(() => {
+    if (totalRounds > 0) setSelectedRound(totalRounds);
+  }, [totalRounds]);
+
+  // 关闭时重置
+  useEffect(() => {
+    if (!open) setSelectedRound(totalRounds || 1);
+  }, [open, totalRounds]);
+
+  const { logs, status, isStreaming, clear } = useLogStream(
+    releaseId,
+    open,
+    selectedRound > 0 ? selectedRound : undefined,
+  );
+
+  // 切换轮次时清空旧日志
+  const handleRoundChange = (round: number) => {
+    clear();
+    setSelectedRound(round);
+  };
 
   const statusTag = isStreaming
     ? <Tag color="processing">实时连接中</Tag>
@@ -511,6 +536,12 @@ function BuildLogDrawer({ open, releaseId, isBuilding, onClose }: BuildLogDrawer
     const text = logs.map((l) => `[${l.level}] ${l.source ? `[${l.source}] ` : ""}${l.message}`).join("\n");
     navigator.clipboard.writeText(text).then(() => message.success("已复制到剪贴板"));
   }
+
+  // 构建轮次选项：第 1 轮 … 第 N 轮
+  const roundOptions = Array.from({ length: totalRounds }, (_, i) => ({
+    label: `第 ${i + 1} 次构建`,
+    value: i + 1,
+  })).reverse(); // 最新轮次在顶部
 
   return (
     <Drawer
@@ -528,6 +559,15 @@ function BuildLogDrawer({ open, releaseId, isBuilding, onClose }: BuildLogDrawer
       destroyOnClose
       extra={
         <Space size={4}>
+          {totalRounds > 0 && (
+            <Select
+              size="small"
+              value={selectedRound}
+              onChange={handleRoundChange}
+              options={roundOptions}
+              style={{ width: 140 }}
+            />
+          )}
           <Button size="small" onClick={handleCopy} disabled={logs.length === 0}>
             复制全文
           </Button>
@@ -943,6 +983,7 @@ export default function ReleaseDetail() {
         open={buildLogOpen}
         releaseId={releaseId}
         isBuilding={isBuilding}
+        totalRounds={release?.buildRound ?? 0}
         onClose={() => setBuildLogOpen(false)}
       />
     </div>

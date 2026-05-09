@@ -70,6 +70,8 @@ export interface ReleaseRecord {
   buildCompletedAt?: string;
   /** 构建日志摘要 */
   buildLog?: string;
+  /** 构建轮次（每次触发 startBuild +1，从 1 开始） */
+  buildRound?: number;
   /** 错误信息 */
   errorMessage?: string;
   createdAt?: string;
