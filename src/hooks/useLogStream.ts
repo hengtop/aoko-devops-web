@@ -79,24 +79,26 @@ export function useLogStream(deploymentId: string, enabled: boolean): UseLogStre
         }
       },
       onmessage: (ev) => {
-        // NestJS @Sse 将 MessageEvent.type → SSE "event:" 字段
-        //              MessageEvent.data → SSE "data:" 字段（裸 JSON 字符串）
-        const eventType = (ev.event ?? "").toLowerCase();
-
-        // ── done 事件：流终止 ─────────────────────────────────
-        if (eventType === "done") {
-          setStatus("done");
-          ctrl.abort();
-          return;
-        }
-
-        // 只处理 log 事件（或无 event 字段的兼容情况）
-        if (eventType && eventType !== "log") return;
         if (!ev.data) return;
 
         try {
-          // data 字段就是裸 JSON，无需再解包 { data: ... }
-          const line = JSON.parse(ev.data) as LogLine;
+          // NestJS @Sse 对整个 MessageEvent 对象做了一次 JSON.stringify 放入 data: 字段
+          // 同时 toLogEvent 里 data 已经是 JSON.stringify(logObj)，因此需要两次 parse：
+          //   第一次：ev.data → { type: "log"|"done", data: "<JSON字符串>" }
+          //   第二次：outer.data → { id, level, source, message, ... }
+          // 另外 ev.event 永远为 ""，需从 outer.type 判断事件类型
+          const outer = JSON.parse(ev.data) as { type: string; data: string };
+          const eventType = (outer.type ?? "").toLowerCase();
+
+          if (eventType === "done") {
+            setStatus("done");
+            ctrl.abort();
+            return;
+          }
+
+          if (eventType !== "log") return;
+
+          const line = JSON.parse(outer.data) as LogLine;
           if (!line?.message) return;
           if (line.id) lastIdRef.current = line.id;
           setLogs((prev) => [...prev, line]);
