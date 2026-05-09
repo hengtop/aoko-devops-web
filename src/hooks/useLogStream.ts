@@ -71,27 +71,41 @@ export function useLogStream(deploymentId: string, enabled: boolean): UseLogStre
       onopen: async (res) => {
         if (res.ok) {
           setStatus("streaming");
+          console.debug("[useLogStream] connected", url);
         } else {
+          console.warn("[useLogStream] open failed", res.status);
           setStatus("failed");
           ctrl.abort();
         }
       },
       onmessage: (ev) => {
-        if (ev.event === "log") {
-          try {
-            const line: LogLine = JSON.parse(ev.data);
-            if (line.id) lastIdRef.current = line.id;
-            setLogs((prev) => [...prev, line]);
-          } catch {
-            // 解析失败时降级为纯文本
-            setLogs((prev) => [
-              ...prev,
-              { level: "info", message: ev.data },
-            ]);
-          }
-        } else if (ev.event === "done") {
+        // NestJS @Sse 将 MessageEvent.type → SSE "event:" 字段
+        //              MessageEvent.data → SSE "data:" 字段（裸 JSON 字符串）
+        const eventType = (ev.event ?? "").toLowerCase();
+
+        // ── done 事件：流终止 ─────────────────────────────────
+        if (eventType === "done") {
           setStatus("done");
           ctrl.abort();
+          return;
+        }
+
+        // 只处理 log 事件（或无 event 字段的兼容情况）
+        if (eventType && eventType !== "log") return;
+        if (!ev.data) return;
+
+        try {
+          // data 字段就是裸 JSON，无需再解包 { data: ... }
+          const line = JSON.parse(ev.data) as LogLine;
+          if (!line?.message) return;
+          if (line.id) lastIdRef.current = line.id;
+          setLogs((prev) => [...prev, line]);
+        } catch {
+          // 解析失败降级为纯文本
+          setLogs((prev) => [
+            ...prev,
+            { level: "info" as const, message: ev.data },
+          ]);
         }
       },
       onerror: (err) => {
