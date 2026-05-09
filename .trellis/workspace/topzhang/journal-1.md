@@ -95,3 +95,81 @@
 ### Status
 
 [OK] **Completed**
+
+---
+
+## Session 4: SSE Real-time Log Stream — Full Implementation & Bug Fixes
+
+**Date**: 2026-05-09
+**Branch**: `main`
+
+### Summary
+
+Implemented SSE real-time log stream end-to-end: installed `@microsoft/fetch-event-source`, created `useLogStream` hook, upgraded `LogViewer` component with structured log rendering + auto-scroll, wired `BuildLogDrawer` to SSE. Fixed three SSE parsing bugs revealed during testing. Aligned with backend commit `7fd523a` to add per-round log filtering (`buildRound`).
+
+### Main Changes
+
+1. **`src/hooks/useLogStream.ts`** *(new)*
+   - SSE hook using `@microsoft/fetch-event-source` for Authorization header support
+   - Accepts `(deploymentId, enabled, buildRound?)` — `buildRound` filters logs to a specific build round
+   - Handles `type: "log"` (append line) and `type: "done"` (close stream) event types
+   - Resets `logs` + `lastIdRef` on every new connection (prevents stale state on reopen)
+   - Returns `{ logs, status, isStreaming, clear }`
+
+2. **`src/components/LogViewer/index.tsx`** *(upgraded)*
+   - Accepts `logs?: LogLine[]` (structured) in addition to legacy `content?: string`
+   - Level colors: info `#e6edf3`, warn `#e3b341`, error `#ff7b72`, debug `#8b949e`
+   - Source prefix in blue `#79c0ff`, timestamp in `#484f58`
+   - Auto-scroll: pauses when user scrolls up, shows "↓ 回到底部" floating button to resume
+
+3. **`src/pages/ReleaseDetail/BuildLogDrawer`** *(rewritten)*
+   - Removed polling (`setInterval`) implementation
+   - Uses `useLogStream` + `LogViewer` for live SSE display
+   - Props: `totalRounds` (from `release.buildRound`) — renders a round selector dropdown
+   - Default: latest round; switching rounds clears logs and reconnects SSE with new `buildRound` param
+   - `totalRounds` update triggers auto-jump to latest round
+
+4. **`src/service/api/release.ts`**
+   - `ReleaseRecord` added `buildRound?: number`
+
+5. **`src/constants/api.ts`**
+   - Added `LOG_STREAM` path constant
+
+6. **`vite.config.ts` + `tsconfig.app.json`**
+   - Added `@hooks` alias → `src/hooks/`
+
+### Bug Fixes (in order)
+
+| # | Commit | Bug | Root Cause | Fix |
+|---|--------|-----|-----------|-----|
+| 1 | `a20e641` | Logs not displayed | `ev.event` check was too strict; assumed NestJS maps `type` to SSE `event:` field | Relaxed to also accept empty `ev.event`, check `outer.type` instead |
+| 2 | `2da3d1c` | Still not displayed after fix 1 | **Double serialization**: NestJS `@Sse` JSON-stringifies the entire `MessageEvent` object into `data:` field; `toLogEvent()` also pre-stringifies `data`; wire format is `data: '{"type":"log","data":"{...}"}'` — two `JSON.parse()` calls needed | Parse `ev.data` → `{ type, data: string }` then parse `outer.data` → `LogLine` |
+| 3 | `2c08b5e` | Reopening drawer shows stale/all logs | `BuildLogDrawer` component persists (Drawer `destroyOnClose` only destroys DOM); on reopen `logs` state and `lastIdRef` are stale; SSE reconnected with `?lastId=xxx` fetching only incremental data | Reset `logs` and `lastIdRef` at the start of every `useEffect` connection |
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `0077c25` | feat: SSE real-time log stream - useLogStream hook, upgrade LogViewer, wire BuildLogDrawer |
+| `a20e641` | fix: parse SSE log event correctly - remove NestJS data wrapper assumption |
+| `2da3d1c` | fix: double-parse SSE data - NestJS wraps MessageEvent as JSON, inner data also pre-serialized |
+| `0ec0ba0` | feat: buildRound support - per-round log filter in useLogStream, round selector in BuildLogDrawer |
+| `2c08b5e` | fix: reset logs and lastIdRef on each new SSE connection to prevent stale state |
+
+### Key Technical Notes
+
+**NestJS `@Sse` double-serialization** — When a controller returns `{ type: 'log', data: JSON.stringify(obj) }`, the framework JSON-stringifies the entire object again for the SSE `data:` field. Wire format:
+```
+data: {"type":"log","data":"{\"id\":\"...\",\"level\":\"info\",\"message\":\"...\"}"}
+```
+Frontend must call `JSON.parse` twice. Additionally `ev.event` is always `""` — event type must be read from `outer.type`.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- Upgrade `DeployDrawer` log section from one-shot `getDeploymentLogs` to SSE (P2)
+- Add log level filter UI to `LogViewer` (P2)
+
