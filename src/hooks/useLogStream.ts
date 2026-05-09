@@ -57,17 +57,20 @@ export function useLogStream(
       return;
     }
 
+    // 每次建立新连接（open/buildRound/deploymentId 变化）都从头开始
+    // 不能复用上次的 lastId，否则只拉增量而非全量
+    setLogs([]);
+    lastIdRef.current = undefined;
+    setStatus("connecting");
+
     // 新建 AbortController
     const ctrl = new AbortController();
     abortRef.current = ctrl;
-    setStatus("connecting");
 
     const token = getAccessToken();
-    const lastId = lastIdRef.current;
 
-    // 构建 query 参数：lastId（断线续连） + buildRound（按轮次过滤）
+    // 构建 query 参数：buildRound（按轮次过滤），断线续连时才带 lastId
     const params = new URLSearchParams();
-    if (lastId) params.set("lastId", lastId);
     if (buildRound != null) params.set("buildRound", String(buildRound));
     const qs = params.toString();
     const url = `${REQUEST_PREFIX}/log/stream/${deploymentId}${qs ? `?${qs}` : ""}`;
