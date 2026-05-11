@@ -37,7 +37,7 @@ import {
 import styles from "./styles.module.less";
 
 // 公司默认 Git 服务域名前缀，后端统一配置
-const DEFAULT_REPO_PREFIX = "https://gitlab.example.com/";
+const DEFAULT_REPO_PREFIX = "http://git.1145161.xyz/";
 const DEFAULT_REPO_BRANCH = "main";
 const DEFAULT_TEMPLATE_INIT_MESSAGE = "chore: initialize application from template";
 const TEMPLATE_INIT_REQUEST_TIMEOUT_MS = 180000;
