@@ -124,7 +124,6 @@ export function useLogStream(
       },
       onerror: (err) => {
         if (ctrl.signal.aborted) return; // 主动关闭，不视为错误
-        console.error("[useLogStream] SSE error:", err);
         setStatus("failed");
         throw err; // 抛出阻止 fetch-event-source 自动重连
       },
