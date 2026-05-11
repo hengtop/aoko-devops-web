@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Verify action loading, status gates, and page conventions"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Verify lint/build expectations"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Verify strict API typing and import type usage"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Verify frontend state gates match backend transition rules"}

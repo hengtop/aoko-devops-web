@@ -188,6 +188,16 @@ export function markReleaseReady(
   });
 }
 
+export function markReleaseNotReady(
+  id: string,
+  options?: ServiceRequestOptions,
+): ApiPromise<ReleaseRecord> {
+  return request.post<BaseResponse<ReleaseRecord>>(API_PATHS.RELEASE_UNREADY(id), {
+    ...options,
+    data: {},
+  });
+}
+
 export function cancelRelease(
   id: string,
   reason?: string,

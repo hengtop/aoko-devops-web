@@ -195,6 +195,57 @@ if (res.success) {
 }
 ```
 
+### Release 状态机操作门控
+
+#### 1. Scope / Trigger
+- Trigger: 后端 `StateMachineService` 修改 Release 状态转换规则，或新增 `/release/*` 状态变更接口。
+- 影响页面：`src/pages/ReleaseDetail/index.tsx`、Release API 封装、状态常量。
+
+#### 2. Signatures
+- `POST /release/build/:id`：触发构建。
+- `POST /release/ready/:id`：标记就绪。
+- `POST /release/unready/:id`：取消就绪，回到 `build_success`。
+- `POST /release/cancel/:id`：取消迭代。
+
+#### 3. Contracts
+- `build` 可从 `draft / pending / build_failed / build_success / test_success / ready` 进入 `building`。
+- `ready` 可从 `build_success / test_success` 进入。
+- `unready` 仅从 `ready` 回到 `build_success`。
+- `cancel` 仅在后端允许取消的非运行态展示可用；`ready` 不应直接取消。
+
+#### 4. Validation & Error Matrix
+- 缺少 `environmentId` -> 前端先提示并打开构建配置。
+- 缺少 `buildConfig.buildCommands` -> 前端先提示并打开构建配置。
+- 状态不允许转换 -> 前端按钮应禁用，避免把无效请求交给后端。
+- 后端仍返回 `success=false` -> 展示后端 `msg`。
+
+#### 5. Good/Base/Bad Cases
+- Good: `ready` 同时支持“重新构建”和“取消就绪”，部署入口只在 `ready` 打开。
+- Base: `build_success` 与 `test_success` 都能“标记就绪”。
+- Bad: 前端只允许 `build_failed` 重建，导致后端支持的 `ready -> building` 功能不可用。
+
+#### 6. Tests Required
+- Type-check 覆盖新增 API path/function。
+- 定向 lint 覆盖 `ReleaseDetail` 操作区。
+- 手工联调覆盖 `build_success` 标记就绪、`ready` 取消就绪、`ready` 重新构建。
+
+#### 7. Wrong vs Correct
+
+```tsx
+// ❌ Wrong: 只按旧规则开放构建
+const canBuild = status === "draft" || status === "pending" || status === "build_failed";
+
+// ✅ Correct: 与服务端状态机保持一致
+const canBuild = [
+  "draft",
+  "pending",
+  "build_failed",
+  "build_success",
+  "test_success",
+  "ready",
+].includes(status);
+```
+
 ### 创建成功后跳转
 
 创建类页面在成功后应跳转到详情页，而非 `navigate(-1)`：

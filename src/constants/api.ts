@@ -77,6 +77,7 @@ export const API_PATHS = {
   RELEASE_UPDATE: (id: string) => `/release/update/${id}`,
   RELEASE_BUILD: (id: string) => `/release/build/${id}`,
   RELEASE_READY: (id: string) => `/release/ready/${id}`,
+  RELEASE_UNREADY: (id: string) => `/release/unready/${id}`,
   RELEASE_CANCEL: (id: string) => `/release/cancel/${id}`,
   RELEASE_DELETE: (id: string) => `/release/delete/${id}`,
   RELEASE_ADD_USER: "/release/relative/user",

@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend spec entry point and checklist"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Release detail page component and action-state conventions"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Strict TypeScript, lint, API path, and CSS Modules expectations"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "API function and enum type patterns"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Backend state-machine contract reflected in frontend actions"}

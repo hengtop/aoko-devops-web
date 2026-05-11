@@ -51,6 +51,7 @@ import {
   getReleaseDetail,
   listDeployments,
   listEnvironments,
+  markReleaseNotReady,
   markReleaseReady,
   startDeployment,
   startReleaseBuild,
@@ -144,7 +145,7 @@ function DeployDrawer({
     (d) => d.environment === env?.type,
   );
 
-  async function handleDeploy(_values: { description?: string }) {
+  async function handleDeploy() {
     if (!env) return;
     setSubmitting(true);
     try {
@@ -499,18 +500,10 @@ type BuildLogDrawerProps = {
 };
 
 function BuildLogDrawer({ open, releaseId, isBuilding, totalRounds, onClose }: BuildLogDrawerProps) {
-  // 默认展示最新轮次；关闭时重置回最新
-  const [selectedRound, setSelectedRound] = useState<number>(totalRounds || 1);
-
-  // totalRounds 更新时（新一轮构建触发），自动跳到最新轮次
-  useEffect(() => {
-    if (totalRounds > 0) setSelectedRound(totalRounds);
-  }, [totalRounds]);
-
-  // 关闭时重置
-  useEffect(() => {
-    if (!open) setSelectedRound(totalRounds || 1);
-  }, [open, totalRounds]);
+  const [manualSelectedRound, setManualSelectedRound] = useState<number>();
+  const latestRound = totalRounds || 1;
+  const selectedRound =
+    manualSelectedRound && manualSelectedRound <= latestRound ? manualSelectedRound : latestRound;
 
   const { logs, status, isStreaming, clear } = useLogStream(
     releaseId,
@@ -521,7 +514,12 @@ function BuildLogDrawer({ open, releaseId, isBuilding, totalRounds, onClose }: B
   // 切换轮次时清空旧日志
   const handleRoundChange = (round: number) => {
     clear();
-    setSelectedRound(round);
+    setManualSelectedRound(round);
+  };
+
+  function handleClose() {
+    setManualSelectedRound(undefined);
+    onClose();
   };
 
   const statusTag = isStreaming
@@ -554,7 +552,7 @@ function BuildLogDrawer({ open, releaseId, isBuilding, totalRounds, onClose }: B
         </Space>
       }
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       width={800}
       destroyOnClose
       extra={
@@ -691,6 +689,22 @@ export default function ReleaseDetail() {
     }
   }
 
+  async function handleMarkNotReady() {
+    if (!releaseId) return;
+    setActionLoading(true);
+    try {
+      const res = await markReleaseNotReady(releaseId);
+      if (res.success) {
+        message.success("已取消就绪");
+        loadRelease();
+      } else {
+        message.error(Array.isArray(res.msg) ? res.msg.join("，") : (res.msg ?? "操作失败"));
+      }
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
   async function handleCancel() {
     if (!releaseId) return;
     setActionLoading(true);
@@ -712,13 +726,32 @@ export default function ReleaseDetail() {
   const isBuildFailed = status === "build_failed";
   const isPending = status === "pending";
   const isBuildSuccess = status === "build_success";
+  const isTestSuccess = status === "test_success";
   const isCancelled = status === "cancelled" || status === "archived";
   const isReady = status === "ready";
-  // draft/pending/build_failed 均可触发构建（后端 startBuild 内部处理 draft→pending→building）
-  const canBuild = status === "draft" || isPending || isBuildFailed;
-  const canMarkReady = isBuildSuccess;
-  const canCancel = !isCancelled;
+  // 后端状态机允许 draft/pending/build_failed/build_success/test_success/ready 进入 building
+  const canBuild =
+    status === "draft" ||
+    isPending ||
+    isBuildFailed ||
+    isBuildSuccess ||
+    isTestSuccess ||
+    isReady;
+  const canMarkReady = isBuildSuccess || isTestSuccess;
+  const canMarkNotReady = isReady;
+  const canCancel =
+    status === "draft" ||
+    isPending ||
+    isBuildSuccess ||
+    isBuildFailed ||
+    isTestSuccess ||
+    status === "test_failed";
   const canDeploy = isReady;
+  const buildButtonText = isBuilding
+    ? "构建中…"
+    : isBuildFailed || isBuildSuccess || isTestSuccess || isReady
+      ? "重新构建"
+      : "构建";
 
   const latestDeploymentByEnv = environments.reduce<Record<string, DeploymentRecord>>(
     (acc, env) => {
@@ -795,14 +828,14 @@ export default function ReleaseDetail() {
                     构建日志
                   </Button>
                 </Tooltip>
-                <Tooltip title={isBuilding ? "构建中…" : isBuildFailed ? "重新构建" : "触发构建"}>
+                <Tooltip title={isBuilding ? "构建中…" : buildButtonText}>
                   <Button
                     icon={<PlayCircleOutlined />}
                     loading={actionLoading || isBuilding}
                     disabled={!canBuild || isBuilding}
                     onClick={handleBuild}
                   >
-                    {isBuilding ? "构建中…" : isBuildFailed ? "重新构建" : "构建"}
+                    {buildButtonText}
                   </Button>
                 </Tooltip>
                 <Tooltip title="标记构建产物就绪，允许发起部署">
@@ -815,6 +848,22 @@ export default function ReleaseDetail() {
                     标记就绪
                   </Button>
                 </Tooltip>
+                {isReady && (
+                  <Popconfirm
+                    title="确认取消就绪状态？"
+                    description="取消后会回到构建成功态，部署入口将暂时关闭。"
+                    onConfirm={handleMarkNotReady}
+                    disabled={!canMarkNotReady}
+                  >
+                    <Button
+                      icon={<MinusCircleOutlined />}
+                      loading={actionLoading}
+                      disabled={!canMarkNotReady}
+                    >
+                      取消就绪
+                    </Button>
+                  </Popconfirm>
+                )}
                 <Tooltip title="刷新">
                   <Button
                     icon={<ReloadOutlined />}
