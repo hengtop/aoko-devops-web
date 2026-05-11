@@ -6,6 +6,7 @@ import {
   Input,
   Modal,
   Popconfirm,
+  Select,
   Space,
   Table,
   Tag,
@@ -14,19 +15,28 @@ import {
 } from "antd";
 import type { TableProps } from "antd";
 import { useNavigate } from "react-router-dom";
-import { EDITOR_PAGE_MODES, buildConfigurationDetailPath } from "@constants";
+import {
+  CREDENTIAL_TYPE_LABELS,
+  CREDENTIAL_TYPES,
+  EDITOR_PAGE_MODES,
+  buildConfigurationDetailPath,
+} from "@constants";
 import AppConsoleMenu from "@components/AppConsoleMenu";
 import AppFooter from "@components/AppFooter";
 import {
   createTemplate,
   deleteTemplate,
+  listCredentials,
   listTemplates,
   updateTemplate,
+  type CredentialRecord,
   type TemplateListParams,
   type TemplateMutationPayload,
   type TemplateRecord,
 } from "@service/api";
 import styles from "./styles.module.less";
+
+const DEFAULT_REPO_BRANCH = "main";
 
 type SearchFormValues = Pick<TemplateListParams, "name" | "code" | "repo_url">;
 
@@ -66,6 +76,8 @@ function buildMutationPayload(values: TemplateFormValues): TemplateMutationPaylo
     name: values.name.trim(),
     code: values.code.trim(),
     repo_url: values.repo_url.trim(),
+    repo_default_branch: normalizeOptionalField(values.repo_default_branch),
+    repo_credential_id: normalizeOptionalField(values.repo_credential_id),
     description: normalizeOptionalField(values.description),
     pipeline_cfg_id: normalizeOptionalField(values.pipeline_cfg_id),
     publish_cfg_id: normalizeOptionalField(values.publish_cfg_id),
@@ -80,6 +92,15 @@ function formatLinkedConfigurationId(value: string) {
   return `${value.slice(0, 6)}...${value.slice(-4)}`;
 }
 
+function getCredentialId(record: Partial<CredentialRecord>) {
+  return record.id ?? record._id ?? "";
+}
+
+function getCredentialLabel(record: CredentialRecord) {
+  const typeLabel = CREDENTIAL_TYPE_LABELS[record.type] ?? record.type;
+  return `${record.name} · ${typeLabel}`;
+}
+
 export default function Template() {
   const navigate = useNavigate();
   const [searchForm] = Form.useForm<SearchFormValues>();
@@ -90,6 +111,8 @@ export default function Template() {
   const [reloadSeed, setReloadSeed] = useState(0);
   const [filters, setFilters] = useState<SearchFormValues>({});
   const [records, setRecords] = useState<TemplateRecord[]>([]);
+  const [credentials, setCredentials] = useState<CredentialRecord[]>([]);
+  const [loadingCredentials, setLoadingCredentials] = useState(false);
   const [pagination, setPagination] = useState<PaginationState>({
     pageNum: 1,
     pageSize: 10,
@@ -148,6 +171,50 @@ export default function Template() {
     };
   }, [filters, pagination.pageNum, pagination.pageSize, reloadSeed, messageApi]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchCredentials() {
+      setLoadingCredentials(true);
+
+      try {
+        const response = await listCredentials({
+          type: CREDENTIAL_TYPES.GIT_TOKEN,
+          pageNum: 1,
+          pageSize: 100,
+        });
+
+        if (!response.success || cancelled) {
+          return;
+        }
+
+        setCredentials(response.data?.list ?? []);
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+
+        if (error && typeof error === "object" && "handled" in error && error.handled) {
+          return;
+        }
+
+        const errorMessage =
+          error instanceof Error ? error.message : "凭据列表加载失败，请稍后重试";
+        messageApi.error(errorMessage);
+      } finally {
+        if (!cancelled) {
+          setLoadingCredentials(false);
+        }
+      }
+    }
+
+    void fetchCredentials();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [messageApi]);
+
   const currentConfiguredPipelineCount = useMemo(
     () => records.filter((item) => Boolean(item.pipeline_cfg_id)).length,
     [records],
@@ -155,6 +222,11 @@ export default function Template() {
 
   const currentConfiguredPublishCount = useMemo(
     () => records.filter((item) => Boolean(item.publish_cfg_id)).length,
+    [records],
+  );
+
+  const currentPrivateTemplateCount = useMemo(
+    () => records.filter((item) => Boolean(item.repo_credential_id)).length,
     [records],
   );
 
@@ -184,6 +256,35 @@ export default function Template() {
       key: "repo_url",
       ellipsis: true,
       render: (value: string) => <span className={styles.repoUrl}>{value}</span>,
+    },
+    {
+      title: "来源分支",
+      dataIndex: "repo_default_branch",
+      key: "repo_default_branch",
+      width: 120,
+      render: (value?: string) => value || DEFAULT_REPO_BRANCH,
+    },
+    {
+      title: "仓库凭据",
+      dataIndex: "repo_credential_id",
+      key: "repo_credential_id",
+      width: 180,
+      render: (value?: string) => {
+        if (!value) {
+          return <span className={styles.emptyTag}>公开仓库</span>;
+        }
+
+        const credential = credentials.find((item) => getCredentialId(item) === value);
+        return (
+          <Tooltip title={credential ? getCredentialLabel(credential) : value}>
+            <Tag className={styles.linkedTag}>
+              <span className={styles.linkedTagText}>
+                {credential?.name ?? formatLinkedConfigurationId(value)}
+              </span>
+            </Tag>
+          </Tooltip>
+        );
+      },
     },
     {
       title: "流水线配置",
@@ -281,6 +382,7 @@ export default function Template() {
 
   function handleCreate() {
     modalForm.resetFields();
+    modalForm.setFieldValue("repo_default_branch", DEFAULT_REPO_BRANCH);
     setModalState({
       open: true,
       mode: EDITOR_PAGE_MODES.CREATE,
@@ -292,6 +394,8 @@ export default function Template() {
       name: record.name,
       code: record.code,
       repo_url: record.repo_url,
+      repo_default_branch: record.repo_default_branch,
+      repo_credential_id: record.repo_credential_id,
       description: record.description,
       pipeline_cfg_id: record.pipeline_cfg_id,
       publish_cfg_id: record.publish_cfg_id,
@@ -469,7 +573,7 @@ export default function Template() {
               dataSource={records}
               loading={loading}
               tableLayout="fixed"
-              scroll={{ x: 1180 }}
+              scroll={{ x: 1480 }}
               pagination={{
                 current: pagination.pageNum,
                 pageSize: pagination.pageSize,
@@ -504,6 +608,10 @@ export default function Template() {
                 <div className={styles.statValue}>{currentConfiguredPublishCount}</div>
                 <div className={styles.statLabel}>已绑发布配置</div>
               </div>
+              <div className={styles.statItem}>
+                <div className={styles.statValue}>{currentPrivateTemplateCount}</div>
+                <div className={styles.statLabel}>私有仓库模板</div>
+              </div>
             </div>
           </Card>
 
@@ -521,6 +629,14 @@ export default function Template() {
               <li className={styles.fieldItem}>
                 <span className={styles.fieldName}>repo_url</span>
                 <span className={styles.fieldDesc}>模版对应的仓库地址。</span>
+              </li>
+              <li className={styles.fieldItem}>
+                <span className={styles.fieldName}>repo_default_branch</span>
+                <span className={styles.fieldDesc}>创建应用时复制的模板来源分支。</span>
+              </li>
+              <li className={styles.fieldItem}>
+                <span className={styles.fieldName}>repo_credential_id</span>
+                <span className={styles.fieldDesc}>私有模板仓库 clone 时使用的 Git Token 凭据。</span>
               </li>
               <li className={styles.fieldItem}>
                 <span className={styles.fieldName}>pipeline_cfg_id / publish_cfg_id</span>
@@ -572,6 +688,37 @@ export default function Template() {
           >
             <Input placeholder="例如：https://git.example.com/group/template.git" />
           </Form.Item>
+
+          <div className={styles.modalGrid}>
+            <Form.Item
+              name="repo_default_branch"
+              label="来源分支"
+              extra="创建应用时会从该分支复制模板仓库内容"
+            >
+              <Input placeholder={DEFAULT_REPO_BRANCH} />
+            </Form.Item>
+            <Form.Item
+              name="repo_credential_id"
+              label="仓库凭据"
+              extra="公开仓库可留空，私有仓库选择 Git Token"
+            >
+              <Select
+                placeholder="选择 Git Token 凭据"
+                loading={loadingCredentials}
+                allowClear
+                showSearch
+                options={credentials.map((item) => ({
+                  value: getCredentialId(item),
+                  label: getCredentialLabel(item),
+                }))}
+                filterOption={(input, opt) =>
+                  String(opt?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              />
+            </Form.Item>
+          </div>
 
           <Form.Item name="description" label="描述">
             <Input.TextArea

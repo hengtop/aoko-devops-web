@@ -9,6 +9,8 @@ export interface TemplateRecord {
   name: string;
   code: string;
   repo_url: string;
+  repo_default_branch?: string;
+  repo_credential_id?: string;
   description?: string;
   pipeline_cfg_id?: string;
   publish_cfg_id?: string;
@@ -19,6 +21,8 @@ export interface TemplateListParams {
   name?: string;
   code?: string;
   repo_url?: string;
+  repo_default_branch?: string;
+  repo_credential_id?: string;
   description?: string;
   pipeline_cfg_id?: string;
   publish_cfg_id?: string;
@@ -30,6 +34,8 @@ export interface TemplateMutationPayload {
   name: string;
   code: string;
   repo_url: string;
+  repo_default_branch?: string;
+  repo_credential_id?: string;
   description?: string;
   pipeline_cfg_id?: string;
   publish_cfg_id?: string;

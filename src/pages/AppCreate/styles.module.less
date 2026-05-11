@@ -52,7 +52,7 @@
 }
 
 .formContainer {
-  max-width: 640px;
+  max-width: 760px;
   margin: 0 auto;
   width: 100%;
 }
@@ -68,5 +68,145 @@
 .formCard {
   :global(.ant-card-body) {
     padding: 24px;
+  }
+}
+
+.submitAlert {
+  margin-bottom: 14px;
+}
+
+.progressCard {
+  margin-bottom: 14px;
+  background: var(--surface-bg);
+  border: 1px solid var(--panel-highlight-border);
+  box-shadow: var(--surface-shadow-soft);
+
+  :global(.ant-card-body) {
+    padding: 18px 20px;
+  }
+}
+
+.progressHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.progressTitle {
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.progressDesc {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.7;
+  margin-top: 4px;
+}
+
+.formSectionTitle {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.formDivider {
+  margin: 22px 0 18px;
+  border-color: var(--surface-border);
+}
+
+.inlineFields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+
+  :global(.ant-form-item) {
+    margin-bottom: 0;
+  }
+}
+
+.repoPreview {
+  font-size: 12px;
+}
+
+.repoPrefix {
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+.templateSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  :global(.ant-form-item) {
+    margin-bottom: 0;
+  }
+}
+
+.templatePreview {
+  border: 1px solid var(--surface-border);
+  border-radius: var(--surface-radius-md);
+  background: var(--panel-highlight-bg);
+  padding: 14px 16px;
+}
+
+.templatePreviewTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.templateCodeTag {
+  border: none;
+  background: var(--tag-primary-bg);
+  color: var(--tag-primary-text);
+}
+
+.templatePreviewMeta {
+  display: grid;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+  margin-top: 8px;
+
+  span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.submitItem:global(.ant-form-item) {
+  margin-bottom: 0;
+  margin-top: 24px;
+}
+
+@media (max-width: 960px) {
+  .body {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 720px) {
+  .inlineFields {
+    grid-template-columns: 1fr;
+  }
+
+  .progressHeader {
+    flex-direction: column;
   }
 }

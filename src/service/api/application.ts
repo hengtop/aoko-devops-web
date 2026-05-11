@@ -16,6 +16,8 @@ export interface ApplicationRecord {
   structure?: string;
   level?: string;
   template_id?: string;
+  repo_default_branch?: string;
+  repo_credential_id?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -31,6 +33,9 @@ export interface CreateApplicationParams {
   structure?: string;
   level?: string;
   template_id?: string;
+  repo_default_branch?: string;
+  repo_credential_id?: string;
+  template_init_message?: string;
 }
 
 export interface UpdateApplicationParams extends Partial<CreateApplicationParams> {

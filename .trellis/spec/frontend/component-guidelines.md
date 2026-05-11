@@ -146,6 +146,55 @@ const res = await someApi(values);
 setSubmitting(false); // 如果上面抛异常，这行不会执行
 ```
 
+### 长耗时同步提交（如模板仓库初始化）
+
+#### 1. Scope / Trigger
+- Trigger: 后端接口在一次请求内同步执行 clone、push、构建初始化、远程校验等长耗时流程。
+- 典型页面：创建应用时选择模板初始化目标仓库。
+
+#### 2. Signatures
+- API 调用仍使用 `@service/api` 封装函数，第二个参数传 `ServiceRequestOptions`。
+- 长耗时请求必须显式设置 `timeout`，不要沿用全局默认 10 秒。
+
+#### 3. Contracts
+- 请求字段应完整表达后端契约，例如 `template_id`、`repo_default_branch`、`repo_credential_id`、`template_init_message`。
+- 成功响应可能没有 `data`；创建类页面不能假设 `res.data.id` 一定存在。
+- 失败响应优先展示后端 `msg`，用于暴露 clone/push/目标仓库非空等业务错误。
+
+#### 4. Validation & Error Matrix
+- 未选择必填资源 -> Ant Design `Form.Item.rules` 阻止提交。
+- 请求超时 -> 显示本地错误面板，允许用户修正后重试。
+- 后端 `success=false` -> 使用 `res.msg` 填充页面级 `Alert`。
+- 创建成功但未返回 id -> 按唯一字段查询详情，仍失败则跳转到上一级业务页并提示。
+
+#### 5. Good/Base/Bad Cases
+- Good: 选择模板时提交按钮显示长耗时文案，页面展示步骤提示，请求单独放宽 `timeout`。
+- Base: 普通创建继续使用轻量 loading，不额外打扰。
+- Bad: 只让按钮 spinning，10 秒后被全局 timeout 中断，用户不知道 clone/push 是否仍在执行。
+
+#### 6. Tests Required
+- Type-check/build 覆盖新增 payload 字段。
+- 定向 lint 覆盖页面组件无未使用导入、无 `any`、无 hook 依赖问题。
+- 手工联调覆盖：模板成功、目标仓库非空失败、创建成功但 `data` 为空的跳转兜底。
+
+#### 7. Wrong vs Correct
+
+```tsx
+// ❌ Wrong: 长耗时接口沿用默认 timeout，并假设 create 返回 id
+const res = await createApplication(payload);
+navigate(buildAppDetailPath(res.data?.id ?? ""));
+
+// ✅ Correct: 长耗时接口单独放宽 timeout，并在成功后查询详情
+const res = await createApplication(payload, {
+  timeout: 180000,
+  useGlobalErrorHandler: false,
+});
+if (res.success) {
+  const detail = await getApplicationDetail({ code: payload.code });
+  navigate(buildAppDetailPath(detail.data?.id ?? detail.data?._id ?? ""));
+}
+```
+
 ### 创建成功后跳转
 
 创建类页面在成功后应跳转到详情页，而非 `navigate(-1)`：

@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/index.md", "reason": "Quality gate entry point for frontend work"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Verify Ant Design form page behavior, loading state, and navigation conventions"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Verify lint/build expectations and forbidden patterns"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Verify strict TypeScript and import type rules"}
+{"file": ".trellis/spec/frontend/directory-structure.md", "reason": "Verify changed files remain in expected locations"}
