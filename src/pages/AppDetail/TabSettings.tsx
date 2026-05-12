@@ -4,6 +4,8 @@ import type { TableProps } from "antd";
 import { EyeInvisibleOutlined, EyeOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   CREDENTIAL_TYPE_LABELS,
+  REPOSITORY_ROLE_LABELS,
+  REPOSITORY_ROLES,
   VARIABLE_SCOPE_TYPE_LABELS,
 } from "@constants";
 import {
@@ -33,6 +35,10 @@ type Props = {
   appId: string;
 };
 
+function resolveRepositoryRole(record: RepositoryRecord) {
+  return record.repositoryRole ?? REPOSITORY_ROLES.SOURCE;
+}
+
 // ── Repositories ──────────────────────────────────────────
 function RepositoriesTab({ appId }: { appId: string }) {
   const [repos, setRepos] = useState<RepositoryRecord[]>([]);
@@ -50,7 +56,20 @@ function RepositoriesTab({ appId }: { appId: string }) {
   }
 
   useEffect(() => {
-    loadRepos();
+    let cancelled = false;
+
+    async function loadInitialRepos() {
+      setLoading(true);
+      const res = await listRepositories({ applicationId: appId, pageNum: 1, pageSize: 20 });
+      if (res.success && !cancelled) setRepos(res.data?.list ?? []);
+      if (!cancelled) setLoading(false);
+    }
+
+    void loadInitialRepos();
+
+    return () => {
+      cancelled = true;
+    };
   }, [appId]);
 
   async function handleDelete(record: RepositoryRecord) {
@@ -66,6 +85,24 @@ function RepositoriesTab({ appId }: { appId: string }) {
 
   const columns: TableProps<RepositoryRecord>["columns"] = [
     { title: "名称", dataIndex: "repoName", key: "repoName" },
+    {
+      title: "用途",
+      dataIndex: "repositoryRole",
+      key: "repositoryRole",
+      render: (_: RepositoryRecord["repositoryRole"], record) => {
+        const role = resolveRepositoryRole(record);
+        return <Tag color={role === REPOSITORY_ROLES.SOURCE ? "blue" : "default"}>
+          {REPOSITORY_ROLE_LABELS[role] ?? role}
+        </Tag>;
+      },
+    },
+    {
+      title: "默认",
+      dataIndex: "isDefault",
+      key: "isDefault",
+      render: (isDefault: boolean | undefined) =>
+        isDefault ? <Tag color="green">默认</Tag> : <Tag>普通</Tag>,
+    },
     {
       title: "平台",
       dataIndex: "providerType",
@@ -160,7 +197,20 @@ function CredentialsTab({ appId }: { appId: string }) {
   }
 
   useEffect(() => {
-    loadCredentials();
+    let cancelled = false;
+
+    async function loadInitialCredentials() {
+      setLoading(true);
+      const res = await listCredentials({ applicationId: appId, pageNum: 1, pageSize: 50 });
+      if (res.success && !cancelled) setCredentials(res.data?.list ?? []);
+      if (!cancelled) setLoading(false);
+    }
+
+    void loadInitialCredentials();
+
+    return () => {
+      cancelled = true;
+    };
   }, [appId]);
 
   async function handleDelete(record: CredentialRecord) {
@@ -257,7 +307,20 @@ function VariablesTab({ appId, environments, pipelines }: VariablesTabProps) {
   }
 
   useEffect(() => {
-    loadVariables();
+    let cancelled = false;
+
+    async function loadInitialVariables() {
+      setLoading(true);
+      const res = await listVariables({ applicationId: appId, pageNum: 1, pageSize: 200 });
+      if (res.success && !cancelled) setVariables(res.data?.list ?? []);
+      if (!cancelled) setLoading(false);
+    }
+
+    void loadInitialVariables();
+
+    return () => {
+      cancelled = true;
+    };
   }, [appId]);
 
   async function handleDelete(record: VariableRecord) {

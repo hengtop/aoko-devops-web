@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Verify application create, repository drawer, and release create UX contracts"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Verify API field types and no unsafe casts"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Verify lint/typecheck/build expectations"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Verify frontend data flow matches backend default repository resolution"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "Verify repository role/default labels and options are shared constants"}

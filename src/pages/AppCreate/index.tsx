@@ -21,8 +21,11 @@ import AppFooter from "@components/AppFooter";
 import {
   CREDENTIAL_TYPE_LABELS,
   CREDENTIAL_TYPES,
+  REPOSITORY_PROVIDERS,
   buildAppDetailPath,
   buildProductDetailPath,
+  repositoryProviderOptions,
+  type RepositoryProvider,
 } from "@constants";
 import {
   createApplication,
@@ -37,7 +40,7 @@ import {
 import styles from "./styles.module.less";
 
 // 公司默认 Git 服务域名前缀，后端统一配置
-const DEFAULT_REPO_PREFIX = "https://git.1145161.xyz/";
+const DEFAULT_REPO_PREFIX = "http://git.1145161.xyz/";
 const DEFAULT_REPO_BRANCH = "main";
 const DEFAULT_TEMPLATE_INIT_MESSAGE = "chore: initialize application from template";
 const TEMPLATE_INIT_REQUEST_TIMEOUT_MS = 180000;
@@ -57,6 +60,7 @@ type FormValues = {
   repo_url?: string;
   repo_default_branch?: string;
   repo_credential_id?: string;
+  repo_provider_type?: RepositoryProvider;
   templateMode: TemplateMode;
   template_id?: string;
   template_init_message?: string;
@@ -141,6 +145,19 @@ function getCredentialLabel(record: CredentialRecord) {
 
 function getTemplateLabel(record: TemplateRecord) {
   return `${record.name}（${record.code}）`;
+}
+
+function inferRepositoryProvider(repoUrl: string): RepositoryProvider {
+  try {
+    const hostname = new URL(repoUrl).hostname.toLowerCase();
+    if (hostname.includes("github")) return REPOSITORY_PROVIDERS.GITHUB;
+    if (hostname.includes("gitlab")) return REPOSITORY_PROVIDERS.GITLAB;
+    if (hostname.includes("gitee")) return REPOSITORY_PROVIDERS.GITEE;
+  } catch {
+    return REPOSITORY_PROVIDERS.SELF_HOSTED;
+  }
+
+  return REPOSITORY_PROVIDERS.SELF_HOSTED;
 }
 
 export default function AppCreate() {
@@ -275,6 +292,13 @@ export default function AppCreate() {
     form.setFieldValue("template_init_message", DEFAULT_TEMPLATE_INIT_MESSAGE);
   }
 
+  function handleRepoModeChange(nextMode: RepoMode) {
+    setRepoMode(nextMode);
+    if (nextMode === "default") {
+      form.setFieldValue("repo_provider_type", REPOSITORY_PROVIDERS.SELF_HOSTED);
+    }
+  }
+
   async function navigateToCreatedApplication(productId: string, code: string) {
     try {
       const detailRes = await getApplicationDetail({ code });
@@ -318,6 +342,7 @@ export default function AppCreate() {
           repo_default_branch:
             normalizeOptionalField(values.repo_default_branch) ?? DEFAULT_REPO_BRANCH,
           repo_credential_id: normalizeOptionalField(values.repo_credential_id),
+          repo_provider_type: values.repo_provider_type ?? inferRepositoryProvider(repoUrl),
           template_id: useTemplate ? values.template_id : undefined,
           template_init_message: useTemplate
             ? normalizeOptionalField(values.template_init_message) ?? DEFAULT_TEMPLATE_INIT_MESSAGE
@@ -343,7 +368,9 @@ export default function AppCreate() {
         setActiveInitStep(3);
       }
 
-      messageApi.success(useTemplate ? "应用创建成功，模板仓库已初始化" : "应用创建成功");
+      messageApi.success(
+        useTemplate ? "应用创建成功，模板仓库与默认源仓库已初始化" : "应用创建成功，默认源仓库已绑定",
+      );
       await navigateToCreatedApplication(values.productId, code);
     } catch (error) {
       if (isHandledError(error)) {
@@ -378,7 +405,9 @@ export default function AppCreate() {
               <Title level={4} style={{ margin: 0 }}>
                 创建应用
               </Title>
-              <Text type="secondary">应用对应一个可独立部署的代码仓库，可选择模板完成首次初始化</Text>
+              <Text type="secondary">
+                应用对应一个可独立部署的代码仓库，创建成功后会自动绑定为默认源仓库。
+              </Text>
             </div>
 
             {submitError && (
@@ -397,7 +426,7 @@ export default function AppCreate() {
                   <div>
                     <div className={styles.progressTitle}>正在初始化模板仓库</div>
                     <div className={styles.progressDesc}>
-                      后端正在同步复制模板、提交并推送到目标仓库，请保持页面打开。
+                      后端正在同步复制模板、提交、推送，并在应用创建后绑定默认源仓库，请保持页面打开。
                     </div>
                   </div>
                   <Tag color="processing">预计需要几十秒</Tag>
@@ -421,6 +450,7 @@ export default function AppCreate() {
                 initialValues={{
                   repoMode: "default",
                   repo_default_branch: DEFAULT_REPO_BRANCH,
+                  repo_provider_type: REPOSITORY_PROVIDERS.SELF_HOSTED,
                   templateMode: "none",
                 }}
               >
@@ -492,7 +522,7 @@ export default function AppCreate() {
 
                 <Form.Item label="仓库配置方式" name="repoMode">
                   <Radio.Group
-                    onChange={(e) => setRepoMode(e.target.value)}
+                    onChange={(e) => handleRepoModeChange(e.target.value)}
                     options={[
                       { value: "default", label: "自动创建（使用公司默认 Git 服务）" },
                       { value: "existing", label: "已有仓库（粘贴仓库地址）" },
@@ -534,6 +564,15 @@ export default function AppCreate() {
 
                 <div className={styles.inlineFields}>
                   <Form.Item
+                    label="代码托管平台"
+                    name="repo_provider_type"
+                    rules={[{ required: true, message: "请选择代码托管平台" }]}
+                    extra="创建成功后会作为默认源仓库的平台类型"
+                  >
+                    <Select placeholder="选择平台" options={repositoryProviderOptions} />
+                  </Form.Item>
+
+                  <Form.Item
                     label="初始化分支"
                     name="repo_default_branch"
                     rules={[{ required: true, message: "请输入初始化分支" }]}
@@ -545,7 +584,7 @@ export default function AppCreate() {
                   <Form.Item
                     label="目标仓库凭据"
                     name="repo_credential_id"
-                    extra="目标仓库无需认证时可留空"
+                    extra="创建成功后会同步绑定到默认源仓库"
                   >
                     <Select
                       placeholder="选择 Git Token 凭据"

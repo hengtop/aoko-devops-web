@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
-import { Button, Drawer, Form, Input, message, Select, Space } from "antd";
+import { Button, Drawer, Form, Input, message, Select, Space, Switch } from "antd";
 import {
+  REPOSITORY_AUTH_TYPES,
+  REPOSITORY_PROVIDERS,
+  REPOSITORY_ROLES,
   repositoryProviderOptions,
   repositoryAuthTypeOptions,
+  repositoryRoleOptions,
 } from "@constants";
 import {
   createRepository,
@@ -10,24 +14,29 @@ import {
   listCredentials,
   type RepositoryRecord,
   type CredentialRecord,
+  type RepositoryAuthType,
+  type RepositoryProvider,
+  type RepositoryRole,
 } from "@service/api";
 
-interface RepositoryDrawerProps {
+type RepositoryDrawerProps = {
   open: boolean;
   appId: string;
   editRecord?: RepositoryRecord | null;
   onClose: () => void;
   onSuccess: () => void;
-}
+};
 
 type FormValues = {
   repoName: string;
-  providerType: string;
+  providerType: RepositoryProvider;
   repoUrl: string;
   sshUrl?: string;
   defaultBranch: string;
-  authType: string;
+  authType: RepositoryAuthType;
   credentialId?: string;
+  isDefault?: boolean;
+  repositoryRole: RepositoryRole;
   webhookSecret?: string;
 };
 
@@ -46,6 +55,15 @@ export default function RepositoryDrawer({
 
   useEffect(() => {
     if (open) {
+      let cancelled = false;
+
+      async function loadCredentials() {
+        const res = await listCredentials({ applicationId: appId, pageNum: 1, pageSize: 100 });
+        if (res.success && !cancelled) {
+          setCredentials(res.data?.list ?? []);
+        }
+      }
+
       if (editRecord) {
         form.setFieldsValue({
           repoName: editRecord.repoName,
@@ -55,29 +73,48 @@ export default function RepositoryDrawer({
           defaultBranch: editRecord.defaultBranch,
           authType: editRecord.authType,
           credentialId: editRecord.credentialId,
+          isDefault: editRecord.isDefault ?? false,
+          repositoryRole: editRecord.repositoryRole ?? REPOSITORY_ROLES.SOURCE,
           webhookSecret: editRecord.webhookSecret,
         });
       } else {
         form.resetFields();
-        form.setFieldValue("defaultBranch", "main");
+        form.setFieldsValue({
+          providerType: REPOSITORY_PROVIDERS.SELF_HOSTED,
+          defaultBranch: "main",
+          authType: REPOSITORY_AUTH_TYPES.TOKEN,
+          isDefault: false,
+          repositoryRole: REPOSITORY_ROLES.SOURCE,
+        });
       }
-      loadCredentials();
-    }
-  }, [open, editRecord]);
+      void loadCredentials();
 
-  async function loadCredentials() {
-    const res = await listCredentials({ applicationId: appId, pageNum: 1, pageSize: 100 });
-    if (res.success) {
-      setCredentials(res.data?.list ?? []);
+      return () => {
+        cancelled = true;
+      };
     }
-  }
+  }, [appId, editRecord, form, open]);
 
   async function handleSubmit(values: FormValues) {
     setSubmitting(true);
     try {
+      const payload = {
+        applicationId: appId,
+        providerType: values.providerType,
+        repoName: values.repoName,
+        repoUrl: values.repoUrl,
+        sshUrl: values.sshUrl,
+        defaultBranch: values.defaultBranch,
+        authType: values.authType,
+        credentialId: values.credentialId,
+        isDefault: values.isDefault ?? false,
+        repositoryRole: values.repositoryRole,
+        webhookSecret: values.webhookSecret,
+      };
+
       if (isEdit) {
         const id = editRecord!.id ?? editRecord!._id ?? "";
-        const res = await updateRepository({ id, ...values } as any);
+        const res = await updateRepository({ id, ...payload });
         if (res.success) {
           message.success("仓库更新成功");
           onSuccess();
@@ -86,17 +123,7 @@ export default function RepositoryDrawer({
           message.error(Array.isArray(res.msg) ? res.msg.join("，") : (res.msg ?? "更新失败"));
         }
       } else {
-        const res = await createRepository({
-          applicationId: appId,
-          providerType: values.providerType as any,
-          repoName: values.repoName,
-          repoUrl: values.repoUrl,
-          sshUrl: values.sshUrl,
-          defaultBranch: values.defaultBranch,
-          authType: values.authType as any,
-          credentialId: values.credentialId,
-          webhookSecret: values.webhookSecret,
-        });
+        const res = await createRepository(payload);
         if (res.success) {
           message.success("仓库绑定成功");
           onSuccess();
@@ -154,6 +181,23 @@ export default function RepositoryDrawer({
 
         <Form.Item label="认证方式" name="authType" rules={[{ required: true, message: "请选择认证方式" }]}>
           <Select placeholder="选择认证方式" options={repositoryAuthTypeOptions} />
+        </Form.Item>
+
+        <Form.Item
+          label="仓库用途"
+          name="repositoryRole"
+          rules={[{ required: true, message: "请选择仓库用途" }]}
+        >
+          <Select placeholder="选择仓库用途" options={repositoryRoleOptions} />
+        </Form.Item>
+
+        <Form.Item
+          label="设为该用途默认仓库"
+          name="isDefault"
+          valuePropName="checked"
+          extra="开启后，同一应用相同用途下的其他默认仓库会自动取消默认。"
+        >
+          <Switch checkedChildren="默认" unCheckedChildren="普通" />
         </Form.Item>
 
         <Form.Item label="关联凭据" name="credentialId">

@@ -195,6 +195,30 @@ if (res.success) {
 }
 ```
 
+### 应用创建默认源仓库绑定
+
+#### 1. Scope / Trigger
+- Trigger: 后端 `ApplicationInitializationService`、`RepositoryService` 或 Release 创建仓库解析逻辑变更。
+- 影响页面：`src/pages/AppCreate/index.tsx`、`src/pages/AppDetail/RepositoryDrawer.tsx`、`src/pages/AppDetail/TabSettings.tsx`、`src/pages/ReleaseCreate/index.tsx`、应用/仓库/迭代 API 类型。
+
+#### 2. Contracts
+- 创建应用时，后端会在应用保存后根据 `repo_url` 自动 upsert 默认 `source` 仓库绑定。
+- 创建应用 payload 需要支持 `repo_provider_type`；公司默认 Git 服务地址使用 `http://git.1145161.xyz/`。
+- 自动绑定出的仓库应被视为 `isDefault=true`、`repositoryRole=source`，并绑定 `repo_credential_id` 到 `Repository.credentialId`。
+- 仓库配置页需要展示和编辑 `isDefault`、`repositoryRole`。旧仓库没有 `repositoryRole` 时，前端按 `source` 处理。
+- Release 创建可省略 `repositoryId` 交给后端解析默认源仓库；但如果前端已加载到默认源仓库，应主动选中它用于分支列表和清晰回显。
+- 多个启用源仓库且没有默认项时，前端应先要求用户选择仓库或去设置默认仓库，避免提交后才收到后端错误。
+
+#### 3. Good/Base/Bad Cases
+- Good: 应用创建成功后用户能在仓库配置页看到默认源仓库；创建迭代时默认源仓库自动选中并加载分支。
+- Base: 只有一个启用源仓库时可自动选中，兼容旧数据缺少 `repositoryRole`。
+- Bad: 多仓库无默认时仍允许空 `repositoryId` 创建迭代，导致后端要求补传仓库。
+
+#### 4. Tests Required
+- 定向 lint 覆盖应用创建、仓库配置、迭代创建页面和 API 类型。
+- Type-check 覆盖 `repo_provider_type`、`isDefault`、`repositoryRole`、Release `repositoryId`。
+- 手工联调覆盖：新应用创建后默认源仓库绑定、凭据回填、Release 默认仓库自动选中、多源仓库无默认时前端阻断。
+
 ### Release 状态机操作门控
 
 #### 1. Scope / Trigger

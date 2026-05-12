@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Button,
@@ -7,16 +7,24 @@ import {
   Form,
   Input,
   InputNumber,
+  Alert,
   message,
   Select,
   Space,
   Spin,
+  Tag,
   Typography,
 } from "antd";
 import { ArrowLeftOutlined, BranchesOutlined, MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import AppConsoleMenu from "@components/AppConsoleMenu";
 import AppFooter from "@components/AppFooter";
-import { APP_ROUTE_PATHS, buildAppDetailPath, buildReleaseDetailPath } from "@constants";
+import {
+  APP_ROUTE_PATHS,
+  REPOSITORY_ROLE_LABELS,
+  REPOSITORY_ROLES,
+  buildAppDetailPath,
+  buildReleaseDetailPath,
+} from "@constants";
 import {
   createRelease,
   getApplicationDetail,
@@ -30,6 +38,7 @@ import {
 import styles from "./styles.module.less";
 
 const { Title, Text } = Typography;
+const ENABLE_STATUS = "enable";
 
 type FormValues = {
   version: string;
@@ -63,6 +72,23 @@ function generateDefaultBranch(): string {
   return `sprint_S${ts}${rand}`;
 }
 
+function getRepositoryId(record: RepositoryRecord) {
+  return record.id ?? record._id ?? "";
+}
+
+function isSourceRepository(record: RepositoryRecord) {
+  return (record.repositoryRole ?? REPOSITORY_ROLES.SOURCE) === REPOSITORY_ROLES.SOURCE;
+}
+
+function isEnabledRepository(record: RepositoryRecord) {
+  return !record.status || record.status === ENABLE_STATUS;
+}
+
+function resolveDefaultSourceRepository(repos: RepositoryRecord[]) {
+  const sourceRepos = repos.filter((repo) => isSourceRepository(repo) && isEnabledRepository(repo));
+  return sourceRepos.find((repo) => repo.isDefault) ?? (sourceRepos.length === 1 ? sourceRepos[0] : undefined);
+}
+
 export default function ReleaseCreate() {
   const navigate = useNavigate();
   const { appId = "" } = useParams<{ appId: string }>();
@@ -78,6 +104,12 @@ export default function ReleaseCreate() {
   // 已选分支的 commitHash（仅选择已有分支时有值，手动输入新分支名时为 undefined）
   const [selectedCommitHash, setSelectedCommitHash] = useState<string | undefined>();
   const watchedArtifactType = Form.useWatch("artifactType", form);
+  const sourceRepos = useMemo(
+    () => repos.filter((repo) => isSourceRepository(repo) && isEnabledRepository(repo)),
+    [repos],
+  );
+  const hasDefaultSourceRepo = sourceRepos.some((repo) => repo.isDefault);
+  const requiresRepositorySelection = sourceRepos.length > 1 && !hasDefaultSourceRepo;
 
   useEffect(() => {
     if (appId) {
@@ -85,9 +117,9 @@ export default function ReleaseCreate() {
         if (res.success) {
           const list = res.data?.list ?? [];
           setRepos(list);
-          // 若只有一个仓库，自动选中并加载分支
-          if (list.length === 1) {
-            const repoId = list[0].id ?? list[0]._id ?? "";
+          const defaultSourceRepo = resolveDefaultSourceRepository(list);
+          if (defaultSourceRepo) {
+            const repoId = getRepositoryId(defaultSourceRepo);
             form.setFieldValue("repositoryId", repoId);
             fetchBranches(repoId);
           }
@@ -116,7 +148,7 @@ export default function ReleaseCreate() {
     }
   }
 
-  function handleRepoChange(repositoryId: string) {
+  function handleRepoChange(repositoryId?: string) {
     // 切换仓库时清空已选分支并重新加载
     form.setFieldValue("branch", generateDefaultBranch());
     setBranchSearchText("");
@@ -135,7 +167,19 @@ export default function ReleaseCreate() {
     // 若选择的是已有分支则带上 commitHash，新分支由服务端 resolve-branch 处理
     const commitHash = selectedCommitHash;
     // 关联仓库 ID（服务端用于 resolve-branch）
-    const repositoryId = values.repositoryId ?? undefined;
+    const repositoryId = values.repositoryId || undefined;
+
+    if (!repositoryId && sourceRepos.length === 0) {
+      message.warning("请先在应用设置中绑定源代码仓库，并设置默认仓库后再创建迭代");
+      setSubmitting(false);
+      return;
+    }
+
+    if (!repositoryId && requiresRepositorySelection) {
+      message.warning("当前应用存在多个源代码仓库且未设置默认仓库，请选择仓库或先在应用设置中设置默认仓库");
+      setSubmitting(false);
+      return;
+    }
 
     // 组装构建配置
     const buildCommands = (values.buildCommandsRaw ?? "")
@@ -234,17 +278,50 @@ export default function ReleaseCreate() {
                 <Input placeholder="简要描述本次迭代内容" />
               </Form.Item>
 
-              {repos.length > 0 && (
-                <Form.Item label="关联仓库" name="repositoryId">
+              {sourceRepos.length === 0 && (
+                <Alert
+                  type="warning"
+                  showIcon
+                  message="暂未绑定源代码仓库"
+                  description="应用创建后会自动绑定默认源仓库；如果这是旧应用，请先到应用设置中绑定或设置默认源仓库。"
+                  style={{ marginBottom: 16 }}
+                />
+              )}
+
+              {requiresRepositorySelection && (
+                <Alert
+                  type="warning"
+                  showIcon
+                  message="请选择源代码仓库"
+                  description="服务端只会在存在默认源仓库，或仅有一个启用源仓库时自动选择。当前应用有多个源仓库且没有默认项。"
+                  style={{ marginBottom: 16 }}
+                />
+              )}
+
+              {sourceRepos.length > 0 && (
+                <Form.Item
+                  label="关联仓库"
+                  name="repositoryId"
+                  rules={requiresRepositorySelection ? [{ required: true, message: "请选择源代码仓库" }] : undefined}
+                  extra="默认源仓库会自动选中；也可手动选择其他源仓库覆盖本次迭代。"
+                >
                   <Select
-                    placeholder="选择仓库（可选）"
+                    placeholder="选择源代码仓库"
                     allowClear
-                    onChange={(val) => handleRepoChange(val as string)}
-                    onClear={() => { setBranches([]); setBranchSearchText(""); }}
+                    onChange={handleRepoChange}
+                    onClear={() => {
+                      setBranches([]);
+                      setBranchSearchText("");
+                      setSelectedCommitHash(undefined);
+                    }}
                   >
-                    {repos.map((r) => (
-                      <Select.Option key={r.id ?? r._id} value={r.id ?? r._id}>
+                    {sourceRepos.map((r) => (
+                      <Select.Option key={getRepositoryId(r)} value={getRepositoryId(r)}>
                         {r.repoName}
+                        {r.isDefault && <Tag color="green" style={{ marginLeft: 8 }}>默认</Tag>}
+                        <Text type="secondary" style={{ marginLeft: 8, fontSize: 12 }}>
+                          {REPOSITORY_ROLE_LABELS[r.repositoryRole ?? REPOSITORY_ROLES.SOURCE]}
+                        </Text>
                       </Select.Option>
                     ))}
                   </Select>

@@ -263,6 +263,24 @@ export const REPOSITORY_AUTH_TYPE_LABELS: Record<RepositoryAuthType, string> = {
   ssh_key: "SSH Key",
 };
 
+export const REPOSITORY_ROLES = {
+  SOURCE: "source",
+  DEPLOY_CONFIG: "deploy_config",
+  ARTIFACT: "artifact",
+  DOCS: "docs",
+  OTHER: "other",
+} as const;
+
+export type RepositoryRole = (typeof REPOSITORY_ROLES)[keyof typeof REPOSITORY_ROLES];
+
+export const REPOSITORY_ROLE_LABELS: Record<RepositoryRole, string> = {
+  source: "源代码仓库",
+  deploy_config: "部署配置仓库",
+  artifact: "产物仓库",
+  docs: "文档仓库",
+  other: "其他用途",
+};
+
 // ===== Credential =====
 export const CREDENTIAL_TYPES = {
   GIT_TOKEN: "git_token",
@@ -338,6 +356,10 @@ export const repositoryProviderOptions = Object.entries(REPOSITORY_PROVIDER_LABE
 );
 
 export const repositoryAuthTypeOptions = Object.entries(REPOSITORY_AUTH_TYPE_LABELS).map(
+  ([value, label]) => ({ value, label }),
+);
+
+export const repositoryRoleOptions = Object.entries(REPOSITORY_ROLE_LABELS).map(
   ([value, label]) => ({ value, label }),
 );
 

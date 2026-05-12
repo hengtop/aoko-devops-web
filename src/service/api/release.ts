@@ -57,6 +57,8 @@ export interface ReleaseRecord {
   git: GitInfo;
   createdBy?: string;
   pipelineId?: string;
+  /** 关联代码仓库 ID */
+  repositoryId?: string;
   artifactId?: string;
   /** 构建环境 ID（build 类型 Environment） */
   environmentId?: string;

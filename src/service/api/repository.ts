@@ -2,9 +2,9 @@ import { request } from "@service/request";
 import type { ServiceRequestOptions } from "@service/request";
 import type { ApiPromise, BaseResponse, PaginatedList } from "./types";
 import { API_PATHS } from "@constants/api";
-import type { RepositoryProvider, RepositoryAuthType } from "@constants/cicd";
+import type { RepositoryProvider, RepositoryAuthType, RepositoryRole } from "@constants/cicd";
 
-export type { RepositoryProvider, RepositoryAuthType };
+export type { RepositoryProvider, RepositoryAuthType, RepositoryRole };
 
 export interface RepositoryRecord {
   id?: string;
@@ -18,6 +18,8 @@ export interface RepositoryRecord {
   defaultBranch: string;
   authType: RepositoryAuthType;
   credentialId?: string;
+  isDefault?: boolean;
+  repositoryRole?: RepositoryRole;
   webhookSecret?: string;
   status?: string;
   createdAt?: string;
@@ -34,6 +36,8 @@ export interface CreateRepositoryParams {
   defaultBranch: string;
   authType: RepositoryAuthType;
   credentialId?: string;
+  isDefault?: boolean;
+  repositoryRole?: RepositoryRole;
   webhookSecret?: string;
   status?: string;
 }

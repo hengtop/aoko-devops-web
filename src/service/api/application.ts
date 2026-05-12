@@ -2,6 +2,7 @@ import { request } from "@service/request";
 import type { ServiceRequestOptions } from "@service/request";
 import type { ApiPromise, BaseResponse, PaginatedList } from "./types";
 import { API_PATHS } from "@constants/api";
+import type { RepositoryProvider } from "@constants/cicd";
 
 export interface ApplicationRecord {
   id?: string;
@@ -18,6 +19,7 @@ export interface ApplicationRecord {
   template_id?: string;
   repo_default_branch?: string;
   repo_credential_id?: string;
+  repo_provider_type?: RepositoryProvider;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -35,6 +37,7 @@ export interface CreateApplicationParams {
   template_id?: string;
   repo_default_branch?: string;
   repo_credential_id?: string;
+  repo_provider_type?: RepositoryProvider;
   template_init_message?: string;
 }
 
