@@ -143,6 +143,19 @@ export const ENVIRONMENT_TYPE_COLORS: Record<EnvironmentType, string> = {
   build: "purple",
 };
 
+export const ENVIRONMENT_PIPELINE_DEFAULTS = {
+  DEFAULT_INCLUDE_IN_DEPLOYMENT_PIPELINE: true,
+  BUILD_INCLUDE_IN_DEPLOYMENT_PIPELINE: false,
+  DEFAULT_PROMOTION_ORDER: {
+    build: 0,
+    dev: 10,
+    test: 20,
+    staging: 30,
+    prod: 40,
+  },
+  FALLBACK_PROMOTION_ORDER: 100,
+} as const;
+
 export const ENVIRONMENT_DEPLOY_TYPES = {
   SSH: "ssh",
   DOCKER: "docker",

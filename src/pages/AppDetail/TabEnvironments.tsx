@@ -4,10 +4,12 @@ import {
   Drawer,
   Form,
   Input,
+  InputNumber,
   message,
   Popconfirm,
   Select,
   Space,
+  Switch,
   Table,
   Tag,
 } from "antd";
@@ -17,6 +19,7 @@ import {
   ENVIRONMENT_TYPE_LABELS,
   ENVIRONMENT_TYPE_COLORS,
   ENVIRONMENT_DEPLOY_TYPE_LABELS,
+  ENVIRONMENT_PIPELINE_DEFAULTS,
   environmentTypeOptions,
   environmentDeployTypeOptions,
 } from "@constants";
@@ -41,6 +44,31 @@ function getEnvId(e: EnvironmentRecord) {
   return e.id ?? e._id ?? "";
 }
 
+function getDefaultIncludeInDeploymentPipeline(type?: EnvironmentRecord["type"]) {
+  return type === "build"
+    ? ENVIRONMENT_PIPELINE_DEFAULTS.BUILD_INCLUDE_IN_DEPLOYMENT_PIPELINE
+    : ENVIRONMENT_PIPELINE_DEFAULTS.DEFAULT_INCLUDE_IN_DEPLOYMENT_PIPELINE;
+}
+
+function getDefaultPromotionOrder(type?: EnvironmentRecord["type"]) {
+  if (!type) {
+    return ENVIRONMENT_PIPELINE_DEFAULTS.FALLBACK_PROMOTION_ORDER;
+  }
+
+  return (
+    ENVIRONMENT_PIPELINE_DEFAULTS.DEFAULT_PROMOTION_ORDER[type] ??
+    ENVIRONMENT_PIPELINE_DEFAULTS.FALLBACK_PROMOTION_ORDER
+  );
+}
+
+function resolveIncludeInDeploymentPipeline(record: EnvironmentRecord) {
+  return record.includeInDeploymentPipeline ?? getDefaultIncludeInDeploymentPipeline(record.type);
+}
+
+function resolvePromotionOrder(record: EnvironmentRecord) {
+  return record.promotionOrder ?? getDefaultPromotionOrder(record.type);
+}
+
 // ── EnvironmentDrawer ──────────────────────────────────────
 
 type DrawerProps = {
@@ -57,6 +85,8 @@ type FormValues = {
   type: EnvironmentRecord["type"];
   deployType: EnvironmentRecord["deployType"];
   serverIds?: string[];
+  includeInDeploymentPipeline?: boolean;
+  promotionOrder?: number;
   description?: string;
 };
 
@@ -86,13 +116,31 @@ function EnvironmentDrawer({ open, appId, editRecord, onClose, onSuccess }: Draw
           type: editRecord.type,
           deployType: editRecord.deployType,
           serverIds: editRecord.serverIds ?? [],
+          includeInDeploymentPipeline: resolveIncludeInDeploymentPipeline(editRecord),
+          promotionOrder: resolvePromotionOrder(editRecord),
           description: editRecord.description,
         });
       } else {
         form.resetFields();
+        form.setFieldsValue({
+          includeInDeploymentPipeline:
+            ENVIRONMENT_PIPELINE_DEFAULTS.DEFAULT_INCLUDE_IN_DEPLOYMENT_PIPELINE,
+          promotionOrder: ENVIRONMENT_PIPELINE_DEFAULTS.FALLBACK_PROMOTION_ORDER,
+        });
       }
     }
   }, [open, editRecord, form]);
+
+  function handleTypeChange(type: EnvironmentRecord["type"]) {
+    if (type === "build") {
+      form.setFieldValue("deployType", "ssh");
+    }
+
+    form.setFieldsValue({
+      includeInDeploymentPipeline: getDefaultIncludeInDeploymentPipeline(type),
+      promotionOrder: getDefaultPromotionOrder(type),
+    });
+  }
 
   async function handleSubmit(values: FormValues) {
     setSubmitting(true);
@@ -104,6 +152,9 @@ function EnvironmentDrawer({ open, appId, editRecord, onClose, onSuccess }: Draw
           type: values.type,
           deployType: isBuildEnv ? "ssh" : values.deployType,
           serverIds: values.serverIds ?? [],
+          includeInDeploymentPipeline:
+            values.includeInDeploymentPipeline ?? getDefaultIncludeInDeploymentPipeline(values.type),
+          promotionOrder: values.promotionOrder ?? getDefaultPromotionOrder(values.type),
           description: values.description,
         });
         if (res.success) {
@@ -122,6 +173,9 @@ function EnvironmentDrawer({ open, appId, editRecord, onClose, onSuccess }: Draw
           type: values.type,
           deployType: isBuildEnv ? "ssh" : values.deployType,
           serverIds: values.serverIds ?? [],
+          includeInDeploymentPipeline:
+            values.includeInDeploymentPipeline ?? getDefaultIncludeInDeploymentPipeline(values.type),
+          promotionOrder: values.promotionOrder ?? getDefaultPromotionOrder(values.type),
           description: values.description,
         };
         const res = await createEnvironment(params);
@@ -173,7 +227,11 @@ function EnvironmentDrawer({ open, appId, editRecord, onClose, onSuccess }: Draw
         </Form.Item>
 
         <Form.Item label="环境类型" name="type" rules={[{ required: true, message: "请选择环境类型" }]}>
-          <Select placeholder="选择环境类型" options={environmentTypeOptions} />
+          <Select
+            placeholder="选择环境类型"
+            options={environmentTypeOptions}
+            onChange={handleTypeChange}
+          />
         </Form.Item>
 
         {!isBuildEnv && (
@@ -196,6 +254,24 @@ function EnvironmentDrawer({ open, appId, editRecord, onClose, onSuccess }: Draw
               label: `${s.name}（${s.ip ?? "-"}）`,
             }))}
           />
+        </Form.Item>
+
+        <Form.Item
+          label="参与部署流水线"
+          name="includeInDeploymentPipeline"
+          valuePropName="checked"
+          extra="关闭后，该环境不会出现在迭代详情的部署流水线中。构建环境默认不参与。"
+        >
+          <Switch checkedChildren="参与" unCheckedChildren="不参与" />
+        </Form.Item>
+
+        <Form.Item
+          label="流水线顺序"
+          name="promotionOrder"
+          rules={[{ required: true, message: "请输入流水线顺序" }]}
+          extra="数字越小越靠前。默认顺序：build 0、dev 10、test 20、staging 30、prod 40。"
+        >
+          <InputNumber min={0} precision={0} placeholder="例如：10" />
         </Form.Item>
 
         <Form.Item label="描述" name="description">
@@ -287,6 +363,23 @@ export default function TabEnvironments({ appId }: Props) {
       render: (v: EnvironmentRecord["deployType"]) => (
         <Tag>{ENVIRONMENT_DEPLOY_TYPE_LABELS[v] ?? v}</Tag>
       ),
+    },
+    {
+      title: "部署流水线",
+      dataIndex: "includeInDeploymentPipeline",
+      key: "includeInDeploymentPipeline",
+      render: (_: boolean | undefined, record) =>
+        resolveIncludeInDeploymentPipeline(record) ? (
+          <Tag color="green">参与</Tag>
+        ) : (
+          <Tag>不参与</Tag>
+        ),
+    },
+    {
+      title: "流水线顺序",
+      dataIndex: "promotionOrder",
+      key: "promotionOrder",
+      render: (_: number | undefined, record) => resolvePromotionOrder(record),
     },
     {
       title: "锁定状态",

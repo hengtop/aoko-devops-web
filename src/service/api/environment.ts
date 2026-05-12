@@ -16,6 +16,8 @@ export interface EnvironmentRecord {
   deployType: EnvironmentDeployType;
   serverIds: string[];
   description?: string;
+  includeInDeploymentPipeline?: boolean;
+  promotionOrder?: number;
   status?: string;
   locked?: boolean;
   lockedBy?: string;
@@ -32,6 +34,8 @@ export interface CreateEnvironmentParams {
   deployType: EnvironmentDeployType;
   serverIds: string[];
   description?: string;
+  includeInDeploymentPipeline?: boolean;
+  promotionOrder?: number;
   status?: string;
 }
 
@@ -42,6 +46,7 @@ export interface UpdateEnvironmentParams extends Partial<CreateEnvironmentParams
 export interface EnvironmentListParams {
   applicationId: string;
   type?: EnvironmentType;
+  includeInDeploymentPipeline?: boolean;
   pageNum?: number;
   pageSize?: number;
 }

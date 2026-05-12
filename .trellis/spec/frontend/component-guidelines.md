@@ -246,6 +246,29 @@ const canBuild = [
 ].includes(status);
 ```
 
+### 环境部署流水线配置
+
+#### 1. Scope / Trigger
+- Trigger: 后端环境模块新增或调整 `includeInDeploymentPipeline`、`promotionOrder`、环境列表排序/过滤逻辑。
+- 影响页面：`src/pages/AppDetail/TabEnvironments.tsx`、`src/pages/ReleaseDetail/index.tsx`、环境 API 类型和 `@constants/cicd`。
+
+#### 2. Contracts
+- 环境记录需要透传 `includeInDeploymentPipeline?: boolean` 和 `promotionOrder?: number`。
+- 创建/编辑环境时允许配置是否参与部署流水线和非负整数顺序。
+- 默认值必须与服务端保持一致：`build` 不参与部署流水线且顺序 `0`；`dev/test/staging/prod` 参与部署流水线且顺序分别为 `10/20/30/40`；未知类型兜底顺序 `100`。
+- Release 详情的“部署流水线”必须通过 `listEnvironments({ includeInDeploymentPipeline: true })` 获取，由服务端负责过滤和排序。
+- Release 详情如果还需要显示构建环境名称，应使用未过滤的环境列表或单独详情数据，避免 `build` 环境因默认不参与部署流水线而无法回显名称。
+
+#### 3. Good/Base/Bad Cases
+- Good: 环境管理页展示参与状态和顺序；Release 部署流只展示参与流水线的环境；构建环境名称仍能正常回显。
+- Base: 旧数据缺少新增字段时，前端按服务端默认值展示。
+- Bad: Release 详情复用过滤后的部署环境列表去查构建环境名称，导致构建环境显示成 ID。
+
+#### 4. Tests Required
+- 定向 lint 覆盖 `TabEnvironments`、`ReleaseDetail`、环境 API 类型和常量。
+- Type-check 覆盖新增字段、表单值和请求参数。
+- 手工联调覆盖 `build` 默认不参与、`dev/test/staging/prod` 默认顺序，以及 Release 部署流过滤结果。
+
 ### 创建成功后跳转
 
 创建类页面在成功后应跳转到详情页，而非 `navigate(-1)`：

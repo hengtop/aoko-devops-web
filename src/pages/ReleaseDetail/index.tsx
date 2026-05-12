@@ -592,6 +592,7 @@ export default function ReleaseDetail() {
   const [release, setRelease] = useState<ReleaseRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [environments, setEnvironments] = useState<EnvironmentRecord[]>([]);
+  const [allEnvironments, setAllEnvironments] = useState<EnvironmentRecord[]>([]);
   const [deployments, setDeployments] = useState<DeploymentRecord[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedEnv, setSelectedEnv] = useState<EnvironmentRecord | null>(null);
@@ -634,9 +635,18 @@ export default function ReleaseDetail() {
 
   useEffect(() => {
     if (release?.applicationId) {
-      listEnvironments({ applicationId: release.applicationId, pageNum: 1, pageSize: 20 }).then(
-        (res) => { if (res.success) setEnvironments(res.data?.list ?? []); },
-      );
+      listEnvironments({
+        applicationId: release.applicationId,
+        pageNum: 1,
+        pageSize: 50,
+      }).then((res) => { if (res.success) setAllEnvironments(res.data?.list ?? []); });
+
+      listEnvironments({
+        applicationId: release.applicationId,
+        includeInDeploymentPipeline: true,
+        pageNum: 1,
+        pageSize: 20,
+      }).then((res) => { if (res.success) setEnvironments(res.data?.list ?? []); });
     }
   }, [release?.applicationId]);
 
@@ -929,7 +939,10 @@ export default function ReleaseDetail() {
                   </Descriptions.Item>
                   <Descriptions.Item label="构建环境">
                     {release.environmentId
-                      ? (environments.find((e) => (e.id ?? e._id) === release.environmentId)?.name ?? release.environmentId)
+                      ? (
+                        allEnvironments.find((e) => (e.id ?? e._id) === release.environmentId)?.name ??
+                        release.environmentId
+                      )
                       : <span style={{ color: "var(--color-warning)" }}>未配置</span>
                     }
                   </Descriptions.Item>

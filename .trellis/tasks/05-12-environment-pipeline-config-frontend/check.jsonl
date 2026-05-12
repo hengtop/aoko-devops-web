@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Verify form/table UI follows project conventions"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Verify build/lint expectations"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Verify API field typing and enum constants"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Verify frontend environment contract matches backend defaults and filters"}
