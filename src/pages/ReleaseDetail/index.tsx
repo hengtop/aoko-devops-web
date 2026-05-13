@@ -731,6 +731,22 @@ export default function ReleaseDetail() {
     }
   }
 
+  async function handleCancelBuild() {
+    if (!releaseId) return;
+    setActionLoading(true);
+    try {
+      const res = await cancelRelease(releaseId, "用户取消构建");
+      if (res.success) {
+        message.success("已提交取消构建请求");
+        loadRelease();
+      } else {
+        message.error(Array.isArray(res.msg) ? res.msg.join("，") : (res.msg ?? "取消构建失败"));
+      }
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
   const status = release?.status;
   const isBuilding = status === "building";
   const isBuildFailed = status === "build_failed";
@@ -749,6 +765,7 @@ export default function ReleaseDetail() {
     isReady;
   const canMarkReady = isBuildSuccess || isTestSuccess;
   const canMarkNotReady = isReady;
+  const canCancelBuild = isBuilding;
   const canCancel =
     status === "draft" ||
     isPending ||
@@ -880,11 +897,24 @@ export default function ReleaseDetail() {
                     onClick={() => { loadRelease(); loadDeployments(); }}
                   />
                 </Tooltip>
-                <Popconfirm title="确认取消本次迭代？" onConfirm={handleCancel} disabled={!canCancel}>
-                  <Button danger icon={<StopOutlined />} loading={actionLoading} disabled={!canCancel}>
-                    取消迭代
-                  </Button>
-                </Popconfirm>
+                {canCancelBuild && (
+                  <Popconfirm
+                    title="确认取消正在执行的构建？"
+                    description="取消后会中断当前构建命令并停止后续构建步骤，迭代状态将变为已取消。"
+                    onConfirm={handleCancelBuild}
+                  >
+                    <Button danger icon={<StopOutlined />} loading={actionLoading}>
+                      取消构建
+                    </Button>
+                  </Popconfirm>
+                )}
+                {canCancel && (
+                  <Popconfirm title="确认取消本次迭代？" onConfirm={handleCancel}>
+                    <Button danger icon={<StopOutlined />} loading={actionLoading}>
+                      取消迭代
+                    </Button>
+                  </Popconfirm>
+                )}
               </Space>
             </div>
 

@@ -230,12 +230,15 @@ if (res.success) {
 - `POST /release/ready/:id`：标记就绪。
 - `POST /release/unready/:id`：取消就绪，回到 `build_success`。
 - `POST /release/cancel/:id`：取消迭代。
+- `POST /release/cancel/:id`：构建中取消构建时也复用该接口，传入构建取消原因。
 
 #### 3. Contracts
 - `build` 可从 `draft / pending / build_failed / build_success / test_success / ready` 进入 `building`。
 - `ready` 可从 `build_success / test_success` 进入。
 - `unready` 仅从 `ready` 回到 `build_success`。
+- `cancel` 可从 `building` 进入 `cancelled`，用于取消正在运行的构建。
 - `cancel` 仅在后端允许取消的非运行态展示可用；`ready` 不应直接取消。
+- “取消构建”入口只在 `building` 状态展示，不要在非构建态展示。
 
 #### 4. Validation & Error Matrix
 - 缺少 `environmentId` -> 前端先提示并打开构建配置。
@@ -245,8 +248,10 @@ if (res.success) {
 
 #### 5. Good/Base/Bad Cases
 - Good: `ready` 同时支持“重新构建”和“取消就绪”，部署入口只在 `ready` 打开。
+- Good: `building` 状态展示“取消构建”，并调用 `cancelRelease(releaseId, "用户取消构建")`。
 - Base: `build_success` 与 `test_success` 都能“标记就绪”。
 - Bad: 前端只允许 `build_failed` 重建，导致后端支持的 `ready -> building` 功能不可用。
+- Bad: 非 `building` 状态展示“取消构建”，让用户误以为可以取消不存在的运行中构建。
 
 #### 6. Tests Required
 - Type-check 覆盖新增 API path/function。

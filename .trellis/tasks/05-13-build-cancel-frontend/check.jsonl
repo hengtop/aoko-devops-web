@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Verify cancel build UI is only shown while building"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Verify release cancel API usage is typed"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Verify lint/typecheck/build expectations"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Verify frontend state gate matches backend building -> cancelled transition"}
