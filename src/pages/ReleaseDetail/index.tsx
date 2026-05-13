@@ -753,16 +753,18 @@ export default function ReleaseDetail() {
   const isPending = status === "pending";
   const isBuildSuccess = status === "build_success";
   const isTestSuccess = status === "test_success";
-  const isCancelled = status === "cancelled" || status === "archived";
+  const isCancelled = status === "cancelled";
+  const isArchived = status === "archived";
   const isReady = status === "ready";
-  // 后端状态机允许 draft/pending/build_failed/build_success/test_success/ready 进入 building
+  // cancelled 表示当前构建轮次被取消，迭代仍允许重新进入 building；archived 才是不可构建终态。
   const canBuild =
     status === "draft" ||
     isPending ||
     isBuildFailed ||
     isBuildSuccess ||
     isTestSuccess ||
-    isReady;
+    isReady ||
+    isCancelled;
   const canMarkReady = isBuildSuccess || isTestSuccess;
   const canMarkNotReady = isReady;
   const canCancelBuild = isBuilding;
@@ -776,7 +778,7 @@ export default function ReleaseDetail() {
   const canDeploy = isReady;
   const buildButtonText = isBuilding
     ? "构建中…"
-    : isBuildFailed || isBuildSuccess || isTestSuccess || isReady
+    : isBuildFailed || isBuildSuccess || isTestSuccess || isReady || isCancelled
       ? "重新构建"
       : "构建";
 
@@ -844,7 +846,7 @@ export default function ReleaseDetail() {
                 <Tooltip title="编辑构建配置">
                   <Button
                     icon={<SettingOutlined />}
-                    disabled={isCancelled || isBuilding || isReady}
+                    disabled={isArchived || isBuilding || isReady}
                     onClick={() => setBuildConfigOpen(true)}
                   >
                     配置构建
@@ -942,10 +944,10 @@ export default function ReleaseDetail() {
                 title={<Space><PlayCircleOutlined />构建信息</Space>}
                 extra={
                   <Space size={4}>
-                    {!release.environmentId && !isCancelled && (
+                    {!release.environmentId && !isArchived && (
                       <Tag color="warning">未配置构建环境</Tag>
                     )}
-                    {!release.buildConfig?.buildCommands?.length && !isCancelled && (
+                    {!release.buildConfig?.buildCommands?.length && !isArchived && (
                       <Tag color="warning">未配置构建命令</Tag>
                     )}
                   </Space>
@@ -1015,7 +1017,7 @@ export default function ReleaseDetail() {
               <Title level={5} style={{ margin: 0 }}>
                 部署流水线
               </Title>
-              {!canDeploy && !isCancelled && (
+              {!canDeploy && !isArchived && (
                 <Text type="secondary" style={{ fontSize: 12, marginLeft: 8 }}>
                   （需先标记为「就绪」才可发起部署）
                 </Text>

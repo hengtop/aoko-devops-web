@@ -233,12 +233,14 @@ if (res.success) {
 - `POST /release/cancel/:id`：构建中取消构建时也复用该接口，传入构建取消原因。
 
 #### 3. Contracts
-- `build` 可从 `draft / pending / build_failed / build_success / test_success / ready` 进入 `building`。
+- `build` 可从 `draft / pending / build_failed / build_success / test_success / ready / cancelled` 进入 `building`。
 - `ready` 可从 `build_success / test_success` 进入。
 - `unready` 仅从 `ready` 回到 `build_success`。
 - `cancel` 可从 `building` 进入 `cancelled`，用于取消正在运行的构建。
 - `cancel` 仅在后端允许取消的非运行态展示可用；`ready` 不应直接取消。
 - “取消构建”入口只在 `building` 状态展示，不要在非构建态展示。
+- `cancelled` 表示当前构建轮次被取消，前端仍应允许配置构建和重新构建；`archived` 才按不可构建终态处理。
+- 联调时必须确认服务端 `StateMachineService` 同步允许 `ReleaseStatus.CANCELLED -> ReleaseStatus.BUILDING`，否则前端按钮可点但 `/release/build/:id` 会被后端拒绝。
 
 #### 4. Validation & Error Matrix
 - 缺少 `environmentId` -> 前端先提示并打开构建配置。
@@ -249,14 +251,16 @@ if (res.success) {
 #### 5. Good/Base/Bad Cases
 - Good: `ready` 同时支持“重新构建”和“取消就绪”，部署入口只在 `ready` 打开。
 - Good: `building` 状态展示“取消构建”，并调用 `cancelRelease(releaseId, "用户取消构建")`。
+- Good: `cancelled` 状态展示“重新构建”，且不再展示“取消构建”。
 - Base: `build_success` 与 `test_success` 都能“标记就绪”。
 - Bad: 前端只允许 `build_failed` 重建，导致后端支持的 `ready -> building` 功能不可用。
 - Bad: 非 `building` 状态展示“取消构建”，让用户误以为可以取消不存在的运行中构建。
+- Bad: 把 `cancelled` 和 `archived` 合并为同一个禁用态，导致取消构建后无法再次构建。
 
 #### 6. Tests Required
 - Type-check 覆盖新增 API path/function。
 - 定向 lint 覆盖 `ReleaseDetail` 操作区。
-- 手工联调覆盖 `build_success` 标记就绪、`ready` 取消就绪、`ready` 重新构建。
+- 手工联调覆盖 `build_success` 标记就绪、`ready` 取消就绪、`ready` 重新构建、`cancelled` 重新构建。
 
 #### 7. Wrong vs Correct
 
@@ -272,6 +276,7 @@ const canBuild = [
   "build_success",
   "test_success",
   "ready",
+  "cancelled",
 ].includes(status);
 ```
 
