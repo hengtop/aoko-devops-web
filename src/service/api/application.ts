@@ -19,6 +19,7 @@ export interface ApplicationRecord {
   template_id?: string;
   repo_default_branch?: string;
   repo_credential_id?: string;
+  docker_credential_id?: string;
   repo_provider_type?: RepositoryProvider;
   createdAt?: string;
   updatedAt?: string;
@@ -37,6 +38,7 @@ export interface CreateApplicationParams {
   template_id?: string;
   repo_default_branch?: string;
   repo_credential_id?: string;
+  docker_credential_id?: string;
   repo_provider_type?: RepositoryProvider;
   template_init_message?: string;
 }

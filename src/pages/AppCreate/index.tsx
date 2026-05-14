@@ -60,6 +60,7 @@ type FormValues = {
   repo_url?: string;
   repo_default_branch?: string;
   repo_credential_id?: string;
+  docker_credential_id?: string;
   repo_provider_type?: RepositoryProvider;
   templateMode: TemplateMode;
   template_id?: string;
@@ -169,6 +170,7 @@ export default function AppCreate() {
   const [products, setProducts] = useState<ProductRecord[]>([]);
   const [templates, setTemplates] = useState<TemplateRecord[]>([]);
   const [credentials, setCredentials] = useState<CredentialRecord[]>([]);
+  const [dockerCredentials, setDockerCredentials] = useState<CredentialRecord[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [loadingTemplates, setLoadingTemplates] = useState(false);
   const [loadingCredentials, setLoadingCredentials] = useState(false);
@@ -247,9 +249,27 @@ export default function AppCreate() {
       }
     }
 
+    async function loadDockerCredentials() {
+      try {
+        const res = await listCredentials({
+          type: CREDENTIAL_TYPES.DOCKER_AUTH,
+          pageNum: 1,
+          pageSize: 100,
+        });
+        if (res.success && !cancelled) {
+          setDockerCredentials(res.data?.list ?? []);
+        }
+      } catch (error) {
+        if (!cancelled && !isHandledError(error)) {
+          messageApi.error(getErrorMessage(error, "Docker 凭据列表加载失败，请稍后重试"));
+        }
+      }
+    }
+
     void loadProducts();
     void loadTemplates();
     void loadCredentials();
+    void loadDockerCredentials();
 
     return () => {
       cancelled = true;
@@ -342,6 +362,7 @@ export default function AppCreate() {
           repo_default_branch:
             normalizeOptionalField(values.repo_default_branch) ?? DEFAULT_REPO_BRANCH,
           repo_credential_id: normalizeOptionalField(values.repo_credential_id),
+          docker_credential_id: normalizeOptionalField(values.docker_credential_id),
           repo_provider_type: values.repo_provider_type ?? inferRepositoryProvider(repoUrl),
           template_id: useTemplate ? values.template_id : undefined,
           template_init_message: useTemplate
@@ -592,6 +613,28 @@ export default function AppCreate() {
                       allowClear
                       showSearch
                       options={credentials.map((item) => ({
+                        value: getRecordId(item),
+                        label: getCredentialLabel(item),
+                      }))}
+                      filterOption={(input, opt) =>
+                        String(opt?.label ?? "")
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Docker 构建凭据"
+                    name="docker_credential_id"
+                    extra="用于构建时登录 Docker 镜像仓库"
+                  >
+                    <Select
+                      placeholder="选择 Docker 认证凭据"
+                      loading={loadingCredentials}
+                      allowClear
+                      showSearch
+                      options={dockerCredentials.map((item) => ({
                         value: getRecordId(item),
                         label: getCredentialLabel(item),
                       }))}
